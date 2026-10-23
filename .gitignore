@@ -1,0 +1,40 @@
+# Local environments and interpreter caches
+.venv/
+.venv-*/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.pytest_cache/
+.cache/
+.jupyter/
+.mplconfig/
+
+# Data stays local; retain only directory markers
+/data/raw/**
+!/data/raw/.gitkeep
+/data/processed/**
+!/data/processed/.gitkeep
+*.csv
+*.parquet
+*.feather
+*.pkl
+*.joblib
+*.zip
+
+# Credentials and local configuration
+.env
+.env.*
+.kaggle/
+kaggle.json
+credentials.json
+access_token
+*.pem
+*.key
+
+# Generated book and package files
+_build/
+_exports/
+node_modules/
+.myst/
+*.egg-info/
+.DS_Store

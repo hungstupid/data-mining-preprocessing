@@ -1,0 +1,14 @@
+# See docs at: https://mystmd.org/guide/frontmatter
+version: 1
+project:
+  id: bf3a2710-bde8-4f6e-8762-0e504784c2ef
+  title: HCMUS Data Preprocessing — WiDS 2024
+  description: Individual Data Mining and Applications project using WiDS Datathon 2024 Challenge 1.
+  github: https://github.com/hungstupid/data-mining-preprocessing
+  toc:
+    - file: book/index.md
+    - file: book/tabular/index.md
+    - file: book/text/index.md
+site:
+  template: book-theme
+  title: HCMUS Data Preprocessing

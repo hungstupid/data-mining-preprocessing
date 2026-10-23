@@ -1,0 +1,50 @@
+# HCMUS Data Preprocessing
+
+An individual **Data Mining and Applications** project at the University of
+Science, VNU-HCM (HCMUS).
+
+This book will document reproducible data preprocessing decisions and their
+evaluation. The current version establishes the environment, validates the input
+schema, and prepares publication. Experiments and evaluations are pending.
+
+## Dataset and project scope
+
+The tabular section uses [WiDS Datathon 2024 — Challenge #1](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/data),
+a healthcare classification dataset concerning diagnosis delays. The binary
+target is `DiagPeriodL90D`; `patient_id` identifies records. Use the official
+competition dictionary and rules when interpreting the variables.
+
+- [Tabular preprocessing](tabular/index.md): dataset access and validation setup;
+  experimental work will be added later.
+- [Text preprocessing](text/index.md): reserved for a future, separately defined task.
+
+## Reproduce the workspace
+
+Clone the [project repository](https://github.com/hungstupid/data-mining-preprocessing)
+and use its root directory. The verified interpreter and package versions are
+recorded in `.python-version`, `requirements.txt`, and `requirements-lock.txt`.
+For a fresh checkout with Python 3.13 installed:
+
+```bash
+python3.13 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-lock.txt
+python -m pip check
+```
+
+Node.js 24.x and npm are also required for the book. Preview with
+`jupyter book start` or produce static HTML with `jupyter book build --html`.
+These pages render independently of the raw dataset and Kaggle credentials.
+
+For data validation, first authenticate with Kaggle and accept any required
+competition rules, then download and extract the official files into `data/raw/`:
+
+```bash
+kaggle competitions download widsdatathon2024-challenge1 -p data/raw
+python -m zipfile -e data/raw/widsdatathon2024-challenge1.zip data/raw
+python src/validate_dataset.py
+```
+
+Raw and processed datasets, credentials, environments, and generated HTML stay
+outside version control. The repository README contains complete environment,
+kernel, validation, and GitHub Pages instructions.
