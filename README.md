@@ -185,7 +185,9 @@ committing so that raw records and credentials are not published accidentally.
 `.github/workflows/deploy.yml` builds the Markdown book and prepares a Pages
 artifact without downloading competition data or installing the data-science stack.
 It uses the same pinned Jupyter Book version as the local environment, Node 24,
-and the repository subpath through `BASE_URL`. The workflow definition follows
+and the repository subpath through `BASE_URL`. CI selects an available Python 3.13
+patch release because the local 3.13.3 pin is unavailable on Ubuntu 26.04 runners.
+The workflow definition follows
 the [supported Jupyter Book / MyST deployment approach](https://mystmd.org/guide/deployment-github-pages).
 
 Publishing is a separate, manual step: in the GitHub repository, select
