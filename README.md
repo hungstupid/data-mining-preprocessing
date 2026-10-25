@@ -160,7 +160,7 @@ The EDA notebook below contains results computed from the local training CSV.
 `book/tabular/01_eda.ipynb` audits the 12,906-row, 83-column training CSV, semantic
 feature roles, missingness, distributions, categorical support, and relationships.
 It reads `patient_zip3` as a string geographic code and audits its literal CSV
-tokens, excludes clinical fields with unverified timing from target-association
+tokens, excludes diagnosis/treatment code-text fields from target-association
 tests, and reports seven declared exploratory reference comparisons with effect
 sizes and Holm-adjusted reference p-values. These comparisons are not preregistered. It
 does not infer MCAR/MAR/MNAR, code meanings, or causal effects from these results.
@@ -172,6 +172,14 @@ Run its numerical checks with `python -m unittest discover -s tests -v`.
 It was also checked against the published `naniar` airquality example. The WiDS
 age/BMI calculation is a limited normal-model reference; an assumption-supported
 cohort-wide MCAR verdict remains **BLOCKED**, not converted into a MAR/MNAR claim.
+The selective review of commit `3baa00b` adds an official-source/timing audit and
+wider-scope feasibility diagnostics without adding Little p-values. The official
+[data dictionary](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/data)
+identifies BMI and treatment recording after metastatic diagnosis. BMI's existing
+target comparisons remain retrospective diagnostics; neither BMI nor its missingness
+indicator is approved for prediction before that event. Contextual repetition,
+sparse missing patterns and covariance dependencies leave broader calibrated MCAR
+inference unresolved; numerical convergence alone does not resolve them.
 The standalone validator reports inferred dtype counts; the notebook separately
 reviews semantic roles, so numeric-looking codes are not continuous variables.
 
