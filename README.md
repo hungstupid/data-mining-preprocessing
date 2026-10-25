@@ -1,5 +1,12 @@
 # HCMUS Data Preprocessing — WiDS 2024
 
+**Student:** Nguyễn Đức Hưng — **Student ID:** 24127174.
+
+Official assignment: [HCMUS preprocessing project](https://hcmus-cs-ta.github.io/lab-book/data-mining/projects/preprocessing/).
+The complete requirements and grading were audited on 25 October 2026; see
+[RUBRIC_AUDIT.md](RUBRIC_AUDIT.md) for before/final traceability, unresolved
+statistical assumptions, and the exact later-stage checklist.
+
 Individual project for **Data Mining and Applications, HCMUS**. This repository
 provides a reproducible Python workspace and a Jupyter Book 2 publication scaffold.
 Preprocessing experiments, evaluations, and model training have not been implemented.
@@ -30,7 +37,9 @@ data-mining-preprocessing/       # actual cloned Git repository
 ├── myst.yml                    # Jupyter Book 2 / MyST configuration
 ├── book/
 │   ├── index.md
-│   ├── tabular/index.md
+│   ├── tabular/
+│   │   ├── index.md
+│   │   └── 01_eda.ipynb          # read-only EDA with locally computed outputs
 │   └── text/index.md
 ├── data/
 │   ├── raw/                    # local, unmodified competition files
@@ -119,26 +128,83 @@ See the [official Kaggle authentication documentation](https://github.com/Kaggle
 ## Validate the dataset
 
 ```bash
-python src/validate_dataset.py
+python src/validate_dataset.py --csv data/raw/training.csv \
+  --min-rows 10000 --min-features 10 --min-numeric 1 --min-categorical 1
 ```
 
 The validator searches `data/raw/` recursively, ignores filename capitalization,
 and identifies training CSVs by their required columns. When multiple files match,
 choose explicitly with `python src/validate_dataset.py --csv data/raw/training.csv`.
+Use this explicit path with the official files: `sample_submission.csv` also has
+ID and target columns, so those headers alone do not identify training data.
 It loads data read-only and reports dimensions, deep DataFrame memory, target
 balance, missingness, inferred feature types, duplicate IDs/rows, constants,
 near-constants, categorical cardinality, and possible missing-value sentinels.
 The default near-constant threshold is 95% of non-missing values. Sentinel reports
 are suggestions for later review, not replacements or confirmed missingness.
 
-Course minimum thresholds were not included in the setup request. Supply the
-actual rubric values through `--min-rows`, `--min-features`, `--min-numeric`, and
-`--min-categorical`. Feature counts exclude target and ID. Until all four values
-are supplied, course compliance is reported as **UNCONFIRMED**. Exit status 0
+The official tabular choice requires at least 10 attributes, 10,000 rows, both
+numerical and categorical attributes, and at least 5% missingness in one attribute.
+The notebook checks all four requirements on actual data. The validator's command
+above checks structural minima conservatively on features excluding target/ID;
+its dtype counts do not replace the semantic audit or the notebook's 5% missingness
+check. Without explicit `--min-*` values, the standalone validator reports
+structural compliance as **UNCONFIRMED**. Exit status 0
 means supplied checks passed, 1 means integrity/threshold failure, and 2 means
 missing/unreadable input or invalid schema. Exit 0 alone does not certify a rubric.
-Missing raw data is expected until the download is completed; no real-dataset
-validation results are included in this scaffold.
+If raw data is absent, the validator reports the missing input explicitly.
+The EDA notebook below contains results computed from the local training CSV.
+
+## Stage 01 — Exploratory Data Analysis
+
+`book/tabular/01_eda.ipynb` audits the 12,906-row, 83-column training CSV, semantic
+feature roles, missingness, distributions, categorical support, and relationships.
+It reads `patient_zip3` as a string geographic code and audits its literal CSV
+tokens, excludes clinical fields with unverified timing from target-association
+tests, and reports seven declared exploratory reference comparisons with effect
+sizes and Holm-adjusted reference p-values. These comparisons are not preregistered. It
+does not infer MCAR/MAR/MNAR, code meanings, or causal effects from these results.
+The mandatory rubric corrections add per-feature Shapiro/D’Agostino normality
+tables, both full numerical correlation matrices/heatmaps and the complete strong-pair
+union, and actual `missingno.matrix` views. `src/little_mcar.py` implements the
+Gaussian ML/EM version of Little's mean-pattern statistic using existing NumPy/SciPy.
+Run its numerical checks with `python -m unittest discover -s tests -v`.
+It was also checked against the published `naniar` airquality example. The WiDS
+age/BMI calculation is a limited normal-model reference; an assumption-supported
+cohort-wide MCAR verdict remains **BLOCKED**, not converted into a MAR/MNAR claim.
+The standalone validator reports inferred dtype counts; the notebook separately
+reviews semantic roles, so numeric-looking codes are not continuous variables.
+
+The reviewed notebook also compares relative and absolute category-support
+diagnostics and proposes a ZIP-aware validation protocol. All labeled rows have
+already informed EDA: a later split of this CSV is a **post-EDA internal
+assessment**, not a completely untouched test set. Learn future preprocessing
+rules only within development training folds; confirm the deployment question
+and evaluation protocol before running experiments.
+
+With `.venv` active, rerun from the repository root:
+
+```bash
+python -m nbconvert --to notebook --execute --inplace \
+  --ExecutePreprocessor.kernel_name=hcmus-wids \
+  --ExecutePreprocessor.timeout=180 book/tabular/01_eda.ipynb
+```
+
+Alternatively open the notebook, select **Python (HCMUS WiDS .venv)**, restart the
+kernel, and run all cells. Root discovery also works from `book/tabular/`. The
+direct `python -m nbconvert` form uses the active interpreter's package instead
+of letting the Jupyter dispatcher select a global executable from `PATH`. The
+notebook reads exactly `data/raw/training.csv`; it never uses the submission
+template or test CSV. Its final cell verifies the raw-file checksum and the
+loaded frame's values, index, dtypes, and shape. No transformed dataset is saved.
+
+Publication uses the aggregate tables, figures, and interpretation outputs saved
+inside the executed `.ipynb`. The existing Pages workflow builds **without
+`--execute`**, so MyST renders those stored outputs without Kaggle credentials,
+the CSV, or the notebook kernel. See the [MyST execution documentation](https://mystmd.org/guide/execute-notebooks).
+Keep the executed outputs when preparing publication; if they are cleared, rerun
+locally before publishing. Raw patient rows and IDs are not displayed. Executing
+EDA requires local data even though rendering the book does not.
 
 ## Preview and build the book
 
@@ -174,6 +240,10 @@ later as notebooks under `book/tabular/`, using the project kernel, explicit
 random seeds, documented decisions, and leakage-safe train/validation splits.
 Add notebooks to the explicit `project.toc` in `myst.yml`. The text section is
 reserved for later work; no text dataset or text processing is configured.
+Under the official assignment, part (b) is **mandatory**: choose image or text in
+addition to the tabular choice in part (a). The text placeholder does not satisfy
+that requirement. Advanced items and ambiguities between prose and grading tables
+are recorded separately in the audit; they are not silently counted as completed.
 
 Use `python -m pip check` after dependency changes and refresh both version files
 from the successfully tested environment. Confirm Git exclusions with
@@ -201,7 +271,7 @@ The intended public address after a successful deployment is
 assert that the site is already live. Remote Actions execution and Pages
 deployment must be verified after the owner authorizes publication.
 
-## Setup verification — 23 October 2026
+## Initial setup verification — 23 October 2026
 
 - Python 3.13.3 in `.venv`; pip 25.0.1; `pip check` passed.
 - All 15 direct dependencies imported successfully. Kaggle import/CLI checks used
@@ -210,8 +280,9 @@ deployment must be verified after the owner authorizes publication.
   authentication was configured or credentials created by these checks.
 - The `hcmus-wids` kernel executed an in-memory notebook with the project's
   `.venv/bin/python`; no placeholder notebook was saved.
-- Validator checks passed on synthetic fixtures, including input byte preservation.
-  The official WiDS CSV remains unavailable; its validation is blocked on download.
+- Validator checks initially passed on synthetic fixtures, including input byte preservation.
+  The official WiDS CSV was unavailable at initial setup; the Stage 01 notebook
+  above now records analysis of the subsequently obtained local training CSV.
 - Jupyter Book 2.1.7 generated static HTML for all three pages with the Pages
   subpath. The initial theme download timed out; the retry succeeded.
 - MyST/workflow YAML, workflow shell syntax, TOC paths, dependency pins, and Git

@@ -8,6 +8,8 @@ project:
   toc:
     - file: book/index.md
     - file: book/tabular/index.md
+      children:
+        - file: book/tabular/01_eda.ipynb
     - file: book/text/index.md
 site:
   template: book-theme

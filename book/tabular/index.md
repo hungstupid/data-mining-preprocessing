@@ -8,18 +8,36 @@ Keep official CSV files unchanged under the local `data/raw/` directory.
 
 ## Structural validation
 
-Run `python src/validate_dataset.py` from the repository root after downloading
+Run `python src/validate_dataset.py --csv data/raw/training.csv` from the repository root after downloading
 and extracting the official data. The validator locates the training CSV by its
 schema and reports dimensions, memory, missingness, type counts, class balance,
 duplicates, low-variance columns, categorical cardinality, and possible sentinels.
 It performs no cleaning or transformations.
 
-Actual dataset results are pending local data access. Course structural
-compliance also requires the thresholds from the course rubric; the validator
+The local training CSV contains 12,906 rows and 83 columns. Course structural
+compliance still requires the thresholds from the course rubric; the validator
 accepts these as explicit command-line options documented in the README.
+
+## 01 — Exploratory Data Analysis
+
+[Read the executed EDA notebook](01_eda.ipynb) for input checks, semantic feature
+roles, temporal leakage review, missingness, distributions, categorical support,
+Pearson/Spearman relationships, and seven exploratory statistical comparisons.
+The findings table links numerical evidence to candidate methods and unresolved
+questions. Diagnostic thresholds are documented choices, not treatment rules.
+
+The notebook reads only `data/raw/training.csv` and verifies that both the raw
+file and loaded frame remain unchanged. ZIP codes are categorical identifiers;
+disease-code meanings, target polarity, units, and feature timestamps remain
+unverified unless an authoritative source is obtained.
+
+Saved aggregate outputs allow the book to render without private CSV access or
+notebook execution in CI. Recomputing EDA requires the local training file and
+the `.venv` kernel; see the repository README for the command.
 
 ## Planned work
 
-Preprocessing experiments and evaluations will be added after dataset validation
-and confirmation of the course requirements. No imputation, outlier treatment,
-scaling, feature selection, resampling, or model training has been performed.
+Preprocessing experiments and evaluations remain future work, subject to
+confirmation of temporal eligibility and course requirements. No imputation,
+outlier treatment, scaling, feature selection, resampling, or model training
+has been performed.
