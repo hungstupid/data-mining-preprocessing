@@ -3,9 +3,12 @@
 An individual **Data Mining and Applications** project at the University of
 Science, VNU-HCM (HCMUS).
 
-This book will document reproducible data preprocessing decisions and their
-evaluation. The current version establishes the environment, validates the input
-schema, and prepares publication. Experiments and evaluations are pending.
+This book documents reproducible data preprocessing decisions and their evaluation.
+Stage 01 EDA is completed. Stage 02 numerical missing-value imputation is completed:
+69 numerical features, seven configurations, and raw/per-feature/normalized RMSE
+comparisons. Later preprocessing stages are pending; text preprocessing remains
+future work. These completed numerical experiments do not establish that the
+entire dataset is fully preprocessed or that all features are eligible for prediction.
 
 ## Dataset and project scope
 
@@ -14,8 +17,12 @@ a healthcare classification dataset concerning diagnosis delays. The binary
 target is `DiagPeriodL90D`; `patient_id` identifies records. Use the official
 competition dictionary and rules when interpreting the variables.
 
-- [Tabular preprocessing](tabular/index.md): dataset access and validation setup;
-  experimental work will be added later.
+- [Tabular preprocessing](tabular/index.md): dataset access, validation and current progress.
+- [Stage 01 — Exploratory Data Analysis](tabular/01_eda.ipynb): executed dataset audit,
+  distributions, relationships, missingness and temporal-eligibility limitations.
+- [Stage 02 — Numerical Missing Value Imputation](tabular/02_preprocessing.ipynb):
+  the original six-feature benchmark and the joint 69-feature comparison of Mean,
+  Median, Mode, kNN k=3/5/10 and MICE with three posterior completions.
 - [Text preprocessing](text/index.md): reserved for a future, separately defined task.
 
 ## Reproduce the workspace
