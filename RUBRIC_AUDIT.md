@@ -1,10 +1,111 @@
-# Rubric audit — EDA, imputation and Stage 03 Part 1: 26 October 2026
+# Rubric audit — EDA, imputation and completed Stage 03: 26 October 2026
 
 Source: https://hcmus-cs-ta.github.io/lab-book/data-mining/projects/preprocessing/
 
 The entire official HTML page was retrieved with HTTP 200 on 25 October 2026 and read through the grading/policy sections. The web-tool rendering failed, so the direct HTTP response was used. The page’s linked raw Markdown returned 404; it is not used as evidence. Requirements below are concise technical paraphrases, with exact numeric parameters preserved. Cell references in the initial audit are **zero-based indices of the original 29-cell notebook**. PASS records observed code/output evidence, not an inference from a clean run. Future work uses NOT VERIFIED; it does not count as completed.
 
-## Current Stage 03 — Part 1 of 3: IQR and Z-score
+## Current Stage 03 — completed Outlier Detection & Treatment
+
+Starting HEAD: `a1be75cbe6543bf1fc813996c7eb91d013568fa3`; initial working tree clean. The [complete official assignment](https://hcmus-cs-ta.github.io/lab-book/data-mining/projects/preprocessing/) was retrieved with HTTP 200 and read before implementation, including technical/reporting/grading sections. Current HTML SHA-256 is `8d2a4a6e79902495d8f13e50530baf78433059b9620a05a7956298defa391720`: the raw page changed, while its normalized Outlier Detection & Treatment requirement paragraph matches the earlier cached page. The [official competition dictionary](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/data) and installed sklearn/SciPy API documentation were also reviewed. BMI's documented post-metastatic timing and unresolved contextual periods/units/dictionary conflicts remain limitations; reconstruction eligibility does not establish prospective eligibility.
+
+### Preservation and experimental scope
+
+The existing preprocessing notebook is extended from 52 to **72 cells / 34 executed code cells**, appending zero-based cells 52–71, Sections 20–27. All preceding 52 cell sources, IDs and order are unchanged. Review found **no genuine blocking Part 1 bug**: observed-only linear quartiles, 1.5-IQR strict fences, population SD, strict |z|>3, NaN/degeneracy handling and aligned ANY-feature aggregation are correct. A high IQR row rate is not itself a defect. Historical Part 1 pending-work statements below and in Sections 16–19 are superseded by this completion record and Sections 20–27.
+
+All nine configurations use the same **8,173 inner-training row identities**. Validation 2,081 and reserved 2,652 records remain unchanged and are not used for detector calibration. Target, patient ID, ZIP and nominal clinical codes are excluded from numerical inputs. IQR/Z-score retain originally observed values; the seven new configurations reuse the same existing complete **8173×69** train-conditioned matrix, including 5,717 explicitly marked kNN10 estimates. No new imputer/scaler is fitted, no feature is dropped, and no detector-specific scope or evaluation subsample is introduced. This observed-versus-completed distinction is explicit in the comparison, so it is not an algorithm-only accuracy experiment.
+
+The complete representation contains **1,592 additional identical rows**, maximum multiplicity 11. Its 52 overlapping area-share coordinates, correlated contextual summaries, 69-dimensional Euclidean geometry, ZIP repetition, skewness and BMI imputation can influence neighborhoods/isolation. These are concrete interpretation risks, not proven causal explanations or reasons to silently alter the common scope. Detected thread pools and estimator jobs are limited to one; no full dense pairwise distance matrix is retained.
+
+### Nine executed primary configurations
+
+All rows below use N=8,173 and 69 features. Status PASS means successful execution and checks, not verified anomaly accuracy. IQR/Z-score use observed-only inputs; all other rows use shared kNN10/train-z inputs. No verified ground-truth error labels exist.
+
+| Method | Primary parameters | Flagged N | Flagged % | Would retain N | Status |
+|---|---|---:|---:|---:|---|
+| IQR | linear quartiles; strict 1.5 IQR; ANY | 4953 | 60.6020 | 3220 | PASS |
+| Z-score | observed mean/SD; ddof=0; strict absolute z>3; ANY | 1915 | 23.4308 | 6258 | PASS |
+| Isolation Forest .01 | contamination=.01; 100 trees; max_samples=auto (256); seed=42 | 81 | 0.9911 | 8092 | PASS |
+| Isolation Forest .05 | contamination=.05; remaining settings identical | 406 | 4.9676 | 7767 | PASS |
+| Isolation Forest .10 | contamination=.10; remaining settings identical | 817 | 9.9963 | 7356 | PASS |
+| LOF 10 | neighbors=10; contamination=auto; novelty=False; Euclidean | 1691 | 20.6901 | 6482 | PASS |
+| LOF 20 | neighbors=20; same policy and distance | 1536 | 18.7936 | 6637 | PASS |
+| LOF 50 | neighbors=50; same policy and distance | 1220 | 14.9272 | 6953 | PASS |
+| DBSCAN | eps=6.892189118008946; min_samples=20 including self; Euclidean | 291 | 3.5605 | 7882 | PASS |
+
+Fitted estimators, actual predictions, Boolean masks, parameters, runtime, IF raw scores/decisions and LOF negative scores remain inspectable in memory. IF label conversion is checked against decision<0 and score−offset; all three IF raw-score vectors are exactly identical. The nominal contamination settings threshold the same ranking; ties explain why proportions need not be exactly nominal. Standard 256-record IF tree subsampling is disclosed; fits/predictions cover the full training population. LOF actual neighborhood sizes are 10/20/50, auto offset is −1.5, score/label conversion is verified, and no fit warning was recorded. Scores are not calibrated probabilities and rates do not measure accuracy.
+
+**DBSCAN calibration:** min_samples=20 was declared before observing noise. Explicit `kneighbors(X, n_neighbors=20)` includes query/self (unlike X=None), so its final distance is to the nineteenth other neighbor. Sorted rank and distance are normalized to [0,1]; eps is the distance at the first maximum of normalized rank minus distance. The selected zero-based rank is 7,821, normalized chord gap 0.655092. Training k-distance median=1.312577, 95th percentile=6.753287, 99th=10.567842, maximum=22.636713. This deterministic elbow is a heuristic sensitive to tails/density/geometry, not an objectively unique boundary. Flat/zero-distance fallbacks are declared and tested; none is needed for the real fit. No noise-rate tuning, sensitivity grid, fallback or subset execution is used.
+
+Batched radius diagnostics find **6,127,787 directed neighborhood entries including self**, mean 749.76/max 2,579 neighbors. A conservative allocation estimate is **336.56 MiB**, explicitly not measured peak RSS; it passes the contemporaneous available-memory guard before the full fit. sklearn DBSCAN can still have quadratic neighborhood storage; chunked diagnostics are not a total RAM guarantee. One primary fit produces **16 non-noise clusters and 291 noise candidates (3.5605%)**, neither all-noise nor no-noise. Cluster labels/counts, core count and runtime are saved as aggregate outputs. Noise does not establish erroneous observations.
+
+### Agreement and hypothetical removal
+
+The notebook provides the complete **9×9 Jaccard matrix**, annotated heatmap, intersection/union count matrices and all **36 unique pairs** in memory. Arithmetic uses aligned Boolean masks/int64 counts and is checked independently with sets of actual training-row identities. Symmetry and nonempty diagonals are verified; empty/empty is undefined NaN, empty/nonempty is zero.
+
+| Pair | Intersection N | Union N | Jaccard |
+|---|---:|---:|---:|
+| IF .05 / IF .10 — highest | 406 | 817 | 0.496940 |
+| IQR / Z-score | 1915 | 4953 | 0.386634 |
+| LOF 10 / LOF 20 | 889 | 2338 | 0.380240 |
+| IQR / IF .01 — lowest | 81 | 4953 | 0.016354 |
+| IF .01 / LOF 10 | 36 | 1736 | 0.020737 |
+| IF .01 / LOF 50 | 31 | 1270 | 0.024409 |
+
+The lowest-ratio pair still contains **all 81 IF .01 flags within IQR's 4,953**: low Jaccard can reflect unequal set sizes, not disjoint decisions. IF threshold nesting also limits the meaning of its agreement. Agreement is not correctness and does not select treatment.
+
+Nine independent hypothetical retained subsets are created from the original observed numerical training frame, preserving indices/columns/known values/natural NaNs. Removal policies are not cumulative. The composition table reports all original/removed/retained counts, retention%, ZIP loss and BMI/all-cell missingness. IQR would lose **319/443 ZIP groups**, retaining 3,220 records from 124 ZIP groups. Z-score would lose 180 groups; DBSCAN would lose 52. Under LOF10 removal, observed BMI count falls from 2,531 to 1,586 and missingness rises from **69.0322% to 75.5322%**. These geographic/measurement selection changes argue against automatic deletion without validated benefit; no causal attribution to a particular source of geometry is asserted.
+
+### Observed-value KS distribution impact
+
+All **9×69=621** comparisons have sufficient finite observed support; none is unavailable and none produces numerical-zero/underflow p. Each result records policy, feature/semantic role, original/retained observed N, D, nominal p and validity/computation status in the expandable full table. Natural NaNs are dropped independently; no imputed value enters KS. `ks_2samp(alternative="two-sided", method="asymp")` is fixed for computationally practical large comparisons. Insufficient/nonfinite-support and zero/underflow handling are explicit and tested where relevant.
+
+| Hypothetical removal | Features evaluated | Median KS D | Maximum KS D | Largest-shift feature |
+|---|---:|---:|---:|---|
+| IQR | 69 | 0.157277 | 0.243606 | education_less_highschool — area share |
+| Z-score | 69 | 0.044664 | 0.075565 | rent_burden — contextual summary |
+| IF .01 | 69 | 0.003530 | 0.007267 | income_household_75_to_100 — area share |
+| IF .05 | 69 | 0.013548 | 0.033769 | income_household_75_to_100 — area share |
+| IF .10 | 69 | 0.025702 | 0.053237 | income_household_75_to_100 — area share |
+| LOF 10 | 69 | 0.009636 | 0.067298 | bmi — individual measure |
+| LOF 20 | 69 | 0.012187 | 0.048877 | bmi — individual measure |
+| LOF 50 | 69 | 0.020538 | 0.039516 | income_household_35_to_50 — area share |
+| DBSCAN | 69 | 0.007903 | 0.015522 | income_household_75_to_100 — area share |
+
+For the largest IQR shift, nominal p=**3.5430123916142145e−121**. This is not calibrated evidence of formal significance: retained observations are selected subsets of the original sample, and ZIP repetition/ties further violate classical independent-continuous-sample assumptions. **D is the primary descriptive measure.** No significance classification, multiple-testing correction, causal conclusion or p-based policy selection is made. Small D does not imply better data quality or predictive benefit. BMI/density ECDFs and illustrative policies were declared before outcomes; all features/policies remain in the full analysis.
+
+### Treatment decision and remaining limits
+
+**Adopted recommendation: preserve all original observations and retain all nine anomaly flags for investigation; automatic deletion=False.** Detection and hypothetical-removal distribution-impact evaluation are completed, and the conservative keep-all policy is explicitly selected. No verified anomaly truth, physical impossibility review or downstream benefit supports permanent deletion. IQR's sample/ZIP losses and LOF's BMI composition shift reinforce this caution; the recommendation is not a lowest-rate/Jaccard/p-value winner. Candidate subsets exist only in memory; no cleaned patient dataset is exported and neither holdout is removed or refitted.
+
+A final predictive pipeline remains future work: establish feature timestamps/units/clinical eligibility, fit appropriate transformations and detector policies inside development folds, respect training-versus-novelty APIs, test geographic/sample-selection consequences and predictive outcomes, then assess the reserve after choices are fixed. Unknown contextual periods, post-metastatic BMI, overlapping ZIP features, high missingness and imputation uncertainty remain scientific limits. Statistical rarity does not prove clinical/data-entry error.
+
+### Execution, correctness and publication verification
+
+- Fresh `.venv` kernel Restart / Run All executes all **34 code cells sequentially**, with saved actual outputs and no exception/stderr; notebook JSON/schema, cell IDs/uniqueness and structure validate. There are **27 passing notebook check groups**: 14 prior imputation, 6 Part 1 and 7 new verification groups.
+- New independent fixtures verify actual IF/LOF/DBSCAN label conversion and isolated noise, Jaccard identical/disjoint/partial/empty cases and invalid input, known KS D=.5/1, independent NaN dropping/unavailable support, nonmutating row filtering, and deterministic elbow/flat/zero-distance rules. Real-data checks verify all masks/predictions/counts, 36 independent set overlaps, KS bounds including the nested-mixture bound, full-data fixed-seed IF/fixed-order LOF repeats, protected-input exclusion and input/raw/holdout integrity.
+- All **five existing unit tests** pass without skips. Before/after comparison confirms exact equality of old sources/IDs, Stage 02 scores/per-feature matrices/masks/splits/settings/draw statistics, Part 1 thresholds/masks/counts and all four previous PNGs. Only runtimes/OS-memory snapshots refresh. kNN10 Macro NRMSE remains **0.6763300629944509**; MICE raw RMSE remains **12463.419984895585** and its **912 draw-cell support violations** remain documented, without clipping/model changes.
+- A source snapshot with **no data directory or CSV** builds all **five Jupyter Book pages** from saved outputs without `--execute`. Headless Chrome verifies both original seven-row imputation comparisons, all 69-row tables, nine primary detector/composition/KS-summary rows, full 621-row KS output, 9×9 matrix, seven new check rows, all eight new headings, **eight loaded figures and 15 KaTeX expressions with zero errors**. Tables/formulas/heatmap/plots are visually inspected; four homepage progress/navigation links return local HTTP 200. A Node `url.parse` deprecation warning does not prevent build. This is local publication evidence; remote deployment is not changed or newly verified.
+- Raw CSV SHA-256 remains `e9947ecfe1cdacafbf9cbcdc0abd024396f617c701b056fa54e5881f1bb9bbe9`; EDA SHA-256 remains `bdd5c5c602dd213b831dd9a69e550b97bd87aea51f128014cf1065457471b1d0`. All ten protected-file hashes match the initial snapshot. No private row-level patient table/ID, raw CSV or retained dataset is exposed in saved outputs or added to Git.
+
+Only `book/tabular/02_preprocessing.ipynb`, `book/tabular/index.md`, `book/index.md`, this audit and the relevant README progress section change. Setup/navigation and deployment workflow remain intact. No dependency/module, separate Scaling/encoding/selection experiment, classifier, commit, push or PR is added.
+
+| Stage 03 requirement | Status | Evidence / remaining scientific limitation |
+|---|---|---|
+| IQR | PASS | All 69 observed-only features; unchanged verified fences/flags |
+| Z-score | PASS | All 69; unchanged ddof 0 and strict threshold |
+| Isolation Forest .01/.05/.10 | PASS | All three full-population fits, stored scores/labels, reproducibility |
+| LOF 10/20/50 | PASS | All three full-population fits; explicit auto policy and actual k |
+| DBSCAN | PASS | One full fit; training-only documented eps/min_samples; memory guard |
+| Detection-rate comparison | PASS | Exactly nine same-index primary rows, counts/rates/scope/retained/status |
+| Jaccard overlap comparison | PASS | Full matrix/counts/heatmap; 36 pairs; synthetic and independent real checks |
+| KS distributional analysis | PASS | 621/621 observed-value comparisons, D/nominal-p validity limits, ECDFs |
+| Treatment interpretation | PASS | Independent removal comparisons, composition consequences, explicit keep-all adoption |
+| Notebook reproducibility | PASS | Fresh sequential Run All, 27 check groups, 5 unit tests, preserved prior experiment |
+| Jupyter Book presentation | PASS | CSV-free 5-page build, browser/visual checks, saved outputs |
+
+**Stage 03 is complete for the requested retrospective training-set scope and has no identified execution/analysis blocker before Stage 04 Scaling.** This is not a claim of 100% overall rubric marks, prospective clinical validity, public deployment or predictive improvement. Scaling is still a separate controlled experiment; scientific eligibility/dependence limits carry forward rather than disappearing after this stage.
+
+## Historical Stage 03 — Part 1 of 3: IQR and Z-score
 
 Starting HEAD: `ae2d0dc4b598825861b2500d0bc278d9a297ace5`; initial working tree clean. The replacement attachment is identical to the earlier Part 1 request. Source/rubric review was performed before implementation; official HTML returned HTTP 200 with unchanged SHA-256 `2cca63ea7b93788b4ae981e51ff92765d9e478d6c4d3469fa7458299a8d3dc38`. The named IQR/Z-score requirements are implemented here; this is **not full Outlier Detection & Treatment completion**. Earlier sections below record their dated Stage 01/02 handoffs.
 

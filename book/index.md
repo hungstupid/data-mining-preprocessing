@@ -6,8 +6,11 @@ Science, VNU-HCM (HCMUS).
 This book documents reproducible data preprocessing decisions and their evaluation.
 Stage 01 EDA is completed. Stage 02 numerical missing-value imputation is completed:
 69 numerical features, seven configurations, and raw/per-feature/normalized RMSE
-comparisons. Later preprocessing stages are pending; text preprocessing remains
-future work. These completed numerical experiments do not establish that the
+comparisons. Stage 03 Outlier Detection & Treatment is completed with nine detector
+configurations, Jaccard agreement and hypothetical-removal KS analysis. The treatment
+recommendation preserves original observations with review flags. Later scaling,
+encoding, feature-selection and predictive experiments are pending; text preprocessing
+remains future work. These completed numerical experiments do not establish that the
 entire dataset is fully preprocessed or that all features are eligible for prediction.
 
 ## Dataset and project scope
@@ -23,6 +26,10 @@ competition dictionary and rules when interpreting the variables.
 - [Stage 02 — Numerical Missing Value Imputation](tabular/02_preprocessing.ipynb):
   the original six-feature benchmark and the joint 69-feature comparison of Mean,
   Median, Mode, kNN k=3/5/10 and MICE with three posterior completions.
+- [Stage 03 — Outlier Detection & Treatment](tabular/02_preprocessing.ipynb):
+  Sections 16–27 compare all nine configurations on training data and justify a
+  conservative retention policy. KS D is descriptive; nominal p-values have
+  dependent-sample limitations. A final predictive pipeline remains future work.
 - [Text preprocessing](text/index.md): reserved for a future, separately defined task.
 
 ## Reproduce the workspace

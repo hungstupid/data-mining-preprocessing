@@ -61,7 +61,7 @@ Saved aggregate outputs render in CI without the CSV; recomputation requires the
 local data and `.venv` kernel. See README for the execution command and the audit
 for measured results and verification.
 
-## 03 — Outlier Analysis: Part 1 of 3
+## 03 — Outlier Detection & Treatment
 
 [Sections 16–19 of the preprocessing notebook](02_preprocessing.ipynb) add the
 69-feature training audit, IQR fences (1.5 × IQR) and strict absolute Z-score >3
@@ -76,13 +76,26 @@ are removed or exported, and neither detector is selected as a final treatment.
 Repeated ZIP context, overlapping shares, skewness and unknown outlier labels
 limit interpretation of the flag rates.
 
-Only Part 1 is implemented. Isolation Forest, LOF and DBSCAN (Part 2), Jaccard/KS
-comparisons and the treatment decision (Part 3) remain **NOT IMPLEMENTED**.
-Stage 03 is not complete.
+[Sections 20–27](02_preprocessing.ipynb) complete the stage with Isolation Forest
+contamination=.01/.05/.10, LOF neighbors=10/20/50 with contamination=auto, and one
+DBSCAN calibrated by a prespecified training-only k-distance heuristic. All seven
+new configurations use the same complete 69-feature conditioned training matrix.
+
+The executed nine-configuration comparison includes all aligned row flags, the full
+Jaccard matrix/counts, nine independent hypothetical retained subsets and 621
+observed-value KS comparisons. KS D describes distribution changes; nominal p-values
+are not calibrated because retained records are nested in the original sample,
+with ZIP repetition and ties. The conservative treatment recommendation keeps all
+original observations and retains anomaly flags for investigation. No final cleaned
+patient dataset is exported or predictive improvement claimed.
+
+Outlier Detection & Treatment is completed for this retrospective training scope;
+Sections 16–19 preserve the earlier Part 1 handoff. Final predictive preprocessing
+still requires temporal eligibility and fold-local downstream evaluation.
 
 ## Planned work
 
-Remaining outlier comparisons/treatment, full scaling and encoding comparisons, feature selection,
+Full scaling and encoding comparisons, feature selection,
 resampling and classifier evaluation remain future work. Internal train-fitted
 scaling in the imputation benchmark does not complete the separate scaling rubric.
 Temporal eligibility and source-period gaps must still be resolved for prediction.

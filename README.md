@@ -9,8 +9,9 @@ statistical assumptions, and the exact later-stage checklist.
 
 Individual project for **Data Mining and Applications, HCMUS**. This repository
 provides a reproducible Python workspace and a Jupyter Book 2 publication scaffold.
-Stage 01 EDA and Stage 02 controlled numerical imputation are implemented with
-saved local results. Later preprocessing comparisons and classifier training remain future work.
+Stage 01 EDA, Stage 02 controlled numerical imputation and Stage 03 Outlier
+Detection & Treatment are implemented with saved local results. Scaling/encoding/
+feature-selection comparisons and classifier training remain future work.
 
 ## Dataset
 
@@ -271,6 +272,25 @@ aggregate outputs, and build without `--execute` to render without private data.
 Natural missingness mechanisms, prospective availability and performance on
 naturally missing values remain unresolved. See [RUBRIC_AUDIT.md](RUBRIC_AUDIT.md)
 for results and the exact scope of completion.
+
+## Stage 03 — Outlier Detection & Treatment
+
+Sections 16–27 of [`02_preprocessing.ipynb`](book/tabular/02_preprocessing.ipynb)
+compare IQR, Z-score, Isolation Forest contamination=.01/.05/.10, LOF
+neighbors=10/20/50 (contamination=auto), and one DBSCAN configuration. Every flag
+uses the same inner-training row identities. Univariate thresholds use original
+observed measurements; multivariate methods share the 69-feature train-imputed,
+train-conditioned matrix. DBSCAN parameters come from the documented training-only
+k-distance procedure; no validation/reserve is used for calibration.
+
+The stage includes the full Jaccard matrix, hypothetical removal/composition
+summaries, and observed-value KS comparisons. KS D is descriptive; nominal p-values
+are exploratory under nested-sample/ZIP/tie dependence. The treatment decision
+preserves all original observations with anomaly flags for review. No cleaned
+patient dataset is exported and no downstream predictive benefit is claimed.
+Rerun the same preprocessing-notebook command above; keep saved aggregate outputs
+for CSV-free static publication. Internal conditioning does not complete the
+separate Scaling rubric. See the audit for actual results, tests and limitations.
 
 ## Preview and build the book
 
