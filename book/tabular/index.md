@@ -93,9 +93,32 @@ Outlier Detection & Treatment is completed for this retrospective training scope
 Sections 16–19 preserve the earlier Part 1 handoff. Final predictive preprocessing
 still requires temporal eligibility and fold-local downstream evaluation.
 
+## 04 — Controlled Scaling Comparison
+
+[Sections 28–36 of the preprocessing notebook](02_preprocessing.ipynb) compare
+MinMaxScaler [0,1], StandardScaler (population SD), RobustScaler (median/IQR), and
+QuantileTransformer with uniform and normal outputs. Both quantile outputs are
+an extension; the official rubric permits either. All five fit the same original-unit
+8173×69 completed training matrix, retaining every observation and the original
+imputation provenance. Validation/reserve and target/identifiers are not used for fitting.
+
+The executed comparison includes all 414 feature/representation summaries (original
+reference plus five transformations), fitted parameter audits and three violin figures
+covering six declared features with observed/imputed groups separated. A focused
+median-centered Levene diagnostic compares observed BMI across fixed training-age
+strata. Its p-values are nominal under ZIP dependence and fitted-data limitations;
+affine invariance is checked. No raw-versus-own-transformation variance test or
+p-value-based scaling winner is reported.
+
+Stage 04 Scaling is completed for this training-only descriptive comparison. Constant,
+tied and unseen-value behavior, mechanical properties and reproducibility are checked.
+Quantile target shapes are approximate, and imputation/contextual repetition affect
+their interpretation. Later model-dependent choices require fold-local fitting,
+temporal eligibility and held-out evaluation. Saved outputs render without CSVs in CI.
+
 ## Planned work
 
-Full scaling and encoding comparisons, feature selection,
-resampling and classifier evaluation remain future work. Internal train-fitted
-scaling in the imputation benchmark does not complete the separate scaling rubric.
+Stage 05 Categorical Encoding, feature selection,
+resampling and classifier evaluation remain future work. The completed Stage 04
+comparison is separate from internal scaling used by imputation/anomaly methods.
 Temporal eligibility and source-period gaps must still be resolved for prediction.

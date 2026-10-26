@@ -8,8 +8,10 @@ Stage 01 EDA is completed. Stage 02 numerical missing-value imputation is comple
 69 numerical features, seven configurations, and raw/per-feature/normalized RMSE
 comparisons. Stage 03 Outlier Detection & Treatment is completed with nine detector
 configurations, Jaccard agreement and hypothetical-removal KS analysis. The treatment
-recommendation preserves original observations with review flags. Later scaling,
-encoding, feature-selection and predictive experiments are pending; text preprocessing
+recommendation preserves original observations with review flags. Stage 04 Scaling is
+completed: five configurations on the same 69-feature training matrix, full numerical
+summaries, provenance-aware violins and a focused variance diagnostic. Stage 05 Categorical
+Encoding, feature-selection and predictive experiments are pending; text preprocessing
 remains future work. These completed numerical experiments do not establish that the
 entire dataset is fully preprocessed or that all features are eligible for prediction.
 
@@ -30,6 +32,9 @@ competition dictionary and rules when interpreting the variables.
   Sections 16–27 compare all nine configurations on training data and justify a
   conservative retention policy. KS D is descriptive; nominal p-values have
   dependent-sample limitations. A final predictive pipeline remains future work.
+- [Stage 04 — Scaling](tabular/02_preprocessing.ipynb): Sections 28–36 compare Min-Max,
+  Standard, Robust and both uniform/normal quantile transforms. Mechanical scaling
+  checks and training distributions do not select a predictive winner.
 - [Text preprocessing](text/index.md): reserved for a future, separately defined task.
 
 ## Reproduce the workspace

@@ -9,9 +9,10 @@ statistical assumptions, and the exact later-stage checklist.
 
 Individual project for **Data Mining and Applications, HCMUS**. This repository
 provides a reproducible Python workspace and a Jupyter Book 2 publication scaffold.
-Stage 01 EDA, Stage 02 controlled numerical imputation and Stage 03 Outlier
-Detection & Treatment are implemented with saved local results. Scaling/encoding/
-feature-selection comparisons and classifier training remain future work.
+Stage 01 EDA, Stage 02 controlled numerical imputation, Stage 03 Outlier
+Detection & Treatment and Stage 04 Scaling are implemented with saved local results.
+Stage 05 Categorical Encoding, feature-selection comparisons and classifier training
+remain future work.
 
 ## Dataset
 
@@ -42,7 +43,7 @@ data-mining-preprocessing/       # actual cloned Git repository
 │   ├── tabular/
 │   │   ├── index.md
 │   │   ├── 01_eda.ipynb          # read-only EDA with locally computed outputs
-│   │   └── 02_preprocessing.ipynb # controlled imputation benchmark; saved outputs
+│   │   └── 02_preprocessing.ipynb # numerical preprocessing comparisons; saved outputs
 │   └── text/index.md
 ├── data/
 │   ├── raw/                    # local, unmodified competition files
@@ -291,6 +292,22 @@ patient dataset is exported and no downstream predictive benefit is claimed.
 Rerun the same preprocessing-notebook command above; keep saved aggregate outputs
 for CSV-free static publication. Internal conditioning does not complete the
 separate Scaling rubric. See the audit for actual results, tests and limitations.
+
+## Stage 04 — Controlled Scaling Comparison
+
+Sections 28–36 of [`02_preprocessing.ipynb`](book/tabular/02_preprocessing.ipynb)
+compare Min-Max [0,1], StandardScaler (ddof 0), RobustScaler (median/IQR), and both
+uniform/normal QuantileTransformer outputs. All five fit the same original-unit
+69-feature complete training matrix, preserving all patients, original measurements
+and imputation provenance. Quantile fitting uses all training rows, 1,000 quantiles
+and seed 42. Neither holdout nor the target is used to fit/select scalers.
+
+The chapter retains all per-feature statistics and fitted parameters, three focused
+observed/imputed violin figures, and a median-centered Levene diagnostic for observed
+BMI across fixed training-age groups. P-values are nominal under dependence; affine
+scaling leaves this diagnostic invariant. Mechanical targets or marginal shape do not
+establish predictive superiority. Stage 05 Encoding and a validated predictive pipeline
+remain pending. Use the same execution command above; the saved-output build needs no CSV.
 
 ## Preview and build the book
 

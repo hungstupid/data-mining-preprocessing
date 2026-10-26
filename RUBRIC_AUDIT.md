@@ -1,10 +1,101 @@
-# Rubric audit — EDA, imputation and completed Stage 03: 26 October 2026
+# Rubric audit — EDA and completed numerical Stages 02–04: 26 October 2026
 
 Source: https://hcmus-cs-ta.github.io/lab-book/data-mining/projects/preprocessing/
 
 The entire official HTML page was retrieved with HTTP 200 on 25 October 2026 and read through the grading/policy sections. The web-tool rendering failed, so the direct HTTP response was used. The page’s linked raw Markdown returned 404; it is not used as evidence. Requirements below are concise technical paraphrases, with exact numeric parameters preserved. Cell references in the initial audit are **zero-based indices of the original 29-cell notebook**. PASS records observed code/output evidence, not an inference from a clean run. Future work uses NOT VERIFIED; it does not count as completed.
 
-## Current Stage 03 — completed Outlier Detection & Treatment
+## Current Stage 04 — completed controlled Scaling comparison
+
+Starting HEAD: `8a527795aaca85f2b0b1381d0a32e320bbec1341`; initial working tree clean. The complete [official assignment](https://hcmus-cs-ta.github.io/lab-book/data-mining/projects/preprocessing/) was retrieved with HTTP 200 and read again before editing, including tabular requirements, technical/reporting instructions and grading. Its HTML SHA-256 remains `8d2a4a6e79902495d8f13e50530baf78433059b9620a05a7956298defa391720`. The rubric requires Min-Max, Z-score, Robust and Quantile Transform with uniform **or** normal output; testing **both** quantile outputs is a deliberate extension. Levene is optional, and is included as one narrowly scoped diagnostic below. No overall grade or predictive improvement is claimed.
+
+### Source preservation, population and feature coverage
+
+Sections **28–36**, zero-based cells **72–91**, are appended to the existing preprocessing notebook: **92 cells / 44 executed code cells**. All previous 72 cell sources, IDs and order are preserved exactly; no preceding issue blocked Scaling and no historical experiment is rewritten. Earlier notebook statements deferring Scaling are explicitly superseded by Section 28. The EDA, raw data, configuration, dependencies and deployment workflow are unchanged.
+
+Every method starts from the same **8,173×69 original-unit completed training frame**, `outlier_common_train_raw`, copied as `scaling_train`. It does not start from the standardized view. Stage 03's keep-all recommendation is honored: no row filtering, detector choice, re-imputation, outlier-treatment experiment or change in sampling occurs. The 2,081 validation and 2,652 reserved rows are not fitted/transformed/scored to select scalers. Target, ID, ZIP and nominal clinical codes are excluded. No imputer/detector is refitted by the new cells; new fits are the five scalers and declared correctness repeats only.
+
+Original observed values are preserved exactly; all **5,717** estimated cells retain their provenance mask, including **5,642 BMI estimates** alongside **2,531 observed BMIs**. The 69-feature input audit checks finite values, unique row/column identities, constant/near-constant values, skewness and semantic/bounded roles. Actual constants=0, near-constants=0 under the declared >=99% identical-value convention, high-|skew|>1 completed columns=29, bounded area shares=52. These are descriptive tags, not exclusions or a new normality-testing study. Individual versus repeated ZIP context, post-metastatic BMI, unresolved periods/units and conflicting dictionary entries retain their previous cautions.
+
+### Five configurations and actual fitted properties
+
+Installed sklearn **1.9.1** supports `QuantileTransformer(subsample=None)`. All five estimators and complete transformed DataFrames remain in `scaling_models` / `scaling_frames`. Original is a reference, not a sixth method. The full 69-row parameter table records affine extrema/multipliers/offsets, means/variances/scales, medians/IQR scales, quantile-grid/distinct-knot counts and endpoint masses. Both quantile estimators retain their complete 1000×69 fitted knots and reference probabilities for inspection.
+
+| Configuration | Explicit settings | Actual training evidence |
+|---|---|---|
+| Min-Max | feature_range=(0,1), clip=False, copy=True | All 69 fitted minima map to 0; max endpoint error 2.22045e−16 |
+| Standard | with_mean=True, with_std=True, copy=True; ddof=0 | Max absolute mean 1.81874e−15; max absolute SD−1 error 2.22045e−16 |
+| Robust | centering/scaling=True; quantile_range=(25,75); unit_variance=False; copy=True | All 69 transformed medians 0 and IQRs 1 to measured precision |
+| Quantile Uniform | n_quantiles=1000, output=uniform, subsample=None, seed=42, copy=True | Finite outputs in [0,1]; feature SD range 0.288657–0.293802 |
+| Quantile Normal | n_quantiles=1000, output=normal, subsample=None, seed=42, copy=True | Finite outputs approximately [−5.199338,5.199338]; feature SD range 1.000244–1.669680 |
+
+All training rows contribute to both quantile fits; no quantile/subsampling parameter search is added. Uniform/normal fitted knots are exactly equal. Constants, zero-IQR scaling and quantile ties/endpoints are explained using sklearn semantics rather than arbitrary replacements of the source data. Min-Max `clip=False` permits future values outside [0,1]; quantile outputs saturate beyond fitted bounds, with finite normal-tail clipping. No extra clipping/jitter of the raw measurements is performed.
+
+### Full numerical evidence and comparative interpretation
+
+`scaling_full_summary` contains all **414 feature/representation rows** with N, mean, median, population SD, min/max, Q1/Q3/IQR, P01/P99, skewness and finiteness. The 69-row input audit and parameter table plus the 414-row summary render as expandable height-limited tables. The compact six-representation overview includes descriptive SD ranges, median absolute skew and runtime; raw-unit SD ranges do not rank feature quality or transformations. Maximum affine skewness change is **2.41585e−13**. Original/Min-Max/Standard/Robust all retain 29 high-|skew| features; Uniform has 0 and Normal has 2 under this descriptive threshold, without implying that any distribution is verified Gaussian or superior.
+
+Representative **density** results, computed from the same completed population:
+
+| Representation | Mean | Population SD | Median | IQR | Min / max | Skewness |
+|---|---:|---:|---:|---:|---|---:|
+| Original | 1336.089690 | 1894.117454 | 731.814286 | 1500.176062 | 0.916667 / 21172 | 3.798859 |
+| Min-Max | 0.063066 | 0.089467 | 0.034523 | 0.070860 | 0 / 1 | 3.798859 |
+| Standard | approximately 0 | 1 | −0.319027 | 0.792018 | −0.704905 / 10.472376 | 3.798859 |
+| Robust | 0.402803 | 1.262597 | 0 | 1 | −0.487208 / 13.625191 | 3.798859 |
+| Quantile Uniform | 0.500012 | 0.288723 | 0.498999 | 0.496997 | 0 / 1 | −0.000356 |
+| Quantile Normal | 0.002411 | 1.014442 | −0.002509 | 1.339555 | −5.199338 / 5.199338 | 0.135471 |
+
+Positive affine scaling changes units/location/scale while preserving within-feature shape, ordering and relative spacing. Min-Max density IQR=0.07086 illustrates central compression relative to its fitted extremes. Standard's unit SD does not remove the long tail; Robust's IQR scaling also leaves tails. Quantile mapping changes marginal spacing and can change Pearson relationships/distance geometry while remaining nondecreasing; it does not remove ZIP dependence or establish multivariate normality.
+
+The largest Quantile Normal SD is **1.669680 for `farmer`**, skew=−1.786716. Its uniform map has **648 records at the lower endpoint and one at the upper**, with 336 distinct fitted knots: these endpoint masses limit a Gaussian approximation. This is reported without inventing a new clinical/domain interpretation of the column. BMI observed-only SD=**5.798** versus **1.926** among imputed cells; observed-only skew=0.930413 versus completed skew=1.143179. Estimated-value concentration is not evidence that missing patients truly have lower variability. The provenance-separated violins make that representation difference visible after a pooled quantile fit.
+
+### Focused variance diagnostic and violin figures
+
+One prespecified individual-level feature, **observed BMI**, is compared between age<=training-median and age>training-median groups. The actual training median is **59**, with **1,323 / 1,208 observed BMI values**. Age provides an interpretable life-stage grouping for descriptive spread; no clinical mechanism or target-based stratification is asserted. Every representation uses identical group membership/observed support; imputed BMI never enters this diagnostic. Feasibility minimum=20 per group, not a power guarantee.
+
+| Representation | Median-centered Levene W | Nominal p |
+|---|---:|---:|
+| Original | 4.285634505 | 0.038537017 |
+| Min-Max | 4.285634505 | 0.038537017 |
+| Standard | 4.285634505 | 0.038537017 |
+| Robust | 4.285634505 | 0.038537017 |
+| Quantile Uniform | 3.825369583 | 0.050592163 |
+| Quantile Normal | 3.877852015 | 0.049036124 |
+
+This is `levene(center="median")` between **two nonoverlapping age groups within each representation**, not between measurements and their own scaled values. For any shared nonzero affine scale, centered absolute deviations multiply by |a| and both W sums of squares by a², so W/p remain invariant; the three affine rows verify this numerically. Nonlinear transforms may change group spread relationships. Repeated ZIP context, tied BMI, naturally missing-BMI selection and pooled fitted quantile maps limit independence/calibration. P-values are explicitly **nominal exploratory references**, with no formal significance classification, variance-equality acceptance, residual-homoscedasticity claim, clinical claim, multiple-testing correction or p-based winner. A nearby numerical p-value does not establish restored equal variances or predictive benefit.
+
+Three violin figures cover exactly six predeclared features: age, BMI, density, household income median, education share and PM25. Each feature has six panels in two rows of three, with **independent numerical axes** and original versus transformed units labeled. Observed/imputed values are separated and N printed; all training values are retained without tail trimming or sampling. Cut=0, quartile interiors, width normalization and smoothing limitations are explained; constant groups use points, missing provenance groups remain empty. Counts include PM25's 8,148 observed / 25 estimated values. No individual patient IDs/rows are printed or exported.
+
+### Recommendation, correctness and publication
+
+**No global scaling winner is declared.** Standard is a transparent candidate for mean/SD-conditioned distances and linear regularization; Robust is a candidate when central-IQR conditioning is useful, with tails retained; Min-Max is a candidate for training-range coordinates with future-range checks. Quantile outputs are candidates only where nonlinear reshaping/tail saturation is acceptable. Bounded shares and area-level income retain their original semantic cautions. Mechanical invariants, desired marginal shape, preserving meaningful information and predictive gains are different objectives. Later decisions need training-fold-local imputation/scaling, geographic separation, temporal eligibility and held-out predictive evaluation; no classifier is trained here.
+
+- Fresh `.venv` **Restart Kernel / Run All** completes all **44 code cells** in order, saving real outputs with no notebook exception/stderr. Notebook JSON/schema, unique IDs and source preservation validate. There are **34 passing notebook check groups**: 27 previous groups and seven new Scaling groups. All **five existing unit tests** pass without skips.
+- Independent fixtures verify manually known Min-Max, Standard mean/variance, Robust median/IQR, constant/repeated inputs, both quantile output modes, finite tail saturation, monotonic ordering, out-of-training-bound behavior and nonmutation. Known median-Levene W=2.4 is checked; insufficient, constant and constant-centered-deviation groups return explicit unavailable results. No unsupported exact nonlinear inverse equality is imposed.
+- Real-data checks cover all five aligned finite 8173×69 outputs, full 414 summaries, fitted train extrema/means/variances/medians/IQRs, full-population quantile grids, exact deterministic repeats for both quantile outputs, same observed-BMI groups and affine Levene invariance. Raw/original/common matrices, imputation provenance, holdouts and previous anomaly/KS results remain unchanged; numerical tolerances are declared.
+- External before/after verification confirms all **72 earlier source cells/IDs**, all **eight earlier PNGs**, Stage 02 aggregate/per-feature scores/masks/splits/settings/MICE draws and all Stage 03 thresholds/flags/Jaccard/KS/treatment results reproduce exactly. Only runtimes and OS-memory observations refresh. kNN10 Macro NRMSE remains **0.6763300629944509**, MICE raw RMSE **12463.419984895585**; its **912 support violations** remain documented without clipping/model changes.
+- A final snapshot containing **no data directory/CSV** builds all **five Jupyter Book pages** from saved outputs without `--execute`. Headless Chrome verifies 69-row input/parameter audits, all 414 summary rows, six overview/Levene rows, seven new check rows and Sections 28–36. All **11 figures** load, **20 KaTeX expressions** have zero errors, document width stays within the viewport and all five homepage progress/navigation links return local HTTP 200. Formulas/tables and all three new violin figures are visually inspected; violin font sizes and compact Levene display were improved after browser review.
+- The execution launcher logs a Jupyter TCP-transport notice outside notebook outputs; the build logs an existing Node `url.parse` deprecation notice. Neither is a statistical-cell warning or execution/build failure. No dependency/kernel configuration/deployment workflow is altered to suppress them. Public GitHub Pages status is separate and is not changed or newly verified.
+
+Raw CSV SHA-256 remains `e9947ecfe1cdacafbf9cbcdc0abd024396f617c701b056fa54e5881f1bb9bbe9`; EDA SHA-256 remains `bdd5c5c602dd213b831dd9a69e550b97bd87aea51f128014cf1065457471b1d0`. All ten protected-file hashes match the initial snapshot. Only the preprocessing notebook, tabular index, book homepage, this audit and relevant README progress text change. Navigation/setup remain intact. No new dependency/module, Encoding/Feature Selection/rebalancing/model experiment, raw/processed data export, commit, push or PR is added.
+
+| Stage 04 requirement | Status | Evidence / scope |
+|---|---|---|
+| Min-Max | PASS | Explicit [0,1], stored training extrema, range/incoming-bound fixtures |
+| Z-score Standardization | PASS | Independent fit, ddof 0, verified mean/SD/parameters |
+| Robust Scaling | PASS | Explicit median/IQR settings, verified centers/scales and degenerate fixtures |
+| Quantile Uniform | PASS | Full training population, fixed 1000 quantiles/seed, bounds/ties/repeat |
+| Quantile Normal | PASS | Same knots/settings, finite tails, actual target-deviation analysis |
+| Controlled comparison | PASS | Five same-population/scope fits plus original reference; all 414 rows |
+| Violin visualization | PASS | Six prespecified features, provenance separation, independent axes, visual inspection |
+| Variance diagnostics and justified Levene treatment | PASS | Focused observed-BMI groups, W/p stored, affine invariance and calibration limits |
+| Statistical interpretation | PASS | No invalid paired variance test, automatic Gaussianity, p-based winner or predictive claim |
+| Reproducibility | PASS | 44-cell fresh Run All, 34 notebook check groups, 5 unit tests, previous-stage/raw integrity |
+| Jupyter Book presentation | PASS | CSV-free build, complete outputs, browser/math/link/figure checks |
+
+**Stage 04 Scaling is complete for the requested controlled training-only comparison, with no identified correctness/execution blocker before Stage 05 Categorical Encoding.** Feature Selection and later stages remain pending; a final predictive pipeline is not validated. Source/temporal eligibility, dependence, imputation uncertainty, nonlinear information loss and downstream model-dependent selection remain scientific limitations, not evidence of overall 100% project completion.
+
+## Historical Stage 03 handoff — completed Outlier Detection & Treatment
 
 Starting HEAD: `a1be75cbe6543bf1fc813996c7eb91d013568fa3`; initial working tree clean. The [complete official assignment](https://hcmus-cs-ta.github.io/lab-book/data-mining/projects/preprocessing/) was retrieved with HTTP 200 and read before implementation, including technical/reporting/grading sections. Current HTML SHA-256 is `8d2a4a6e79902495d8f13e50530baf78433059b9620a05a7956298defa391720`: the raw page changed, while its normalized Outlier Detection & Treatment requirement paragraph matches the earlier cached page. The [official competition dictionary](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/data) and installed sklearn/SciPy API documentation were also reviewed. BMI's documented post-metastatic timing and unresolved contextual periods/units/dictionary conflicts remain limitations; reconstruction eligibility does not establish prospective eligibility.
 
