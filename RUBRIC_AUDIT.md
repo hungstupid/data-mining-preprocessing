@@ -1,8 +1,79 @@
-# Rubric audit — EDA and complete numerical imputation coverage: 26 October 2026
+# Rubric audit — EDA, imputation and Stage 03 Part 1: 26 October 2026
 
 Source: https://hcmus-cs-ta.github.io/lab-book/data-mining/projects/preprocessing/
 
 The entire official HTML page was retrieved with HTTP 200 on 25 October 2026 and read through the grading/policy sections. The web-tool rendering failed, so the direct HTTP response was used. The page’s linked raw Markdown returned 404; it is not used as evidence. Requirements below are concise technical paraphrases, with exact numeric parameters preserved. Cell references in the initial audit are **zero-based indices of the original 29-cell notebook**. PASS records observed code/output evidence, not an inference from a clean run. Future work uses NOT VERIFIED; it does not count as completed.
+
+## Current Stage 03 — Part 1 of 3: IQR and Z-score
+
+Starting HEAD: `ae2d0dc4b598825861b2500d0bc278d9a297ace5`; initial working tree clean. The replacement attachment is identical to the earlier Part 1 request. Source/rubric review was performed before implementation; official HTML returned HTTP 200 with unchanged SHA-256 `2cca63ea7b93788b4ae981e51ff92765d9e478d6c4d3469fa7458299a8d3dc38`. The named IQR/Z-score requirements are implemented here; this is **not full Outlier Detection & Treatment completion**. Earlier sections below record their dated Stage 01/02 handoffs.
+
+### Scope, numerical eligibility and shared preparation
+
+- Appended zero-based cells 41–51, Sections 16–19, to the existing preprocessing notebook. It now has 52 cells / 24 code cells. All 41 previous sources, IDs/order and execution logic remain unchanged; no helper module or dependency added. The two small notebook-local detector functions are reused in independent correctness fixtures.
+- All 69 numerical candidates audited and eligible for both IQR and Z-score. No real training feature has zero IQR, zero SD, insufficient observed support or a nonfinite observed value, so no feature is excluded. The audit records dtype, semantic role/timing caveat, observed/missing N and %, unique N, constant/zero conditions, training skewness and eligibility. Descriptive |skew|>1 is not an exclusion or outlier threshold. Known overlapping/complementary shares are retained, with aggregation caveats; no correlation or hypothesis-test analysis is added.
+- Reused actual Stage 02 indices: train 8,173, validation 2,081, reserved 2,652; thresholds are fitted only to originally observed train values. Target/ID/ZIP/nominal clinical codes are excluded from numerical inputs. Both holdouts are only hashed for integrity and are not used for threshold estimation, detector choice or new preparation.
+- IQR uses pandas linear quartiles, multiplier 1.5 and strict outside-fence comparisons. The declared minimum is 4 observations with positive finite IQR; zero/nonpositive IQR is explicitly NOT EVALUATED, not interpreted as evidence that every non-modal value is anomalous. Z-score uses observed train mean/population SD (ddof 0), minimum 2 observations, positive finite SD and strict |z|>3. These support minima are implementation conventions, not official sample-size rules. Unsupported feature flags remain Boolean false with unavailable detection rates and explicit exception notes. NaN itself is never flagged or filled for these univariate detectors.
+- `outlier_train_original` remains immutable by convention, verified against its checksum and source values. A separate full 8173×69 matrix for Part 2 reuses the existing train-fitted 69-feature kNN10 and StandardScaler, with no new fit or detector-specific subsets. All 5,717 natural training gaps are marked in `outlier_common_imputed_mask`; original observed cells are retained exactly. Complete raw-unit and train-conditioned views are finite and keep row/column order. Preparation took 2.006s; the dense train×train distance upper bound is 509.63 MiB, using the existing 128 MiB chunk budget (not a total RAM cap). These matrices are not used by IQR/Z-score or scored by a multivariate detector. kNN10 is a justified reconstruction candidate, not a proven optimal anomaly-detection imputer.
+
+### Actual detection results
+
+| Method | Eligible features | Training N | Flagged records N | Flagged records % | Would retain N | Flagged feature-values N |
+|---|---:|---:|---:|---:|---:|---:|
+| IQR | 69 | 8173 | 4953 | 60.6020 | 3220 | 15378 |
+| Z-score | 69 | 8173 | 1915 | 23.4308 | 6258 | 4404 |
+
+Row rates use all 8,173 training records and the same ANY-eligible-observed-feature rule. Would-retain values are arithmetic candidate-policy counts only; no records are removed, reduced datasets created or completed patient rows exported. Feature percentages use each feature's originally observed N, not the row-rate denominator. Complete 69-row audit and fitted-statistics/results tables are expandable with capped scroll regions in the notebook. Selected feature results:
+
+| Training feature | Observed N | IQR flagged N | IQR % observed | Z-score flagged N | Z-score % observed |
+|---|---:|---:|---:|---:|---:|
+| patient_age | 8173 | 34 | 0.4160 | 10 | 0.1224 |
+| bmi | 2531 | 2 | 0.0790 | 2 | 0.0790 |
+| race_asian | 8173 | 928 | 11.3545 | 117 | 1.4315 |
+| farmer | 8173 | 728 | 8.9074 | 173 | 2.1167 |
+| Ozone | 8148 | 703 | 8.6279 | 0 | 0.0000 |
+| race_pacific | 8173 | 591 | 7.2311 | 35 | 0.4282 |
+| density | 8173 | 576 | 7.0476 | 142 | 1.7374 |
+| limited_english | 8173 | 293 | 3.5850 | 293 | 3.5850 |
+| race_multiple | 8173 | 193 | 2.3614 | 193 | 2.3614 |
+| health_uninsured | 8173 | 445 | 5.4448 | 184 | 2.2513 |
+
+Bounded area shares contribute 11,765/15,378 IQR flagged feature-values and 3,655/4,404 Z-score flagged feature-values, across 52 columns. Other area summaries contribute 2,387/693; annual air context 1,190/44; individual age/BMI 36/12. These counts reflect both group size and repeated contextual values, not independent errors. Maximum triggered features per record are 20 (IQR) and 16 (Z-score).
+
+ANY over 69 eligible features can flag many records despite modest marginal rates; correlated/overlapping fields repeat triggers and frequent ZIP groups receive more patient-record weight. `race_pacific` training skewness=20.22, IQR 7.2311% versus Z 0.4282%, illustrates different tail sensitivity without proving its cause. Ozone is eligible for both methods despite 703 IQR flags and 0 Z flags. Neither count is a quality/accuracy score. Extremes may be legitimate; source/timing uncertainty and missing BMI remain limitations. No ground-truth outlier labels, Gaussian calibration, universal superiority or final removal benefit is claimed.
+
+### Reusable outputs and verification
+
+The notebook preserves `outlier_train_original`, `outlier_feature_audit`, `outlier_feature_summary`, `outlier_common_train_raw`, `outlier_common_train_z`, natural/imputed masks, `iqr_thresholds`, `zscore_parameters`, `outlier_z_scores`, both feature masks, both observation flags, per-row trigger counts and `outlier_comparison`. All row-level outputs share `train_index`. Two new aggregate figures show highest marginal flag rates and the trigger-count distribution; no patient IDs or row-level records are displayed.
+
+A fresh `.venv` Restart Kernel / Run All completes all 24 code cells in order with saved real outputs and no exception/stderr. Six new check groups pass, in addition to all 14 pre-existing imputation checks:
+
+- Independent IQR fixture: Q1=1, Q3=3, IQR=2, fences−2/6; boundary values retained, just-outside values flagged, NaN false, input unmodified.
+- Independent Z-score fixture: 50 observed values with mean 0/population SD 1; ±3 retained and ±4 flagged; missing score stays NaN and index alignment is preserved.
+- Degenerate fixtures: zero-IQR non-modal values are not silently flagged; constant/zero-SD, all-missing, insufficient and nonfinite-input cases are explicitly handled.
+- Real-data Boolean/row-column alignment, missing-value exclusion and independent NumPy counts/ANY totals match pandas outputs; trigger-frequency distributions sum to the complete training population.
+- Shared train-only preparation, finite complete matrices, exact known values, natural-gap provenance and absence of protected predictors are verified.
+- Original numerical training frame, full validation/reserved frames, source schema and raw CSV remain unchanged.
+
+All five existing project unit tests pass without skips. Stage 01 is byte-identical. Original six-feature and joint 69-feature imputation scores, per-feature matrices, masks, splits, parameters and draw statistics reproduce exactly, including kNN10 Macro NRMSE 0.6763300629944509 and the 912 MICE support-violation limitation. Both pre-existing imputation PNGs are byte-identical. Execution timings refresh; historical benchmark timings below are retained.
+
+The final CSV-free source snapshot builds all five book pages from saved outputs without --execute or a data directory. Headless Chrome verifies Sections 16–19, both 69-row outlier tables, the 2-row comparison, six new check rows, four total loaded charts, 11 KaTeX expressions and zero rendering errors. The new tables, formulas and figures were visually inspected. This is local rendering evidence; no deployment setting/workflow or remote state is changed.
+
+Raw CSV SHA-256 remains `e9947ecfe1cdacafbf9cbcdc0abd024396f617c701b056fa54e5881f1bb9bbe9`; EDA SHA-256 remains `bdd5c5c602dd213b831dd9a69e550b97bd87aea51f128014cf1065457471b1d0`. All 12 protected file hashes match the initial snapshot. Only the preprocessing notebook, tabular index and this audit change. No commit/push/PR or new stage beyond this Part 1 is introduced.
+
+| Stage 03 requirement | Status | Evidence / remaining work |
+|---|---|---|
+| Data preparation / 69-feature observed-value audit | PASS | Full training scope, leakage guards, semantic/support/degeneracy audit |
+| IQR detection and feature/row counts/rates | PASS | All 69; fixed 1.5 fences; strict boundaries; missing/zero-IQR checks |
+| Z-score detection and feature/row counts/rates | PASS | All 69; ddof 0; strict >3; zero/invalid-SD checks |
+| Reusable common matrices and same-index flags | PASS | 8173×69 finite preparation; 5,717 estimated cells marked; exact known cells |
+| Synthetic/real verification and local publication | PASS | 24-cell Run All; 20 total notebook check groups; 5 unit tests; CSV-free build/browser |
+| Isolation Forest / LOF / DBSCAN | NOT IMPLEMENTED | Part 2; no fitting/scoring in this change |
+| Jaccard and KS distribution-impact comparisons | NOT IMPLEMENTED | Part 3; no overlap statistic or KS test computed |
+| Final treatment selection or removal | NOT IMPLEMENTED | Requires subsequent comparisons; no rows removed |
+| Whole Stage 03 completion | PARTIAL | Only Part 1 of 3 is complete |
+
+**Part 1 is technically complete, with no execution/coverage blocker to Part 2.** Subsequent methods can reuse the documented train-only matrices and aligned flags after declaring the common representation. Retain caveats about imputation geometry, patient weighting/ZIP dependence, source/temporal eligibility and unknown outlier truth. A flag alone does not justify deletion.
 
 ## Final targeted reproducibility and homepage fix — 26 October 2026
 

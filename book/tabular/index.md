@@ -61,9 +61,28 @@ Saved aggregate outputs render in CI without the CSV; recomputation requires the
 local data and `.venv` kernel. See README for the execution command and the audit
 for measured results and verification.
 
+## 03 — Outlier Analysis: Part 1 of 3
+
+[Sections 16–19 of the preprocessing notebook](02_preprocessing.ipynb) add the
+69-feature training audit, IQR fences (1.5 × IQR) and strict absolute Z-score >3
+with population SD (ddof 0). Both methods use originally observed inner-training
+values only; NaNs are never flagged. Feature-level masks, same-index ANY-feature
+row flags and trigger counts are retained in memory for later comparisons.
+
+A separate shared complete training matrix reuses the train-fitted kNN10 and
+conditioning from Stage 02. It preserves observed cells and records which cells
+are estimated; univariate thresholds do not use those imputations. No patients
+are removed or exported, and neither detector is selected as a final treatment.
+Repeated ZIP context, overlapping shares, skewness and unknown outlier labels
+limit interpretation of the flag rates.
+
+Only Part 1 is implemented. Isolation Forest, LOF and DBSCAN (Part 2), Jaccard/KS
+comparisons and the treatment decision (Part 3) remain **NOT IMPLEMENTED**.
+Stage 03 is not complete.
+
 ## Planned work
 
-Outlier treatment, full scaling and encoding comparisons, feature selection,
+Remaining outlier comparisons/treatment, full scaling and encoding comparisons, feature selection,
 resampling and classifier evaluation remain future work. Internal train-fitted
 scaling in the imputation benchmark does not complete the separate scaling rubric.
 Temporal eligibility and source-period gaps must still be resolved for prediction.
