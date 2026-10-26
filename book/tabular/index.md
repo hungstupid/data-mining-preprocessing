@@ -40,8 +40,11 @@ the `.venv` kernel; see the repository README for the command.
 
 [Read the executed imputation benchmark](02_preprocessing.ipynb): Mean, Median,
 numerical Mode, kNN k=3/5/10, and three posterior MICE completions. This is a
-retrospective reconstruction experiment on six predeclared numerical variables,
-including post-metastatic BMI; it does not establish prospective feature eligibility.
+retrospective reconstruction experiment. Sections 1–9 preserve the original six-variable
+benchmark, including post-metastatic BMI. Sections 10–15 audit all 69 numerical candidates
+and add a separate joint benchmark using the same seven configurations. Broader coverage
+is a scientific extension, not an explicit all-69 requirement in the official rubric.
+Reconstruction eligibility does not establish prospective feature eligibility.
 
 Two deterministic ZIP-disjoint splits reserve an outer assessment partition.
 Imputers and internal distance conditioning fit only inner training rows. All
@@ -49,6 +52,9 @@ seven configurations reconstruct the same additional 10% mask of originally
 observed inner-validation values. Raw and per-feature RMSE are reported; the
 predeclared selection criterion is equal-feature RMSE normalized by training SD.
 MICE reports mean draw-level scores and their variation, without inferential pooling.
+Each scope has its own common mask; aggregate scores from different scopes are not pooled.
+The expanded chapter reports computation/conditioning checks, all per-feature results,
+bounded-share plausibility flags and a separate categorical missingness inventory.
 Natural missingness is not assumed MCAR, and the outer reserve is not scored.
 
 Saved aggregate outputs render in CI without the CSV; recomputation requires the
