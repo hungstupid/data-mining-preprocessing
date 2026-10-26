@@ -36,9 +36,28 @@ Saved aggregate outputs allow the book to render without private CSV access or
 notebook execution in CI. Recomputing EDA requires the local training file and
 the `.venv` kernel; see the repository README for the command.
 
+## 02 — Controlled Missing Value Imputation
+
+[Read the executed imputation benchmark](02_preprocessing.ipynb): Mean, Median,
+numerical Mode, kNN k=3/5/10, and three posterior MICE completions. This is a
+retrospective reconstruction experiment on six predeclared numerical variables,
+including post-metastatic BMI; it does not establish prospective feature eligibility.
+
+Two deterministic ZIP-disjoint splits reserve an outer assessment partition.
+Imputers and internal distance conditioning fit only inner training rows. All
+seven configurations reconstruct the same additional 10% mask of originally
+observed inner-validation values. Raw and per-feature RMSE are reported; the
+predeclared selection criterion is equal-feature RMSE normalized by training SD.
+MICE reports mean draw-level scores and their variation, without inferential pooling.
+Natural missingness is not assumed MCAR, and the outer reserve is not scored.
+
+Saved aggregate outputs render in CI without the CSV; recomputation requires the
+local data and `.venv` kernel. See README for the execution command and the audit
+for measured results and verification.
+
 ## Planned work
 
-Preprocessing experiments and evaluations remain future work, subject to
-confirmation of temporal eligibility and course requirements. No imputation,
-outlier treatment, scaling, feature selection, resampling, or model training
-has been performed.
+Outlier treatment, full scaling and encoding comparisons, feature selection,
+resampling and classifier evaluation remain future work. Internal train-fitted
+scaling in the imputation benchmark does not complete the separate scaling rubric.
+Temporal eligibility and source-period gaps must still be resolved for prediction.

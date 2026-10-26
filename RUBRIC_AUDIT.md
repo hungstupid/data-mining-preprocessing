@@ -1,8 +1,76 @@
-# Rubric audit — latest EDA handoff: 26 October 2026
+# Rubric audit — EDA and controlled imputation: 26 October 2026
 
 Source: https://hcmus-cs-ta.github.io/lab-book/data-mining/projects/preprocessing/
 
 The entire official HTML page was retrieved with HTTP 200 on 25 October 2026 and read through the grading/policy sections. The web-tool rendering failed, so the direct HTTP response was used. The page’s linked raw Markdown returned 404; it is not used as evidence. Requirements below are concise technical paraphrases, with exact numeric parameters preserved. Cell references in the initial audit are **zero-based indices of the original 29-cell notebook**. PASS records observed code/output evidence, not an inference from a clean run. Future work uses NOT VERIFIED; it does not count as completed.
+
+## Stage 02 — Controlled Missing Value Imputation: 26 October 2026
+
+Starting HEAD: `1f4d16efd14d1fd2551d3fc8318b22022343fbce`; clean working tree at start. The official assignment was read again; its retrieved HTML SHA-256 is unchanged (`2cca63ea7b93788b4ae981e51ff92765d9e478d6c4d3469fa7458299a8d3dc38`). The current T1 status is **PASS for the explicitly scoped six-feature retrospective benchmark**. The dated EDA matrices below preserve their EDA-only handoff status; they do not override this new evidence. Required T2–T5 comparisons and mandatory part(b) remain unimplemented. No whole-project percentage or grade is claimed.
+
+### Protocol and scope fixed before scoring
+
+- New notebook: `book/tabular/02_preprocessing.ipynb`, 26 cells / 12 code cells, using the existing `.venv` kernel. No product helper module, dependency or framework added. EDA is byte-identical.
+- Six fixed numerical columns: `patient_age`, `bmi`, `density`, `income_household_median`, `education_college_or_above`, `PM25`. Whole-file missing rates are respectively 0%, 69.4638%, 0.0077%, 0.0310%, 0.0077%, 0.2247%. These cover individual measurements, skewed context, monetary/percentage/environmental scales and BMI missingness. Complete exclusions/reasons are printed in cell 3: 63 other numerical candidates, 12 categorical/code/text fields, plus ID/target. No subset/seed selection based on scores; ranking does not generalize to all 69 candidates.
+- Retrospective reconstruction only: post-metastatic BMI remains ineligible for an earlier baseline; treatment/diagnosis, target, ID and ZIP are excluded from imputation matrices. Source-period/unit gaps remain. The same source/temporal restrictions as EDA apply.
+- Outer GroupShuffleSplit reserves 20% of ZIP groups, seed42; inner split holds out 25% of development ZIP groups, seed43. Actual partitions: train 8,173 rows/443 ZIP; validation 2,081/148; reserved 2,652/148. Every pair has zero row/ID/ZIP overlap. Target distribution is diagnostic only. All train rows are used; six-feature complete cases and minimum pairwise observed support both equal 2,526. EDA already saw the full file, so the reserve is post-EDA, not an untouched external test; it is not imputed/scored for selection.
+- Only originally observed validation values receive artificial gaps: uniform fixed-count sampling without replacement per column, floor(10% of eligible), seed2024. Counts in feature order: 208/63/208/207/208/207, total1,101; BMI is 63/639=9.8592% because of flooring. Every method/draw uses the same mask, SHA-256 `d4e1ced320653122022edadea5bac1d443271af2fccfdd26efb7db5842c8e22e`. Natural NaNs remain; original frame/train/reference are unchanged. This construction does not identify natural MCAR/MAR/MNAR.
+- Mean/Median/Mode fit raw training values. Mode tie rule is smallest value, checked explicitly. kNN uses uniform weights, nan_euclidean distance, k=3/5/10. Train-fitted NaN-aware StandardScaler conditions kNN/MICE; completions return to original units. Theoretical dense distance array is129.76MiB; sklearn working_memory128MiB chunks distances, with possible additional overhead. This is not a separate scaling comparison.
+- MICE: installed sklearn1.9.1 experimental IterativeImputer, default BayesianRidge, sample_posterior=True, m=3 seeds101/102/103, ten rounds, skip_complete=False, all six predictors. Train-complete features must still have models for new validation gaps. Posterior mode does not early-stop; ten rounds does not establish convergence. Writable NumPy copies handle the actual pandas3/sklearn initialization compatibility failure found in the first run; subsequent fresh runs pass. Canonical columns/alignment are asserted around the array interface.
+- Predeclared primary score: equal-feature mean(RMSE_j / observed training SD_j), ddof0. Raw pooled RMSE is required secondary evidence and mixes units. MICE aggregate/per-feature scores are means of draw-level scores; not RMSE of averaged imputations, and not Rubin-rule pooling. Exact ties follow fixed displayed order.
+
+### Actual saved-output results
+
+| Method | Parameters | Masked / reconstructed N | Raw RMSE | Macro NRMSE | Fit + transform (s) | Status |
+|---|---|---:|---:|---:|---:|---|
+| Mean | training mean | 1101 / 1101 | 10781.6565 | 1.08081 | 0.0016 | PASS |
+| Median | training median | 1101 / 1101 | 10811.5381 | 1.09145 | 0.0037 | PASS |
+| Mode | training mode | 1101 / 1101 | 11130.5714 | 1.65760 | 0.0036 | PASS |
+| kNN (k=3) | k=3; uniform; train z | 1101 / 1101 | 7380.0639 | 1.00923 | 0.3751 | PASS |
+| kNN (k=5) | k=5; uniform; train z | 1101 / 1101 | 7175.3082 | 0.96711 | 0.3510 | PASS |
+| kNN (k=10) | k=10; uniform; train z | 1101 / 1101 | 7297.4831 | 0.95477 | 0.3632 | PASS |
+| MICE (m=3) | posterior; m=3; 10 rounds | 1101 / 1101 | 8634.4763 | 1.20891 | 0.4134 | PASS |
+
+Every count is per completed table; MICE has three tables with the same1,101 positions, not3,303 independent evaluation cells. Runtime includes fit+validation transform (and inverse transform when used), summed over all MICE draws; shared train-only conditioning took 0.0056s, separate from method runtime. Validation/reproducibility refits are excluded. These are single local timings, not stable performance estimates.
+
+Per-feature RMSE in original units; MICE cells are mean draw-level RMSEs:
+
+| Feature | Mean | Median | Mode | kNN 3 | kNN 5 | kNN 10 | MICE 3 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| patient_age | 13.4841 | 13.4668 | 14.6776 | 18.0744 | 16.4652 | 15.7661 | 18.9878 |
+| bmi | 4.9182 | 5.0480 | 5.3690 | 5.9009 | 5.4493 | 5.2355 | 7.5224 |
+| density | 1569.7986 | 1600.0282 | 4460.5083 | 1509.9410 | 1480.7631 | 1509.9854 | 2123.4401 |
+| income_household_median | 24815.4659 | 24882.5840 | 25277.5869 | 16952.9091 | 16481.4186 | 16761.6885 | 19799.1297 |
+| education_college_or_above | 14.3479 | 14.3842 | 15.5266 | 8.2498 | 8.0519 | 7.9101 | 10.0400 |
+| PM25 | 1.7613 | 1.7918 | 4.2674 | 1.8624 | 1.8705 | 1.8676 | 2.1833 |
+
+Declared winner: **kNN (k=10)**, macroNRMSE0.95477, 11.66% lower than Mean. Raw RMSE instead favors kNN k=5; retain the predeclared normalized criterion. Per-feature minima: Median(age), Mean(BMI/PM25), kNN5(density/income), kNN10(education). These are diagnostics, not an implemented feature-specific pipeline.
+
+MICE mean macroNRMSE=1.20891, sample draw SD=0.01853; raw RMSE sample draw SD=152.3062. Its primary score is worse than Mean here, so this point-reconstruction criterion does not justify its additional modeling effort. Posterior variation can increase pointwise squared error without invalidating multiple imputation's inferential purpose. Conditional-model mismatch/weak information are possible explanations, not separately tested causes. Context gains and competitive individual-variable simple baselines motivate feature-specific review later. Without an unscaled-kNN arm there is no estimated causal benefit from scaling.
+
+### Verification and current requirement statuses
+
+Fresh `.venv` Restart Kernel / Run All completes all12 code cells in order (counts1–12), with real outputs in every code cell, no saved exception or stderr. Nine focused check groups pass: synthetic mask determinism/value independence/floor counts/no natural-NaN ground truth; analytic masked-only RMSE; invalid-prediction rejection; natural-NaN rejection; train-only mean/scaler/ties/inverse units; synthetic posterior reproducibility; real first-seed posterior reproduction; common mask/train rows/alignment/finite completions/excluded predictors; raw/frame/train/reference integrity. Five existing Little unit tests also pass, with no skips. Scaler sample counts and fitted means/SDs and Simple/MICE initialization statistics agree with inner training only.
+
+The CSV-free source snapshot builds five pages from saved outputs with the existing command (no --execute) and project subpath. Headless Chrome verifies the chapter navigation, five display equations/eight total KaTeX expressions with zero errors, seven comparison rows, six per-feature rows, three MICE draw rows, six mask-audit rows and one loaded chart. Table/formula/chart screenshots are visually checked; both result tables fit the book content width, with horizontal overflow protection for smaller windows. No browser dependency or deployment workflow change. Local rendering does not verify remote Actions/Pages publication. The existing root `book/index.md` still describes the original scaffold; it is outside the permitted file list and remains unchanged. Current stage descriptions and links are in the updated tabular index, README and navigation.
+
+| Criterion | Status | Evidence / boundary |
+|---|---|---|
+| 1. Mean | PASS | SimpleImputer mean; train statistics checked;1,101 scored cells |
+| 2. Median | PASS | SimpleImputer median; same columns/mask/training partition |
+| 3. Mode | PASS | Numerical most_frequent baseline; tie audit and synthetic tie check |
+| 4. kNN k=3 | PASS | All training donors; train-only conditioning; raw-unit scoring |
+| 5. kNN k=5 | PASS | Same protocol; raw-RMSE minimum disclosed |
+| 6. kNN k=10 | PASS | Same protocol; predeclared normalized-score minimum |
+| 7. MICE | PASS | Three distinct posterior seeds; ten rounds; draw variation and real fixed-seed repeat |
+| 8. Additional10% MCAR masking | PASS | Fixed floor count per observed validation feature;1,101 shared positions; no natural NaNs scored |
+| 9. RMSE comparison | PASS | Seven-row raw/normalized/runtime/status table; six-feature table; counts and chart |
+| 10. Justified selection | PASS | Primary criterion fixed first; conflicting raw ranking, per-feature results, cost and limits explained |
+| 11. Reproducibility/report presentation | PASS | Fresh12-cell run; nine check groups; five unit tests; CSV-free five-page build/browser inspection |
+
+Raw CSV SHA-256 remains `e9947ecfe1cdacafbf9cbcdc0abd024396f617c701b056fa54e5881f1bb9bbe9`; EDA SHA-256 remains `bdd5c5c602dd213b831dd9a69e550b97bd87aea51f128014cf1065457471b1d0`. Source helper/validator/tests, dependency files, workflow and unrelated book pages match initial hashes. No patient rows/completed dataset exported; no CSV tracked; no commit/push/PR performed.
+
+**Controlled Missing Value Imputation is complete and ready for independent code review within this scope.** Remaining scientific limits: one split/mask, six selected numerical features, patient weighting/shared and potentially spatially dependent context, observed-ground-truth selection versus natural gaps (especially BMI), linear/Gaussian unbounded MICE with only three draws/ten rounds, and unresolved prediction-time eligibility. No confidence intervals across masks/ZIP populations or natural-mechanism verdict are claimed. Later preprocessing/model stages and whole-project submission remain NOT VERIFIED; global MCAR inference remains BLOCKED as documented by EDA.
 
 ## Historical before-edit traceability matrix (initial 29-cell version)
 
@@ -30,7 +98,7 @@ The entire official HTML page was retrieved with HTTP 200 on 25 October 2026 and
 
 Starting HEAD: `5464d6eb43e8ce2345d46f4a60e1dba5795f82e2`; working tree clean. The official page was retrieved/read directly (HTTP 200) after the web renderer failed. Its HTML SHA-256 remains `2cca63ea7b93788b4ae981e51ff92765d9e478d6c4d3469fa7458299a8d3dc38`. Only the three published tabular EDA groups are treated as compulsory; later feature-selection tests and other-modality requirements remain in the exact checklist below.
 
-Current notebook: 31 cells / 16 code cells. Indices below are zero-based, execution counts in parentheses. PASS is evidence for the stated scope, not a grade or claim of known natural missingness. Correctly reporting an unidentified mechanism satisfies the interpretation task; the separate BLOCKED row limits a cohort-wide inferential claim and does not require another EDA study before preprocessing.
+EDA notebook: 31 cells / 16 code cells. Indices below are zero-based, execution counts in parentheses. PASS is evidence for the stated scope, not a grade or claim of known natural missingness. Correctly reporting an unidentified mechanism satisfies the interpretation task; the separate BLOCKED row limits a cohort-wide inferential claim and does not require another EDA study before preprocessing.
 
 | Rubric ID | Requirement | Stage | Cell / evidence | Status | Remaining limit / next action |
 |---|---|---|---|---|---|
@@ -138,7 +206,7 @@ A fresh project .venv kernel ran all 19 code cells, including the analytic reduc
 
 The final saved-output version also builds all four book pages in a new CSV-free source snapshot. Exported page data retains all 69 normality rows, 17 strong-pair rows, four feasibility rows and 10 image assets. Nine figure images are byte-identical to the base; only the numerical histogram labels changed to reflect verified units/source uncertainty, and that figure was visually inspected without clipping. The startup TCP and Node DEP0169 warnings remain external toolchain warnings, with no saved notebook stderr/error outputs. Remote deployment is outside this review.
 
-## Exact later-stage checklist — no experiments implemented in this change
+## Exact requirement checklist — implementation status is recorded above
 
 ### Part (a): selected tabular branch
 

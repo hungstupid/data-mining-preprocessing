@@ -9,7 +9,8 @@ statistical assumptions, and the exact later-stage checklist.
 
 Individual project for **Data Mining and Applications, HCMUS**. This repository
 provides a reproducible Python workspace and a Jupyter Book 2 publication scaffold.
-Preprocessing experiments, evaluations, and model training have not been implemented.
+Stage 01 EDA and Stage 02 controlled numerical imputation are implemented with
+saved local results. Later preprocessing comparisons and classifier training remain future work.
 
 ## Dataset
 
@@ -39,7 +40,8 @@ data-mining-preprocessing/       # actual cloned Git repository
 │   ├── index.md
 │   ├── tabular/
 │   │   ├── index.md
-│   │   └── 01_eda.ipynb          # read-only EDA with locally computed outputs
+│   │   ├── 01_eda.ipynb          # read-only EDA with locally computed outputs
+│   │   └── 02_preprocessing.ipynb # controlled imputation benchmark; saved outputs
 │   └── text/index.md
 ├── data/
 │   ├── raw/                    # local, unmodified competition files
@@ -219,6 +221,48 @@ Keep the executed outputs when preparing publication; if they are cleared, rerun
 locally before publishing. Raw patient rows and IDs are not displayed. Executing
 EDA requires local data even though rendering the book does not.
 
+## Stage 02 — Controlled Missing Value Imputation
+
+[`book/tabular/02_preprocessing.ipynb`](book/tabular/02_preprocessing.ipynb)
+compares Mean, Median, numerical Mode, kNN k=3/5/10 and MICE with three
+posterior-sampled completions (`sample_posterior=True`, seeds 101/102/103,
+ten rounds). The six predeclared features are `patient_age`, `bmi`, `density`,
+`income_household_median`, `education_college_or_above` and `PM25`. The notebook
+reports all exclusions; its ranking does not cover all 69 numerical candidates.
+This retrospective reconstruction task does not approve post-metastatic BMI
+for an earlier prediction time. Target, ID, ZIP, diagnosis and treatment fields
+never enter an imputer.
+
+ZIP-disjoint `GroupShuffleSplit` seeds 42/43 produce 8,173 inner-training,
+2,081 imputation-validation and 2,652 reserved rows. All estimator statistics
+and internal conditioning fit only inner training. Seed 2024 uniformly masks
+`floor(0.10 * observed N)` cells per validation feature; natural NaNs and the
+reference remain unchanged. Every configuration uses the same 1,101 known-cell
+positions. The outer reserve is not used to choose an imputer; prior whole-file
+EDA exposure is disclosed.
+
+Raw pooled RMSE and per-feature RMSE are retained. Selection uses the declared
+equal-feature mean of RMSE divided by observed inner-training SD (ddof 0), so
+large-unit income does not dominate the choice. MICE uses mean draw-level metrics
+and sample SD, not errors of averaged imputations or Rubin-rule pooling. The
+notebook includes actual fit/transform timings, focused synthetic checks and a
+real-data fixed-seed MICE repeat. No completed patient dataset is exported.
+
+With `.venv` active, rerun from the repository root:
+
+```bash
+python -m nbconvert --to notebook --execute --inplace \
+  --ExecutePreprocessor.kernel_name=hcmus-wids \
+  --ExecutePreprocessor.timeout=300 book/tabular/02_preprocessing.ipynb
+```
+
+Alternatively select **Python (HCMUS WiDS .venv)** and use Restart Kernel → Run All.
+The same saved-output publication mechanism as Stage 01 applies: keep the real
+aggregate outputs, and build without `--execute` to render without private data.
+Natural missingness mechanisms, prospective availability and performance on
+naturally missing values remain unresolved. See [RUBRIC_AUDIT.md](RUBRIC_AUDIT.md)
+for results and the exact scope of completion.
+
 ## Preview and build the book
 
 With `.venv` active, run from the repository root:
@@ -248,8 +292,8 @@ See the [Jupyter Book 2 documentation](https://jupyterbook.org/stable/).
 ## Reproducibility and future work
 
 Keep raw files unchanged. Record the official source, download date, checksums,
-and actual validation output locally when data is available. Add experiments
-later as notebooks under `book/tabular/`, using the project kernel, explicit
+and actual validation output locally when data is available. Add the remaining
+experiments as notebooks under `book/tabular/`, using the project kernel, explicit
 random seeds, documented decisions, and leakage-safe train/validation splits.
 Add notebooks to the explicit `project.toc` in `myst.yml`. The text section is
 reserved for later work; no text dataset or text processing is configured.

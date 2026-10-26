@@ -10,6 +10,7 @@ project:
     - file: book/tabular/index.md
       children:
         - file: book/tabular/01_eda.ipynb
+        - file: book/tabular/02_preprocessing.ipynb
     - file: book/text/index.md
 site:
   template: book-theme
