@@ -22,14 +22,15 @@ accepts these as explicit command-line options documented in the README.
 
 [Read the executed EDA notebook](01_eda.ipynb) for input checks, semantic feature
 roles, temporal leakage review, missingness, distributions, categorical support,
-Pearson/Spearman relationships, and seven exploratory statistical comparisons.
+full Pearson/Spearman relationships, normality testing, missingno and Little's MCAR reference.
 The findings table links numerical evidence to candidate methods and unresolved
 questions. Diagnostic thresholds are documented choices, not treatment rules.
 
 The notebook reads only `data/raw/training.csv` and verifies that both the raw
 file and loaded frame remain unchanged. ZIP codes are categorical identifiers;
 disease-code meanings, target polarity, units, and feature timestamps remain
-unverified unless an authoritative source is obtained.
+partly unverified; the notebook distinguishes dictionary-supported facts from remaining gaps.
+Its mechanism-assessment table evaluates MCAR/MAR/MNAR without assigning unsupported labels.
 
 Saved aggregate outputs allow the book to render without private CSV access or
 notebook execution in CI. Recomputing EDA requires the local training file and
