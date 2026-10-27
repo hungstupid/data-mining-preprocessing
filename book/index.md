@@ -6,7 +6,8 @@ This book presents reproducible preprocessing decisions for
 [WiDS Datathon 2024 Challenge #1](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/data).
 Read **Part A** in seven stages; each executable chapter separates its objective, methodology,
 implementation, results, discussion and conclusion. Code and numbers come from the same
-notebook sources; detailed checks and supporting results remain expandable.
+notebook sources; full scientific tables and supporting results remain expandable.
+Analytic and leakage fixtures are maintained separately in `tests/`.
 
 | Part A chapter | Question |
 |---|---|
@@ -19,7 +20,7 @@ notebook sources; detailed checks and supporting results remain expandable.
 | [07 — Class imbalance](tabular/07_class_imbalance.ipynb) | Does training-only rebalancing improve original-prevalence assessment? |
 
 Start with the [Part A protocol and reproduction guide](tabular/index.md).
-The [appendix](tabular/appendix.md) provides supporting benchmarks and verification details.
+The [appendix](tabular/appendix.md) provides supporting benchmarks and separate test instructions.
 Each notebook runs from a fresh project kernel; saved outputs allow CSV-free static builds.
 The repository README contains environment, data-access, test and publication commands.
 

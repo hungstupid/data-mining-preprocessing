@@ -1,9 +1,9 @@
 # Part A — Current Rubric Evidence
 
-Reviewed baseline: `82617d1bbe17bf0675d3ca770f5bb493b3dfacdc` (initial working tree clean).
-Scope: presentation and independent execution of Stages 01–07; no new experiment or Part B work.
+Reviewed baseline: `bffb8522ea0214fd2e83a7d4001432871b5df1d9` (initial working tree clean).
+Scope: final verification cleanup; the seven-notebook architecture, scored experiments and Part B are unchanged.
 The [official HCMUS rubric](https://hcmus-cs-ta.github.io/lab-book/data-mining/projects/preprocessing/)
-was retrieved and read in full for this refactor. **PASS** below records implementation/output
+was retrieved and read in full for the preceding refactor; its criterion mapping is retained. **PASS** below records implementation/output
 coverage; **LIMITED** records an unresolved scientific or rubric interpretation. Neither means
 an awarded grade. The rubric also requires Part B for the complete assignment.
 
@@ -27,7 +27,7 @@ an awarded grade. The rubric also requires Part B for the complete assignment.
 | PCA, t-SNE, conditional UMAP | All 3 PCA variance targets in CV; training-only scree/2D PCA and fixed 2,000-row t-SNE display | PCA/t-SNE PASS; **LIMITED** UMAP omitted, rubric's “large” condition has no threshold; no unverified coverage claim |
 | Five-fold F1-macro comparison and theory/results | Stage 06: same ZIP-aware folds/classifier, all five scores, means/SD, feature counts, formulas and count-performance plot | PASS; SD is descriptive, no-selection reference remains strongest |
 | Imbalance analysis; SMOTE/ADASYN/RUS; original-prevalence evaluation | [07 Class imbalance](book/tabular/07_class_imbalance.ipynb): four treatments including baseline, 20 held-fold results, both-class metrics, continuous AUC, confusion tables, original reserved rows | PASS; moderate imbalance, numerical-only common scope; no synthetic categorical interpolation |
-| Reproducibility, leakage and data integrity | Fixed masks/ZIP partitions/folds; train-only transforms/sampling; analytic and Pipeline fixtures; source hashes; no private processed cache | PASS execution checks; whole-file EDA exposure and unresolved timing disclosed |
+| Reproducibility, leakage and data integrity | Fixed masks/ZIP partitions/folds; train-only transforms/sampling; analytic/Pipeline fixtures in `tests/`; raw integrity guards; no private processed cache | PASS execution checks; whole-file EDA exposure and unresolved timing disclosed |
 | One Jupyter Book, chapter notebooks, source/setup/personal identity | [README](README.md), seven independently executable notebooks, [Part A overview](book/tabular/index.md), [appendix](book/tabular/appendix.md), `myst.yml` and existing Pages workflow | PASS source structure; local publication checks below; new remote deployment not attempted |
 
 ## Fixed experimental contract
@@ -43,28 +43,28 @@ an awarded grade. The rubric also requires Part B for the complete assignment.
   only on each fitting fold. Stage 07 uses the existing numerical-only scope and fresh baseline;
   it is not a direct effect comparison against Stage 06's mixed-feature baseline.
 - LR/hyperparameters, threshold .5, sampler settings, selection rules, reserve policy and
-  original code/experimental units are preserved. Only presentation, explicit imports and
-  cross-notebook dependency/verification plumbing change.
+  all scored experimental settings/results are preserved. Only verification/test placement and associated documentation change.
+  The unscored one-round pilot and verification-only repeated fits are removed, not scored draws.
 - Raw training SHA-256:
   `e9947ecfe1cdacafbf9cbcdc0abd024396f617c701b056fa54e5881f1bb9bbe9`.
 
 ## Reproduction and numerical regression
 
 The following checks use the existing `.venv` / `hcmus-wids` kernel. Aggregate before/after
-reports and source snapshots are retained locally under ignored `.cache/part-a-refactor/`;
+reports and source snapshots are retained locally under ignored `.cache/part-a-cleanup/`;
 Git preserves the baseline source. Timings/available OS memory vary and are not model results.
 
 | Check | Result |
 |---|---|
-| Restart Kernel → Run All, each of seven chapters | Executed independently; 93 sequential code cells saved without exception (88 original computational units + 5 independent bootstraps) |
-| Unit tests | 8 pass: existing 5 Little tests + 3 shared-input/split/training-only preparation tests |
-| Notebook correctness groups | 54 Stage 02–07 groups pass; synthetic fixtures, held-label traps and full-pipeline reproductions retained |
-| Before/after aggregate comparison | EDA plus all Stage 02–07 legacy result fields compared; numerical values identical; only runtime/memory measures and documented prose/check names exempted |
-| Partitions/prepared matrices/folds | Actual partition hashes agree in all chapters; Stage 03–05 completed matrices match Stage 02 reference; Stage 06/07 actual grouped fold indices match |
-| Plots and original computational units | All 26 PNG outputs byte-identical; all 88 original code-cell units represented; no experiment removed |
+| Restart Kernel → Run All, each of seven chapters | Executed independently; 89 sequential code cells saved without exception; only fixture/pilot cells removed |
+| Unit tests | 25 pass: 5 Little + 3 input/split/preparation + 17 notebook-method tests; synthetic data only, no private CSV |
+| Verification cleanup | `assert`: 338→54; `np.testing`/`pd.testing`: 165→1; SHA-256 calls: 70→9; pandas frame hashing: 55→0 (notebook source only). Code: 4,154→3,138 lines |
+| Before/after aggregate comparison | 70,231 scientific/result leaves match exactly. Exemptions: runtime/memory and retired test/pilot fingerprints; expected One-Hot warning duplicates fall 6→3 after removing repeated prediction checks; fold/message coverage unchanged |
+| Partitions/prepared matrices/folds | Actual partition hashes agree in Stages 02–07; Stage 03–05 completed matrices match Stage 02 reference; Stage 06/07 actual grouped fold indices match |
+| Plots and original computational units | All 26 PNG outputs byte-identical; all 26 display formulas and all scored experiments/results retained |
 | Protected sources | All three local raw CSV hashes unchanged; Part B, validator, Little implementation, dependencies and deployment workflow unchanged |
 | Notebook format | JSON/schema, unique cell IDs, sequential execution counts, six report sections and no error outputs checked |
-| CSV-free Jupyter Book / browser | PASS: 11-page CSV-free build without `--execute`; local Chrome checks Part A navigation, tables, formulas, images and page widths; remote publication not attempted |
+| CSV-free Jupyter Book / browser | PASS: 11-page CSV-free build without `--execute`; local Chrome verifies chapter navigation, tables, all 26 formulas/images and page widths. Remote publication not attempted |
 
 | Preserved result | Before | After |
 |---|---:|---:|
@@ -92,5 +92,9 @@ Git preserves the baseline source. Timings/available OS memory vary and are not 
 
 Historical audit/deployment narratives are preserved verbatim in
 [the baseline audit archive](docs/history/RUBRIC_AUDIT_82617d1.md). They are historical evidence,
-not current notebook cell references or a specification. Notebook Markdown is reduced from 15,690 to 3,783 whitespace-delimited words (about 76%);
-all 26 original display formulas remain. No commit, push or PR is performed.
+not current notebook cell references or a specification. Current notebooks retain only essential
+schema/semantic, group/mask, finite-output, CV/convergence, known-value and raw-file guards.
+Analytic correctness, Target OOF leakage, train-only preprocessing, full-pipeline and sampler traps
+are tested separately against the actual notebook function definitions. Repetitive sklearn
+self-checks and real-data refits are discarded rather than copied wholesale into tests.
+No commit, push or PR is performed for this cleanup.

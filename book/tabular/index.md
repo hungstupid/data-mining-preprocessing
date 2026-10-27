@@ -19,8 +19,8 @@ eligibility remain unresolved. Literal tokens such as ZIP `999` are not recoded 
 | Reserved assessment | 2,652 | 148 | 1,004 | 1,648 | One locked Stage 07 policy at original prevalence |
 
 GroupShuffleSplit seeds 42/43 fix these partitions. Stages 06–07 use identical five
-StratifiedGroupKFold splits (shuffle=True, seed=42) within inner training. The kernels
-recreate that recipe independently and the verification compares actual index hashes.
+StratifiedGroupKFold splits (shuffle=True, seed=42) within inner training. The notebooks
+recreate the same fixed recipe independently.
 No seed search, cross-fold learned state or resampling of held/reserved rows occurs.
 Whole-file EDA already informed the project, so the final reserve is a **post-EDA internal
 assessment**, not an untouched external cohort. Reexecution repeats the same locked policy;
@@ -46,15 +46,16 @@ read its saved outputs. Stages 06–07 fit learned preprocessing from raw fittin
 No private processed-data cache/checkpoint is needed.
 
 The six report sections make the main argument visible. Expand code, diagnostics and full
-per-feature tables for details; use the [appendix](appendix.md) for supporting checks and
-original-scope evidence. Scores/p-values remain in Python variables and real saved outputs.
+per-feature tables for details; use the [appendix](appendix.md) for original-scope evidence
+and the separate test command. Scores/p-values remain in Python variables and real saved outputs.
 
 ## Reproduction and publication
 
 The repository README gives exact environment/data/test/build commands. Run the notebooks in
-01→07 order for a complete review, or open any chapter independently. The final integrity
-checks preserve raw values, schema, observed measurements and both holdouts. No patient-level
-processed table is exported or committed. The optional Stage 01 download never replaces an
+01→07 order for a complete review, or open any chapter independently. The notebooks retain
+raw-file integrity and essential data/leakage boundaries; separate tests cover analytic formulas,
+observed-value preservation and synthetic held-data traps. No patient-level processed table
+is exported or committed. The optional Stage 01 download never replaces an
 existing file and requires your own authorized Kaggle access.
 
 Jupyter Book builds saved aggregate outputs **without `--execute`**; private CSVs are required

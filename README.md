@@ -27,8 +27,8 @@ comparisons, not a deployable clinical model. Part B is unchanged and not implem
 | 07 | [Class imbalance](book/tabular/07_class_imbalance.ipynb) | Four treatments, original-prevalence evaluation and locked internal assessment |
 
 Every chapter follows Objective → Methodology → Implementation → Results → Discussion →
-Conclusion. Long code/checks and full diagnostics are expandable; the
-[appendix](book/tabular/appendix.md) links supporting experiments and verification evidence.
+Conclusion. Full scientific diagnostics and long code are expandable; the
+[appendix](book/tabular/appendix.md) provides supporting experiments and separate test instructions.
 [src/tabular_data.py](src/tabular_data.py) contains only shared read/split/semantic/preparation
 functions. Each notebook starts from the raw CSV in its own fresh kernel. It does not execute
 an earlier notebook, load its saved HTML, or depend on a processed-data cache.
@@ -36,7 +36,7 @@ an earlier notebook, load its saved HTML, or depend on a processed-data cache.
 Stages 03–05 reconstruct the same train-only kNN10 descriptive input. Stages 06–07 start
 from raw predictors and fit every learned transformation inside each CV training fold;
 they never reuse a full-training completed/scaled matrix. The same deterministic group folds
-are independently recreated and compared. Whole-file EDA exposure is disclosed: the reserve
+are independently recreated from the fixed recipe. Whole-file EDA exposure is disclosed: the reserve
 is an internal post-EDA assessment, not an untouched external cohort.
 
 ## Environment
@@ -57,7 +57,7 @@ python -m ipykernel install --sys-prefix --name hcmus-wids --display-name "Pytho
 ```
 
 For an existing `.venv`, activate it and keep it. Select its `hcmus-wids` kernel in Jupyter/VS Code.
-No global Python packages or additional dependency is required by this refactor.
+No additional dependency is required by this cleanup.
 Check `node --version` and `npm --version`; the first book-theme download needs network access.
 
 ## Obtain and validate the data
@@ -81,8 +81,9 @@ Kaggle authorization; it is not run during this refactor.
 
 The validator reports structural/integrity diagnostics read-only. Explicit thresholds are
 required for its structural PASS, and semantic types/missingness are checked in EDA.
-Raw SHA-256, source-frame values/dtypes and group non-overlap are checked by the notebooks.
-No transformed patient table is exported.
+The notebooks retain schema/ZIP checks, disjoint group boundaries and one final raw-file
+integrity check per chapter. Analytic correctness and synthetic leakage fixtures live in
+`tests/`, not the report narrative. No transformed patient table is exported.
 
 ## Reproduce the experiments
 
@@ -121,7 +122,7 @@ credentials; recomputing the experiments requires the local training CSV. Keep s
 GitHub Pages must use **Settings → Pages → Build and deployment → Source → GitHub Actions**.
 This setting was enabled and the reviewed deployment verified in the archived audit.
 A separately authorized push to `main` or workflow dispatch publishes the committed source.
-Local build success does not certify a new remote deployment. This refactor does not
+Local build success does not certify a new remote deployment. This cleanup does not
 commit, push, change Pages settings, or alter the deployment workflow.
 
 ## Completion boundaries
