@@ -28,8 +28,9 @@ questions. Diagnostic thresholds are documented choices, not treatment rules.
 
 The notebook reads only `data/raw/training.csv` and verifies that both the raw
 file and loaded frame remain unchanged. ZIP codes are categorical identifiers;
-disease-code meanings, target polarity, units, and feature timestamps remain
-partly unverified; the notebook distinguishes dictionary-supported facts from remaining gaps.
+disease-code meanings, clinical timing anchors, units, and feature timestamps remain
+partly unverified. The focused review in Section 57 of the preprocessing notebook resolves
+target polarity without changing the historical EDA or its remaining source limitations.
 Its mechanism-assessment table evaluates MCAR/MAR/MNAR without assigning unsupported labels.
 
 Saved aggregate outputs allow the book to render without private CSV access or
@@ -179,8 +180,10 @@ the four treatments. Nominal fields/codes are excluded to avoid interpolating ca
 representations. ZIP only defines groups. The same Stage 06 folds and original row
 identities are reused; the numerical-only baseline is recomputed for fair comparison.
 
-Both labels occur in every fold. The minority is 0; computational positive is 1.
-Clinical numeric polarity is not explicitly verified by the accessible official dictionary.
+Both labels occur in every fold. The [MathWorks WiDS walkthrough](https://blogs.mathworks.com/student-lounge/2024/01/01/predicting-timely-diagnosis-of-metastatic-breast-cancer-for-the-wids-datathon-2024/) confirms
+1/True as the 90-day diagnosis group and 0/False as its complement. Thus the positive
+class remains 1 and the minority remains 0; metrics and label values are unchanged.
+Precise timing anchors and prospective feature eligibility are separate unresolved issues.
 All original/resampled/held class counts, five-fold metrics and confusion matrices,
 mean/sample SD, runtime and distribution changes are saved. ADASYN rounding is measured,
 not replaced with an assumed exact ratio. Synthesized fractional ages/context mixtures,
@@ -204,8 +207,8 @@ The existing CSV-free saved-output publication mechanism applies.
 
 ## Planned work
 
-External/prospective validation, explicit prediction-time eligibility, verified numeric
-clinical label mapping and application-specific calibration/cost decisions remain unresolved.
+External/prospective validation, explicit prediction-time eligibility, precise clinical
+timing anchors and application-specific calibration/cost decisions remain unresolved.
 Natural missingness assumptions and synthetic realism are not established by successful
 execution. No overall 100% scientific-completion claim is made. Text remains a separate
 future task; mandatory part (b) of the assignment is not satisfied by its placeholder.

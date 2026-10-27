@@ -4,6 +4,48 @@ Source: https://hcmus-cs-ta.github.io/lab-book/data-mining/projects/preprocessin
 
 The entire official HTML page was retrieved with HTTP 200 on 25 October 2026 and read through the grading/policy sections. The web-tool rendering failed, so the direct HTTP response was used. The page’s linked raw Markdown returned 404; it is not used as evidence. Requirements below are concise technical paraphrases, with exact numeric parameters preserved. Cell references in the initial audit are **zero-based indices of the original 29-cell notebook**. PASS records observed code/output evidence, not an inference from a clean run. Future work uses NOT VERIFIED; it does not count as completed.
 
+## Focused final review — 27 October 2026
+
+Reviewed/current HEAD: `c7b3fc779c4ab8e97d685a6031b133fad01063ee`; initial working
+tree clean. Only target-label documentation and Pages diagnosis are in scope.
+The [MathWorks WiDS walkthrough](https://blogs.mathworks.com/student-lounge/2024/01/01/predicting-timely-diagnosis-of-metastatic-breast-cancer-for-the-wids-datathon-2024/) was retrieved and its **Univariate Analysis** text and
+numeric comparisons were read directly. Together with the competition dictionary,
+it resolves target polarity; the corrected Stage 07 statements below supersede the
+earlier dictionary-only uncertainty, including dated EDA records and legacy diagnostic
+strings retained in code/saved outputs. Clinical timing and prospective eligibility
+remain separate questions. No Stage 05–07 algorithmic correction is indicated.
+
+- Notebook edits affect only Markdown cells **98 and 132**. All 148 cell IDs/order,
+  all 72 complete code-cell records (source, execution counts, metadata and outputs),
+  every saved numerical result and all 18 figures remain identical to the reviewed
+  commit. No model rerun or new reserved scoring is performed for a documentation fix.
+- Five encoding methods/OOF Target Encoding, VIF, all 110 Stage 06 CV evaluations,
+  Stage 07 configurations and reserved scores are preserved. Raw data, EDA, workflow,
+  MyST configuration and all other tracked implementation files retain their hashes.
+  Notebook JSON/schema/IDs and `git diff --check` pass.
+- GitHub connector job/log inspection confirms [run 40429352444](https://github.com/hungstupid/data-mining-preprocessing/actions/runs/40429352444)
+  fails at **Configure Pages**; build, artifact upload and deploy are skipped.
+  At initial inspection, metadata had `has_pages: false`; authenticated Pages GET
+  and the public site returned **404**. The action's `enablement: false` and existing permissions do
+  not create a Pages site. This is a repository-settings blocker, not a demonstrated
+  notebook/build error. `.github/workflows/deploy.yml` and `myst.yml` need no change.
+- The owner then selected **Settings → Pages → Build and deployment → Source →
+  GitHub Actions** in [repository Pages settings](https://github.com/hungstupid/data-mining-preprocessing/settings/pages).
+  Authenticated Pages GET now succeeds with `build_type: workflow`. The failed job
+  was rerun without a commit or YAML change: [attempt 2](https://github.com/hungstupid/data-mining-preprocessing/actions/runs/40429352444/attempts/2)
+  completed successfully, including Configure Pages, static build, artifact upload
+  and deployment. No further build/deployment failure appeared, so no workflow fix
+  was warranted. The original settings blocker is **RESOLVED**.
+- The [public homepage](https://hungstupid.github.io/data-mining-preprocessing/) and
+  [preprocessing page](https://hungstupid.github.io/data-mining-preprocessing/preprocessing/)
+  return **HTTP 200**, with the expected HCMUS title. All five distinct homepage
+  navigation targets and all 18 preprocessing images return 200. **Deployment PASS**
+  applies to reviewed commit `c7b3fc779c4ab8e97d685a6031b133fad01063ee`.
+  These local documentation corrections have not been committed/pushed or published;
+  no PR is opened. A separate CSV-free local build of the edited book also succeeds
+  for all five pages, includes the sourced polarity clarification and uses saved
+  outputs only; no kernel/model/reserved assessment is rerun.
+
 ## Current Stage 07 — Advanced Class Imbalance & Controlled Evaluation
 
 Starting/current HEAD: `0f276c25301552222b37b7332290dfe7d9ee50ba` (Stage 04).
@@ -27,12 +69,13 @@ Full file: **4,846 label 0 / 8,060 label 1**, moderate imbalance; inner training
 **3,064 / 5,109** (8,173 rows; 443 ZIPs); other validation **778 / 1,303** (2,081 rows;
 148 ZIPs); reserve **1,004 / 1,648** (2,652 rows; 148 ZIPs).
 The [official dictionary](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/data)
-confirms an indicator concerning diagnosis within 90 days, but accessible text does
-not explicitly map numeric 0/1 to clinical events or fully establish timing anchors/
-boundaries. **Numeric clinical polarity remains UNVERIFIED.** Positive-class metrics
-mean numeric 1; minority is 0. No conclusion about delayed/favorable clinical outcomes
-is inferred from these labels. BMI remains post-metastatic and prospective eligibility
-is not approved by this retrospective experiment.
+identifies the target concept. The [MathWorks WiDS walkthrough](https://blogs.mathworks.com/student-lounge/2024/01/01/predicting-timely-diagnosis-of-metastatic-breast-cancer-for-the-wids-datathon-2024/), **Univariate Analysis**,
+explicitly maps 1/True to its 90-day diagnosis group and 0/False to the complement.
+**Numeric target polarity is verified:** positive is 1, minority is 0. All class-specific
+metrics remain correctly defined. This does not verify precise clinical anchors or the
+exact-day boundary (Kaggle's less-than wording versus the walkthrough's inclusive wording).
+BMI remains post-metastatic; source eligibility and prospective availability are unresolved.
+No broader favorable-outcome or clinical-utility conclusion follows from target polarity.
 
 All four treatments use exactly the same **69 numerical candidates**, no feature
 selection, nominal fields/One-Hot, ID, target, ZIP or diagnosis/treatment code/text.
@@ -196,7 +239,8 @@ HEAD unchanged, no CSV tracked and `git diff --check` passes.
 | Stage 07 requirement | Status | Evidence / limit |
 |---|---|---|
 | Actual class counts and computational positive/minority | PASS | Full/train/validation/reserve and every fold |
-| Numeric clinical polarity and complete target-time contract | PARTIAL — UNVERIFIED | Official concept confirmed; explicit 0/1 mapping/anchors unavailable |
+| Numeric target polarity | PASS | MathWorks explicitly links 1/True to the 90-day group and 0/False to the complement; metrics unchanged |
+| Complete target-time / prospective feature contract | PARTIAL — UNVERIFIED | Precise anchors, exact-day boundary and source/feature eligibility remain unresolved |
 | Common numerical-only four-treatment design | PASS — retrospective | 69 columns, nominal exclusions, same folds/LR/threshold |
 | Train-only preprocessing and three required samplers | PASS | Fresh fold fits, actual counts, Pipeline.fit reproduction and held traps |
 | P/R/F1/AUC, confusion, class distributions, runtime and fold SD | PASS | 20 original-prevalence held evaluations; no independent-CI claim |
@@ -206,11 +250,10 @@ HEAD unchanged, no CSV tracked and `git diff --check` passes.
 | External/prospective validity, calibration and clinical costs | NOT VERIFIED | Not inferred from this assignment benchmark |
 
 **Advanced imbalance algorithms and controlled evaluation are implemented and verified
-in the declared retrospective numerical scope.** The documentation criterion about
-clinical 0/1 meaning is only partially verified; overall 100% rubric completion is
-not asserted. Before the tabular branch can be described as scientifically complete
-for an application, establish numeric label/temporal eligibility and intended prediction
-time, justify missingness/synthetic constraints, and obtain independent external/
+in the declared retrospective numerical scope.** Target polarity is now independently
+verified; this does not establish overall 100% rubric completion. Before the tabular
+branch can be described as scientifically complete for an application, establish
+temporal eligibility and intended prediction time, justify missingness/synthetic constraints, and obtain independent external/
 prospective performance with appropriate calibration/cost assessment. These are separate
 from mechanically completing the rubric experiments. Mandatory Text/image part (b)
 remains outside this task and unsatisfied by its placeholder.

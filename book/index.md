@@ -53,8 +53,9 @@ competition dictionary and rules when interpreting the variables.
 - [Stage 07 — Class Imbalance & Controlled Evaluation](tabular/02_preprocessing.ipynb):
   Sections 57–64 retain original held-fold prevalence, report actual sampling counts,
   Precision/Recall/F1-macro/ROC-AUC, uncertainty, confusion matrices and one locked
-  internal reserved score. Synthetic realism, clinical label polarity and prospective
-  validity remain qualified.
+  internal reserved score. Positive label 1 denotes the 90-day diagnosis group; minority
+  label 0 is its complement (sources in Section 57). Synthetic realism, clinical timing
+  and prospective validity remain qualified.
 - [Text preprocessing](text/index.md): reserved for a future, separately defined task.
 
 ## Reproduce the workspace

@@ -373,9 +373,10 @@ Nominal/One-Hot variables and codes are excluded from this common interpolation 
 its fresh numerical-only baseline differs from Stage 06's mixed baseline.
 
 Full counts are label 0=4,846 / label 1=8,060; inner training is 3,064 / 5,109.
-Label 1 is the computational positive, label 0 the minority. The official dictionary
-states the diagnosis-period concept but does not explicitly establish numeric clinical
-polarity or complete timing anchors in the accessible description; these stay unverified.
+The [MathWorks WiDS walkthrough](https://blogs.mathworks.com/student-lounge/2024/01/01/predicting-timely-diagnosis-of-metastatic-breast-cancer-for-the-wids-datathon-2024/) explicitly maps 1/True to the
+90-day diagnosis group and 0/False to its complement. Positive class 1 and minority
+class 0 are therefore correctly defined; all metrics are unchanged. Precise timing
+anchors, the exact-day boundary and prospective feature eligibility remain unresolved.
 All per-fold class counts, P/R/F1, continuous ROC-AUC, confusion matrices, timings and
 mean/fold SD are saved. ADASYN actual counts differ from exact balance; synthetic
 fractional ages/context mixing and undersampling information loss remain explicit.
@@ -464,10 +465,18 @@ commit/push the reviewed files only when you intend to publish. A push to `main`
 or a manual workflow dispatch triggers the prepared workflow. Nothing in this
 local setup changes remote settings or triggers deployment.
 
-The intended public address after a successful deployment is
-`https://hungstupid.github.io/data-mining-preprocessing/`; this setup does not
-assert that the site is already live. Remote Actions execution and Pages
-deployment must be verified after the owner authorizes publication.
+On 27 October 2026, the first attempt of [run 40429352444](https://github.com/hungstupid/data-mining-preprocessing/actions/runs/40429352444)
+failed at **Configure Pages**, before build/upload/deploy: `has_pages: false` and
+Pages API/public-site HTTP 404 confirmed Pages was not enabled. After the owner
+selected **Settings → Pages → Build and deployment → Source → GitHub Actions**,
+[attempt 2](https://github.com/hungstupid/data-mining-preprocessing/actions/runs/40429352444/attempts/2)
+succeeded through configure, build, upload and deploy without a workflow/config change.
+
+The [public book](https://hungstupid.github.io/data-mining-preprocessing/) and its
+preprocessing page now return HTTP 200; all five distinct homepage navigation targets
+and all 18 preprocessing figures were checked successfully. Deployment currently serves
+commit `c7b3fc7`. The focused target-label documentation edits remain local until a
+separately authorized commit/push; this review did neither.
 
 ## Initial setup verification — 23 October 2026
 
