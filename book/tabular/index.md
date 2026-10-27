@@ -116,9 +116,96 @@ Quantile target shapes are approximate, and imputation/contextual repetition aff
 their interpretation. Later model-dependent choices require fold-local fitting,
 temporal eligibility and held-out evaluation. Saved outputs render without CSVs in CI.
 
+## 05 — Categorical Encoding & Multicollinearity
+
+[Sections 37–46](02_preprocessing.ipynb) audit all 12 categorical/code/text fields
+plus protected ID/target, and compare One-Hot, illustrative Ordinal, ZIP-disjoint
+OOF Target, Binary hybrid and Frequency Encoding on the same five nominal fields:
+race, payer, state, Region and Division. State qualifies for >20-category bit encoding;
+low-cardinality fields retain reference One-Hot in the hybrid. ZIP remains only a
+split key; clinical codes/text, post-event treatment and constant gender are excluded.
+
+The source dictionary records some attributes on the metastatic date. Inclusion here
+is for a retrospective supplied-table demonstration, not earlier-baseline predictor
+approval. No genuine ordinal ordering is verified. Target mappings use five
+label-independent GroupKFold ZIP splits and fixed smoothing, with separate OOF training
+values and full-inner-training maps for validation/future transformation. No validation
+or reserved labels enter fitting. Later model CV must reconstruct supervised encodings
+inside its own training folds.
+
+The executed comparison reports dimensions, sparse/dense payload, unknown/missing
+behavior, full-design rank and VIF. Per-column VIF uses every encoded column plus the
+same six original numerical illustrations; a separate full 69-numerical+encoded rank
+audit exposes wider conditioning issues. An intercept/reference convention, constant
+and numerical perfect-dependence handling, and scope limits are explicit. Lower VIF
+or fewer columns does not establish better encoding. Original data remain unchanged;
+saved aggregate results publish without CSV access in CI.
+
+## 06 — Feature Selection, Dimensionality Reduction & Grouped F1
+
+[Sections 47–56](02_preprocessing.ipynb) compare no selection, numerical ANOVA,
+categorical-indicator Chi-square, MI, RF/GB importance, RFE and PCA with 22 fixed
+configurations and 110 held-fold LR evaluations. The raw retrospective pool retains
+69 numerical/five nominal fields and every inner-training patient. Five shared
+StratifiedGroupKFold splits separate ZIPs and retain both classes. External validation
+and reserve are not scored or used for Stage 06 model selection; Stage 07 below later
+scores only one locked numerical pipeline on the reserve.
+
+Fresh preprocessing is fitted within each fitting fold: observed numerical scaling,
+kNN10 completion, categorical missing/One-Hot rules, final scaling and ranking/selection.
+Stage 04 completed matrices and Stage 05 OOF Target Encoding are not reused for CV.
+ANOVA keeps selected numerical features plus all categorical columns; Chi-square keeps
+selected nonnegative indicators plus all numerical features. MI/RF/GB/RFE use whole-matrix
+top-k. The actual counts, complete scores/p-values, selected identities, original-field
+importances and selection stability are saved alongside all five F1-macro values,
+secondary metrics, class recalls and computation times.
+
+Fold-local PCA thresholds are evaluated with the same LR. Separate training-only
+display fits report the spectrum, 90/95/99% component counts, scree and 2D PCA/t-SNE
+plots; no label enters embedding fitting. A Stage 06 mixed-feature candidate chosen using these CV results
+has no independent final performance estimate; Stage 07's separate numerical scope
+is assessed below. Temporal availability, post-metastatic
+BMI, imputation uncertainty, correlated ZIP context and fixed-classifier/threshold
+limitations remain. UMAP is optional and omitted; Stage 06 itself does not rebalance.
+The Stage 07 extension follows; Text remains future work.
+
+## 07 — Class Imbalance & Controlled Evaluation
+
+[Sections 57–64](02_preprocessing.ipynb) compare no resampling, SMOTE, ADASYN and Random
+Under-sampling on a common 69-numerical-field space. Five raw-data fitting folds learn
+fresh StandardScaler → kNN10 → completed StandardScaler; sampling and the fixed Stage 06
+LR follow inside training only. Fold-local preprocessing is shared within, never across,
+the four treatments. Nominal fields/codes are excluded to avoid interpolating categorical
+representations. ZIP only defines groups. The same Stage 06 folds and original row
+identities are reused; the numerical-only baseline is recomputed for fair comparison.
+
+Both labels occur in every fold. The minority is 0; computational positive is 1.
+Clinical numeric polarity is not explicitly verified by the accessible official dictionary.
+All original/resampled/held class counts, five-fold metrics and confusion matrices,
+mean/sample SD, runtime and distribution changes are saved. ADASYN rounding is measured,
+not replaced with an assumed exact ratio. Synthesized fractional ages/context mixtures,
+prior/calibration changes, geographic dependence and RUS information loss are discussed.
+
+The fixed mean-F1 rule selects **Random undersampling**: CV F1-macro **0.509298 ±
+0.016373**, versus no-resampling **0.426654**.
+This supports a candidate in the stated benchmark; weak AUC and small differences among
+resamplers prevent a general superiority or clinical utility claim. Fold SD is not an
+independent confidence interval. A configuration hash precedes a single selected-method
+assessment on the original 2,652 reserved rows: F1-macro **0.500629**,
+ROC-AUC **0.529792**. The 2,081 other-validation rows remain separate.
+Whole-file EDA was already conducted; this is a post-EDA internal estimate, not an untouched
+external cohort. No reserve-driven retuning or multi-method reserve comparison is performed.
+
+The 148-cell notebook retains 72 sequentially executed code cells and saved aggregate outputs.
+Independent tests check training-only inputs, sampler skipping on held prediction, actual
+class counts/schema/finiteness, deterministic samplers, analytic metrics and raw-input
+complete Pipeline.fit equivalence. Original data/EDA and all previous results remain preserved.
+The existing CSV-free saved-output publication mechanism applies.
+
 ## Planned work
 
-Stage 05 Categorical Encoding, feature selection,
-resampling and classifier evaluation remain future work. The completed Stage 04
-comparison is separate from internal scaling used by imputation/anomaly methods.
-Temporal eligibility and source-period gaps must still be resolved for prediction.
+External/prospective validation, explicit prediction-time eligibility, verified numeric
+clinical label mapping and application-specific calibration/cost decisions remain unresolved.
+Natural missingness assumptions and synthetic realism are not established by successful
+execution. No overall 100% scientific-completion claim is made. Text remains a separate
+future task; mandatory part (b) of the assignment is not satisfied by its placeholder.

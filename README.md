@@ -10,9 +10,12 @@ statistical assumptions, and the exact later-stage checklist.
 Individual project for **Data Mining and Applications, HCMUS**. This repository
 provides a reproducible Python workspace and a Jupyter Book 2 publication scaffold.
 Stage 01 EDA, Stage 02 controlled numerical imputation, Stage 03 Outlier
-Detection & Treatment and Stage 04 Scaling are implemented with saved local results.
-Stage 05 Categorical Encoding, feature-selection comparisons and classifier training
-remain future work.
+Detection & Treatment, Stage 04 Scaling and Stage 05 Categorical Encoding are implemented
+with saved local results. Stage 06 adds fold-local feature selection, PCA/t-SNE and
+a controlled five-fold ZIP-grouped Logistic Regression comparison. Stage 07 adds
+four controlled class-imbalance treatments on a common numerical representation,
+with one locked post-EDA internal reserved assessment. External/prospective validation,
+clinical eligibility and Text remain future work; this is not a deployable clinical model.
 
 ## Dataset
 
@@ -306,8 +309,100 @@ The chapter retains all per-feature statistics and fitted parameters, three focu
 observed/imputed violin figures, and a median-centered Levene diagnostic for observed
 BMI across fixed training-age groups. P-values are nominal under dependence; affine
 scaling leaves this diagnostic invariant. Mechanical targets or marginal shape do not
-establish predictive superiority. Stage 05 Encoding and a validated predictive pipeline
-remain pending. Use the same execution command above; the saved-output build needs no CSV.
+establish predictive superiority. Predictive evaluation is reported separately in Stages 06–07; clinical validation remains pending.
+Use the same execution command above; the saved-output build needs no CSV.
+
+## Stage 05 — Categorical Encoding & Multicollinearity
+
+Sections 37–46 of [`02_preprocessing.ipynb`](book/tabular/02_preprocessing.ipynb)
+audit all categorical/code fields and protected ID/target, then compare One-Hot,
+illustrative Ordinal, group-aware OOF Target, Binary hybrid and Frequency Encoding.
+All methods use the same five nominal training fields: race, payer, state, Region
+and Division. State has genuine high cardinality; ZIP remains only a split key.
+Clinical code/text, post-event treatments and constant gender are outside this scope.
+At-metastatic attributes are not approved for an earlier prediction baseline.
+
+Target cross-fitting uses five label-independent ZIP GroupKFold splits, seed 42 and
+fixed alpha=10 smoothing. Full-inner-training mappings for validation/future data are
+separate from OOF training values; no held-out labels enter fitting. Later model CV
+must recreate encodings inside each training fold. Binary applies only to state;
+low-cardinality fields keep reference One-Hot. Ordinal codes have no verified ordering.
+
+The chapter reports missing/unseen behavior, dimension/storage tradeoffs, complete
+design rank and scoped VIF with intercept/reference conventions. Per-column VIF
+uses every encoded column plus six declared numerical predictors; full 69-column
+conditioning is separately audited. No encoder winner or predictive gain is claimed.
+Use the same execution command above and saved-output CSV-free build. An independently
+assessed, temporally eligible predictive pipeline remains future work.
+
+## Stage 06 — Feature Selection, PCA/t-SNE & Grouped CV
+
+Sections 47–56 of [`02_preprocessing.ipynb`](book/tabular/02_preprocessing.ipynb)
+compare no selection, ANOVA, Chi-square, MI, RF/GB importance, RFE and PCA using
+22 predeclared configurations and the same five StratifiedGroupKFold ZIP folds.
+The raw primary pool contains 69 numerical and five nominal fields; all observations
+are retained. It is a supplied-record retrospective benchmark, not an approved
+earlier clinical-baseline prediction task. IDs/ZIP/target and excluded clinical
+code/text/treatment fields do not enter predictors.
+
+Each fitting fold learns fresh numerical conditioning/kNN10, categorical missing
+tokens/One-Hot vocabulary, final scaling and selectors/PCA. No globally fitted
+Stage 04 matrix or Stage 05 target encoding enters CV. The common classifier is
+fixed L2 Logistic Regression; k=10/30/50 and PCA variance=.90/.95/.99 are fixed
+before scoring. ANOVA/Chi-square filter only their eligible blocks, with the
+other block retained; actual total feature counts are reported. Ranking scores,
+nominal p-values, group importances, selections/stability, all five F1-macro scores,
+secondary metrics and runtime remain auditable. Development selection scores do
+not replace independent final assessment.
+
+Separate unsupervised training-only PCA/t-SNE displays are fitted after CV scores
+are fixed; labels only color embeddings. UMAP is omitted as an optional extension.
+Stage 06 itself does not rebalance or score the reserve; Stage 07 below supersedes
+that pending state. Use the same notebook execution command and saved-output CSV-free
+build; see the audit for actual results and limitations.
+
+## Stage 07 — Class Imbalance & Controlled Evaluation
+
+Sections 57–64 of [`02_preprocessing.ipynb`](book/tabular/02_preprocessing.ipynb)
+compare no resampling, SMOTE, ADASYN and Random Under-sampling on the same **69
+numerical candidates** and exact Stage 06 ZIP-grouped five folds. Each fitting fold
+learns observed-value scaling, kNN10 completion and completed-data scaling before
+training-only sampling and the unchanged LR (C=1, threshold=.5, seed=42). All three
+samplers request ratio=1; SMOTE/ADASYN use five neighbors and RUS has no replacement.
+Nominal/One-Hot variables and codes are excluded from this common interpolation space;
+its fresh numerical-only baseline differs from Stage 06's mixed baseline.
+
+Full counts are label 0=4,846 / label 1=8,060; inner training is 3,064 / 5,109.
+Label 1 is the computational positive, label 0 the minority. The official dictionary
+states the diagnosis-period concept but does not explicitly establish numeric clinical
+polarity or complete timing anchors in the accessible description; these stay unverified.
+All per-fold class counts, P/R/F1, continuous ROC-AUC, confusion matrices, timings and
+mean/fold SD are saved. ADASYN actual counts differ from exact balance; synthetic
+fractional ages/context mixing and undersampling information loss remain explicit.
+
+| Method | Precision (1) | Recall (1) | Recall (0) | F1-macro | ROC-AUC (1) |
+|---|---:|---:|---:|---:|---:|
+| No resampling | 0.628064 ± 0.004525 | 0.956142 ± 0.022758 | 0.055493 ± 0.038001 | 0.426654 ± 0.027742 | 0.533587 ± 0.024787 |
+| SMOTE | 0.639866 ± 0.022133 | 0.549589 ± 0.081786 | 0.480334 ± 0.103921 | 0.507408 ± 0.017542 | 0.527965 ± 0.026273 |
+| ADASYN | 0.638552 ± 0.019155 | 0.543321 ± 0.058278 | 0.484659 ± 0.080689 | 0.507336 ± 0.015890 | 0.528217 ± 0.024360 |
+| Random undersampling | 0.641183 ± 0.015931 | 0.559947 ± 0.103856 | 0.474508 ± 0.110716 | 0.509298 ± 0.016373 | 0.528749 ± 0.026107 |
+
+The predeclared mean-F1 rule selects **Random undersampling**, delta=+0.082644
+versus the same-scope baseline. Its small advantage over the other resamplers does not
+establish superiority, and AUC remains close to chance. Fold SD is descriptive, not an
+independent-fold confidence interval. The complete configuration is hashed before one
+internal reserved assessment: **F1-macro=0.500629, AUC=0.529792**
+on 2,652 original rows (1,004 label 0 / 1,648 label 1). Only the selected method is
+scored there; no reserve comparison or retuning follows. Whole-file EDA exposure means
+this is not an untouched external test. The 2,081-row other-validation set is not pooled.
+
+Rerun the same `.venv` notebook command above, keeping saved outputs for CSV-free book
+publication. Independent fixtures and complete raw-input Pipeline.fit reproduction
+check train-only sampling, original held prevalence, schema, determinism and metrics.
+Sampling is skipped during prediction. Preprocessing steps are flat in imbalanced-learn
+Pipeline because nested sklearn Pipeline intermediates are unsupported. External
+validation, clinical time contract, probability calibration/cost decisions and Text
+remain outside this completed methodological comparison.
 
 ## Preview and build the book
 

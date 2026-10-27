@@ -11,8 +11,14 @@ configurations, Jaccard agreement and hypothetical-removal KS analysis. The trea
 recommendation preserves original observations with review flags. Stage 04 Scaling is
 completed: five configurations on the same 69-feature training matrix, full numerical
 summaries, provenance-aware violins and a focused variance diagnostic. Stage 05 Categorical
-Encoding, feature-selection and predictive experiments are pending; text preprocessing
-remains future work. These completed numerical experiments do not establish that the
+Encoding is completed for a retrospective five-field comparison, including ZIP-disjoint
+OOF Target Encoding, high-cardinality state bits and scoped VIF/rank diagnostics. Ordinal
+codes are illustrative because no semantic ordering is verified. Stage 06 Feature Selection
+and Dimensionality Reduction is completed with 22 configurations, fold-local preprocessing,
+group-aware five-fold F1 evaluation and separate PCA/t-SNE displays. Stage 07 compares
+no resampling, SMOTE, ADASYN and Random Under-sampling on the same 69 numerical fields
+with fold-local learning and one locked post-EDA internal reserved assessment. External
+clinical validation and text preprocessing remain future work. These completed numerical experiments do not establish that the
 entire dataset is fully preprocessed or that all features are eligible for prediction.
 
 ## Dataset and project scope
@@ -31,10 +37,24 @@ competition dictionary and rules when interpreting the variables.
 - [Stage 03 — Outlier Detection & Treatment](tabular/02_preprocessing.ipynb):
   Sections 16–27 compare all nine configurations on training data and justify a
   conservative retention policy. KS D is descriptive; nominal p-values have
-  dependent-sample limitations. A final predictive pipeline remains future work.
+  dependent-sample limitations. Controlled predictive assessment is in Stages 06–07;
+  clinical validation remains future work.
 - [Stage 04 — Scaling](tabular/02_preprocessing.ipynb): Sections 28–36 compare Min-Max,
   Standard, Robust and both uniform/normal quantile transforms. Mechanical scaling
   checks and training distributions do not select a predictive winner.
+- [Stage 05 — Categorical Encoding](tabular/02_preprocessing.ipynb): Sections 37–46
+  audit categorical eligibility and compare five representations, missing/unseen rules,
+  dimensionality/storage, group-aware cross-fitting and multicollinearity. Prospective
+  feature eligibility and a predictive encoding winner remain unverified.
+- [Stage 06 — Feature Selection & Dimensionality Reduction](tabular/02_preprocessing.ipynb):
+  Sections 47–56 compare statistical, model-based and wrapper selection plus PCA using
+  the same ZIP-grouped folds and LR. Descriptive embeddings and development selection
+  do not establish prospective performance or independent final generalization.
+- [Stage 07 — Class Imbalance & Controlled Evaluation](tabular/02_preprocessing.ipynb):
+  Sections 57–64 retain original held-fold prevalence, report actual sampling counts,
+  Precision/Recall/F1-macro/ROC-AUC, uncertainty, confusion matrices and one locked
+  internal reserved score. Synthetic realism, clinical label polarity and prospective
+  validity remain qualified.
 - [Text preprocessing](text/index.md): reserved for a future, separately defined task.
 
 ## Reproduce the workspace
