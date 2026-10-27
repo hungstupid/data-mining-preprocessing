@@ -1,90 +1,32 @@
 # HCMUS Data Preprocessing
 
-An individual **Data Mining and Applications** project at the University of
-Science, VNU-HCM (HCMUS).
+**Nguyễn Đức Hưng — 24127174** · Data Mining and Applications, HCMUS.
 
-This book documents reproducible data preprocessing decisions and their evaluation.
-Stage 01 EDA is completed. Stage 02 numerical missing-value imputation is completed:
-69 numerical features, seven configurations, and raw/per-feature/normalized RMSE
-comparisons. Stage 03 Outlier Detection & Treatment is completed with nine detector
-configurations, Jaccard agreement and hypothetical-removal KS analysis. The treatment
-recommendation preserves original observations with review flags. Stage 04 Scaling is
-completed: five configurations on the same 69-feature training matrix, full numerical
-summaries, provenance-aware violins and a focused variance diagnostic. Stage 05 Categorical
-Encoding is completed for a retrospective five-field comparison, including ZIP-disjoint
-OOF Target Encoding, high-cardinality state bits and scoped VIF/rank diagnostics. Ordinal
-codes are illustrative because no semantic ordering is verified. Stage 06 Feature Selection
-and Dimensionality Reduction is completed with 22 configurations, fold-local preprocessing,
-group-aware five-fold F1 evaluation and separate PCA/t-SNE displays. Stage 07 compares
-no resampling, SMOTE, ADASYN and Random Under-sampling on the same 69 numerical fields
-with fold-local learning and one locked post-EDA internal reserved assessment. External
-clinical validation and text preprocessing remain future work. These completed numerical experiments do not establish that the
-entire dataset is fully preprocessed or that all features are eligible for prediction.
+This book presents reproducible preprocessing decisions for
+[WiDS Datathon 2024 Challenge #1](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/data).
+Read **Part A** in seven stages; each executable chapter separates its objective, methodology,
+implementation, results, discussion and conclusion. Code and numbers come from the same
+notebook sources; detailed checks and supporting results remain expandable.
 
-## Dataset and project scope
+| Part A chapter | Question |
+|---|---|
+| [01 — EDA](tabular/01_eda.ipynb) | What are the distributions, missingness and semantic/temporal limits? |
+| [02 — Imputation](tabular/02_preprocessing.ipynb) | Which method reconstructs the same hidden observed cells? |
+| [03 — Outliers](tabular/03_outliers.ipynb) | Which records are flagged, and what would removal change? |
+| [04 — Scaling](tabular/04_scaling.ipynb) | How do scale, shape and observed/imputed provenance change? |
+| [05 — Encoding](tabular/05_encoding.ipynb) | What do five representations retain, lose or make collinear? |
+| [06 — Feature selection](tabular/06_feature_selection.ipynb) | Does reduction improve grouped five-fold F1? |
+| [07 — Class imbalance](tabular/07_class_imbalance.ipynb) | Does training-only rebalancing improve original-prevalence assessment? |
 
-The tabular section uses [WiDS Datathon 2024 — Challenge #1](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/data),
-a healthcare classification dataset concerning diagnosis delays. The binary
-target is `DiagPeriodL90D`; `patient_id` identifies records. Use the official
-competition dictionary and rules when interpreting the variables.
+Start with the [Part A protocol and reproduction guide](tabular/index.md).
+The [appendix](tabular/appendix.md) provides supporting benchmarks and verification details.
+Each notebook runs from a fresh project kernel; saved outputs allow CSV-free static builds.
+The repository README contains environment, data-access, test and publication commands.
 
-- [Tabular preprocessing](tabular/index.md): dataset access, validation and current progress.
-- [Stage 01 — Exploratory Data Analysis](tabular/01_eda.ipynb): executed dataset audit,
-  distributions, relationships, missingness and temporal-eligibility limitations.
-- [Stage 02 — Numerical Missing Value Imputation](tabular/02_preprocessing.ipynb):
-  the original six-feature benchmark and the joint 69-feature comparison of Mean,
-  Median, Mode, kNN k=3/5/10 and MICE with three posterior completions.
-- [Stage 03 — Outlier Detection & Treatment](tabular/02_preprocessing.ipynb):
-  Sections 16–27 compare all nine configurations on training data and justify a
-  conservative retention policy. KS D is descriptive; nominal p-values have
-  dependent-sample limitations. Controlled predictive assessment is in Stages 06–07;
-  clinical validation remains future work.
-- [Stage 04 — Scaling](tabular/02_preprocessing.ipynb): Sections 28–36 compare Min-Max,
-  Standard, Robust and both uniform/normal quantile transforms. Mechanical scaling
-  checks and training distributions do not select a predictive winner.
-- [Stage 05 — Categorical Encoding](tabular/02_preprocessing.ipynb): Sections 37–46
-  audit categorical eligibility and compare five representations, missing/unseen rules,
-  dimensionality/storage, group-aware cross-fitting and multicollinearity. Prospective
-  feature eligibility and a predictive encoding winner remain unverified.
-- [Stage 06 — Feature Selection & Dimensionality Reduction](tabular/02_preprocessing.ipynb):
-  Sections 47–56 compare statistical, model-based and wrapper selection plus PCA using
-  the same ZIP-grouped folds and LR. Descriptive embeddings and development selection
-  do not establish prospective performance or independent final generalization.
-- [Stage 07 — Class Imbalance & Controlled Evaluation](tabular/02_preprocessing.ipynb):
-  Sections 57–64 retain original held-fold prevalence, report actual sampling counts,
-  Precision/Recall/F1-macro/ROC-AUC, uncertainty, confusion matrices and one locked
-  internal reserved score. Positive label 1 denotes the 90-day diagnosis group; minority
-  label 0 is its complement (sources in Section 57). Synthetic realism, clinical timing
-  and prospective validity remain qualified.
-- [Text preprocessing](text/index.md): reserved for a future, separately defined task.
+These are retrospective supplied-table comparisons. Full-file EDA exposure, geographic
+dependence, post-metastatic BMI and unresolved clinical timing limit prospective claims.
+F1 improvement alone does not establish stronger ranking, calibration or clinical utility.
 
-## Reproduce the workspace
-
-Clone the [project repository](https://github.com/hungstupid/data-mining-preprocessing)
-and use its root directory. The verified interpreter and package versions are
-recorded in `.python-version`, `requirements.txt`, and `requirements-lock.txt`.
-For a fresh checkout with Python 3.13 installed:
-
-```bash
-python3.13 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements-lock.txt
-python -m pip check
-```
-
-Node.js 24.x and npm are also required for the book. Preview with
-`jupyter book start` or produce static HTML with `jupyter book build --html`.
-These pages render independently of the raw dataset and Kaggle credentials.
-
-For data validation, first authenticate with Kaggle and accept any required
-competition rules, then download and extract the official files into `data/raw/`:
-
-```bash
-kaggle competitions download widsdatathon2024-challenge1 -p data/raw
-python -m zipfile -e data/raw/widsdatathon2024-challenge1.zip data/raw
-python src/validate_dataset.py
-```
-
-Raw and processed datasets, credentials, environments, and generated HTML stay
-outside version control. The repository README contains complete environment,
-kernel, validation, and GitHub Pages instructions.
+[Part B — Text placeholder](text/index.md) remains unchanged and is not a completed second
+modality. The official assignment requires Part B in addition to Part A; no overall grade
+or whole-project completion is asserted here.

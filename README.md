@@ -1,498 +1,136 @@
 # HCMUS Data Preprocessing — WiDS 2024
 
-**Student:** Nguyễn Đức Hưng — **Student ID:** 24127174.
+**Nguyễn Đức Hưng — MSSV 24127174** · Data Mining and Applications, HCMUS.
 
-Official assignment: [HCMUS preprocessing project](https://hcmus-cs-ta.github.io/lab-book/data-mining/projects/preprocessing/).
-The complete requirements and grading were audited on 25 October 2026; see
-[RUBRIC_AUDIT.md](RUBRIC_AUDIT.md) for before/final traceability, unresolved
-statistical assumptions, and the exact later-stage checklist.
+[Published Jupyter Book](https://hungstupid.github.io/data-mining-preprocessing/) ·
+[Official rubric](https://hcmus-cs-ta.github.io/lab-book/data-mining/projects/preprocessing/) ·
+[Current evidence audit](RUBRIC_AUDIT.md).
 
-Individual project for **Data Mining and Applications, HCMUS**. This repository
-provides a reproducible Python workspace and a Jupyter Book 2 publication scaffold.
-Stage 01 EDA, Stage 02 controlled numerical imputation, Stage 03 Outlier
-Detection & Treatment, Stage 04 Scaling and Stage 05 Categorical Encoding are implemented
-with saved local results. Stage 06 adds fold-local feature selection, PCA/t-SNE and
-a controlled five-fold ZIP-grouped Logistic Regression comparison. Stage 07 adds
-four controlled class-imbalance treatments on a common numerical representation,
-with one locked post-EDA internal reserved assessment. External/prospective validation,
-clinical eligibility and Text remain future work; this is not a deployable clinical model.
+Part A uses [WiDS Datathon 2024 Challenge #1](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/data):
+12,906 labeled records, 83 columns, 69 numerical candidates and 12 nominal/code/text fields.
+`patient_id` is an identifier; `patient_zip3` is a string geographic group key.
+The target `DiagPeriodL90D` uses 1 for the 90-day diagnosis group and 0 for its complement;
+see the [MathWorks source](https://blogs.mathworks.com/student-lounge/2024/01/01/predicting-timely-diagnosis-of-metastatic-breast-cancer-for-the-wids-datathon-2024/).
+Precise clinical timing/eligibility remains unresolved. These are retrospective methodological
+comparisons, not a deployable clinical model. Part B is unchanged and not implemented.
 
-## Dataset
+## Read Part A
 
-Use only [WiDS Datathon 2024 — Challenge #1](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/data).
-This healthcare classification dataset concerns diagnosis delays among patients
-with metastatic breast cancer. The binary target is `DiagPeriodL90D`; `patient_id`
-is the identifier and must not be treated as a predictive feature.
-Refer to the competition data dictionary and rules for clinical definitions and use terms.
-Training data must contain both columns; the test CSV does not provide the target.
+| Stage | Executable chapter | Main evidence |
+|---|---|---|
+| 01 | [EDA](book/tabular/01_eda.ipynb) | Normality 69/69, Pearson/Spearman, missingno and scoped Little reference |
+| 02 | [Imputation](book/tabular/02_preprocessing.ipynb) | Seven configurations, fixed 10% masking, raw RMSE and Macro NRMSE |
+| 03 | [Outliers](book/tabular/03_outliers.ipynb) | Nine configurations, Jaccard, KS and keep-all recommendation |
+| 04 | [Scaling](book/tabular/04_scaling.ipynb) | Five configurations, provenance-aware violins and focused Levene diagnostic |
+| 05 | [Encoding](book/tabular/05_encoding.ipynb) | Five methods, group-OOF Target Encoding and scoped VIF/rank |
+| 06 | [Feature selection](book/tabular/06_feature_selection.ipynb) | 22 configurations / 110 CV evaluations, PCA and t-SNE |
+| 07 | [Class imbalance](book/tabular/07_class_imbalance.ipynb) | Four treatments, original-prevalence evaluation and locked internal assessment |
 
-Raw data, processed data, API credentials, local environments, and generated book
-files are excluded from Git. Download data directly from the official competition;
-do not substitute Challenge #2 or redistribute the files through the book.
+Every chapter follows Objective → Methodology → Implementation → Results → Discussion →
+Conclusion. Long code/checks and full diagnostics are expandable; the
+[appendix](book/tabular/appendix.md) links supporting experiments and verification evidence.
+[src/tabular_data.py](src/tabular_data.py) contains only shared read/split/semantic/preparation
+functions. Each notebook starts from the raw CSV in its own fresh kernel. It does not execute
+an earlier notebook, load its saved HTML, or depend on a processed-data cache.
 
-## Structure
+Stages 03–05 reconstruct the same train-only kNN10 descriptive input. Stages 06–07 start
+from raw predictors and fit every learned transformation inside each CV training fold;
+they never reuse a full-training completed/scaled matrix. The same deterministic group folds
+are independently recreated and compared. Whole-file EDA exposure is disclosed: the reserve
+is an internal post-EDA assessment, not an untouched external cohort.
 
-```text
-data-mining-preprocessing/       # actual cloned Git repository
-├── README.md
-├── requirements.txt            # exact direct dependency versions
-├── requirements-lock.txt       # installed transitive dependency snapshot
-├── .gitignore
-├── .python-version
-├── .vscode/settings.json
-├── myst.yml                    # Jupyter Book 2 / MyST configuration
-├── book/
-│   ├── index.md
-│   ├── tabular/
-│   │   ├── index.md
-│   │   ├── 01_eda.ipynb          # read-only EDA with locally computed outputs
-│   │   └── 02_preprocessing.ipynb # numerical preprocessing comparisons; saved outputs
-│   └── text/index.md
-├── data/
-│   ├── raw/                    # local, unmodified competition files
-│   └── processed/              # local derived files, when implemented
-├── src/validate_dataset.py
-├── .github/workflows/deploy.yml
-└── .venv/
-```
+## Environment
 
-On the original development machine, the clone was already inside another
-directory with the same name. Open the inner Git repository in VS Code and run
-commands there. No additional clone or nested project directory is needed.
-Check the actual root with `git rev-parse --show-toplevel`.
+Run commands at the Git root (`git rev-parse --show-toplevel`). On the original machine,
+the clone is inside another directory with the same name; open the inner repository.
+The verified environment uses Python **3.13.3**, exact dependencies in
+`requirements-lock.txt`, and Node.js **24.x** for Jupyter Book 2.1.7.
 
-## Python environment
-
-The setup uses **Python 3.13.3** because Python 3.12 was not installed. The previous
-pip-only Python 3.14 environment was preserved in `.venv-python314-backup/`;
-it is not the active project environment. No global packages are required.
-
-For a fresh checkout with Python 3.13 installed:
+For a fresh checkout:
 
 ```bash
 python3.13 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements-lock.txt
 python -m pip check
-python --version
-python -c "import sys; print(sys.executable); print(sys.prefix)"
-python -m pip --version
-```
-
-For an existing working `.venv`, activate it; do not recreate it. Use
-`python -m pip install -r requirements.txt` for the pinned direct dependencies;
-the lock snapshot also pins their transitive dependencies for closer reproduction.
-Both files record actual installed versions. Recheck compatibility on another OS.
-Optional packages such as UMAP and category encoders are not included.
-
-If the course specifically requires Python 3.12, install it explicitly with
-`brew install python@3.12` (user action), then create a new environment with
-`$(brew --prefix python@3.12)/bin/python3.12 -m venv .venv` **only in a fresh
-checkout or after safely preserving the current environment**. Verify the
-dependencies again; the supplied snapshot was validated with Python 3.13.
-
-Jupyter Book also needs **Node.js 24.x and npm** on `PATH`. Check `node --version`
-and `npm --version`. If using nvm, `nvm install 24` and `nvm use 24` install/select
-that version without changing system Python. The first HTML build downloads its
-web theme and needs internet access.
-
-### Notebook kernel
-
-Register a kernel inside the environment, without writing a user-wide kernelspec:
-
-```bash
 python -m ipykernel install --sys-prefix --name hcmus-wids --display-name "Python (HCMUS WiDS .venv)"
-python -m jupyter lab
 ```
 
-In VS Code, select `.venv/bin/python` as interpreter and the matching notebook
-kernel. Inside a notebook, `import sys; print(sys.executable)` must point to this
-repository's `.venv/bin/python`. The workspace setting supplies the default;
-an earlier VS Code selection may need to be changed manually.
+For an existing `.venv`, activate it and keep it. Select its `hcmus-wids` kernel in Jupyter/VS Code.
+No global Python packages or additional dependency is required by this refactor.
+Check `node --version` and `npm --version`; the first book-theme download needs network access.
 
-## Download the official dataset
+## Obtain and validate the data
 
-1. Sign in to Kaggle, open the [competition rules](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/rules),
-   and join/accept the rules if requested.
-2. Configure authentication locally using `kaggle auth login`, or generate an
-   API token in [Kaggle settings](https://www.kaggle.com/settings/api) and store it
-   in `~/.kaggle/access_token`. Legacy `~/.kaggle/kaggle.json` is also supported.
-   Keep credentials outside this repository and restrict credential-file access
-   to your account (`chmod 600` on the credential file). Do not paste tokens into
-   notebooks, shell commands saved in this repository, or chat.
-3. With `.venv` active, download and extract the official archive:
+Accept the [competition rules](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/rules)
+and configure [Kaggle authentication](https://github.com/Kaggle/kaggle-cli/blob/main/docs/README.md#authentication)
+locally, outside the repository. With `.venv` active:
 
 ```bash
 kaggle competitions download widsdatathon2024-challenge1 -p data/raw
 python -m zipfile -e data/raw/widsdatathon2024-challenge1.zip data/raw
-```
-
-If Kaggle returns 401, complete authentication. For 403, verify competition
-acceptance and account access in the browser. A manual download from the official
-Data page into `data/raw/`, followed by extraction, is also valid.
-See the [official Kaggle authentication documentation](https://github.com/Kaggle/kaggle-cli/blob/main/docs/README.md#authentication).
-
-## Validate the dataset
-
-```bash
 python src/validate_dataset.py --csv data/raw/training.csv \
   --min-rows 10000 --min-features 10 --min-numeric 1 --min-categorical 1
 ```
 
-The validator searches `data/raw/` recursively, ignores filename capitalization,
-and identifies training CSVs by their required columns. When multiple files match,
-choose explicitly with `python src/validate_dataset.py --csv data/raw/training.csv`.
-Use this explicit path with the official files: `sample_submission.csv` also has
-ID and target columns, so those headers alone do not identify training data.
-It loads data read-only and reports dimensions, deep DataFrame memory, target
-balance, missingness, inferred feature types, duplicate IDs/rows, constants,
-near-constants, categorical cardinality, and possible missing-value sentinels.
-The default near-constant threshold is 95% of non-missing values. Sentinel reports
-are suggestions for later review, not replacements or confirmed missingness.
+Use exactly `data/raw/training.csv`. The submission template also has ID/target headers;
+it is not training data. Do not replace existing raw files or publish CSVs/credentials.
+Stage 01 contains an optional guarded download (`DOWNLOAD_IF_MISSING=False` by default)
+that never replaces an existing training CSV. Executing that download requires your own
+Kaggle authorization; it is not run during this refactor.
 
-The official tabular choice requires at least 10 attributes, 10,000 rows, both
-numerical and categorical attributes, and at least 5% missingness in one attribute.
-The notebook checks all four requirements on actual data. The validator's command
-above checks structural minima conservatively on features excluding target/ID;
-its dtype counts do not replace the semantic audit or the notebook's 5% missingness
-check. Without explicit `--min-*` values, the standalone validator reports
-structural compliance as **UNCONFIRMED**. Exit status 0
-means supplied checks passed, 1 means integrity/threshold failure, and 2 means
-missing/unreadable input or invalid schema. Exit 0 alone does not certify a rubric.
-If raw data is absent, the validator reports the missing input explicitly.
-The EDA notebook below contains results computed from the local training CSV.
+The validator reports structural/integrity diagnostics read-only. Explicit thresholds are
+required for its structural PASS, and semantic types/missingness are checked in EDA.
+Raw SHA-256, source-frame values/dtypes and group non-overlap are checked by the notebooks.
+No transformed patient table is exported.
 
-## Stage 01 — Exploratory Data Analysis
+## Reproduce the experiments
 
-`book/tabular/01_eda.ipynb` audits the 12,906-row, 83-column training CSV, semantic
-feature roles, missingness, distributions, categorical support, and relationships.
-It reads `patient_zip3` as a string geographic code and audits its literal CSV
-tokens and distinguishes recorded values, semantic roles and temporal availability.
-Descriptive summaries and the required normality/correlation/missingness analyses
-support candidate preprocessing comparisons. Class recording rates do not identify
-a missingness mechanism, causal effect or useful predictor.
-The mandatory rubric corrections add per-feature Shapiro/D’Agostino normality
-tables, both full numerical correlation matrices/heatmaps and the complete strong-pair
-union, and actual `missingno.matrix` views. `src/little_mcar.py` implements the
-Gaussian ML/EM version of Little's mean-pattern statistic using existing NumPy/SciPy.
-Run its numerical checks with `python -m unittest discover -s tests -v`.
-It was also checked against the published `naniar` airquality example. The WiDS
-age/BMI calculation is a limited normal-model reference; an assumption-supported
-cohort-wide MCAR verdict remains **BLOCKED**, not converted into a MAR/MNAR claim.
-The selective review of commit `3baa00b` adds an official-source/timing audit and
-wider-scope feasibility diagnostics without adding Little p-values. The official
-[data dictionary](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/data)
-identifies BMI and treatment recording after metastatic diagnosis. BMI's descriptive
-audit remains retrospective; neither BMI nor its missingness indicator is approved
-for prediction before that event. Contextual repetition,
-sparse missing patterns and covariance dependencies leave broader calibrated MCAR
-inference unresolved; numerical convergence alone does not resolve them.
-A short mechanism-assessment table separates missing percentages, descriptive
-evidence, the age/BMI MCAR reference, hypothetical MAR/MNAR explanations and
-imputation candidates. MAR/MNAR is not identifiable from observed data alone.
-This uncertainty is documented for the preprocessing experiments; no mechanism
-label is forced and no imputation/scaling/encoding/model is fitted in EDA.
-The standalone validator reports inferred dtype counts; the notebook separately
-reviews semantic roles, so numeric-looking codes are not continuous variables.
-
-The reviewed notebook also compares relative and absolute category-support
-diagnostics and proposes a ZIP-aware validation protocol. All labeled rows have
-already informed EDA: a later split of this CSV is a **post-EDA internal
-assessment**, not a completely untouched test set. Learn future preprocessing
-rules only within development training folds; confirm the deployment question
-and evaluation protocol before running experiments.
-
-With `.venv` active, rerun from the repository root:
+Run Stage 01–07 in order, each with Restart Kernel → Run All. For a clean command-line run:
 
 ```bash
-python -m nbconvert --to notebook --execute --inplace \
-  --ExecutePreprocessor.kernel_name=hcmus-wids \
-  --ExecutePreprocessor.timeout=180 book/tabular/01_eda.ipynb
+for notebook in book/tabular/0[1-7]_*.ipynb; do
+  .venv/bin/python -m nbconvert --to notebook --execute --inplace \
+    --ExecutePreprocessor.kernel_name=hcmus-wids \
+    --ExecutePreprocessor.timeout=600 "$notebook" || exit 1
+done
+.venv/bin/python -m unittest discover -s tests -v
 ```
 
-Alternatively open the notebook, select **Python (HCMUS WiDS .venv)**, restart the
-kernel, and run all cells. Root discovery also works from `book/tabular/`. The
-direct `python -m nbconvert` form uses the active interpreter's package instead
-of letting the Jupyter dispatcher select a global executable from `PATH`. The
-notebook reads exactly `data/raw/training.csv`; it never uses the submission
-template or test CSV. Its final cell verifies the raw-file checksum and the
-loaded frame's values, index, dtypes, and shape. No transformed dataset is saved.
+The notebooks also run independently from the repository root or `book/tabular/`.
+Stage 02 retains both the original six-feature and the joint 69-feature experiments.
+The expanded winner remains kNN10 Macro NRMSE=0.676330; MICE has lower raw RMSE but
+912 bounded-share violations. No clipping, reweighting, retuning or new experiment is added.
+Stage 06 retains its no-selection reference; Stage 07 selects RUS by fixed mean F1,
+with weak AUC and worse Brier explicitly reported. Repeated execution of the same locked
+assessment checks reproducibility; reserved outcomes are never used for new choices.
 
-Publication uses the aggregate tables, figures, and interpretation outputs saved
-inside the executed `.ipynb`. The existing Pages workflow builds **without
-`--execute`**, so MyST renders those stored outputs without Kaggle credentials,
-the CSV, or the notebook kernel. See the [MyST execution documentation](https://mystmd.org/guide/execute-notebooks).
-Keep the executed outputs when preparing publication; if they are cleared, rerun
-locally before publishing. Raw patient rows and IDs are not displayed. Executing
-EDA requires local data even though rendering the book does not.
-
-## Stage 02 — Controlled Missing Value Imputation
-
-[`book/tabular/02_preprocessing.ipynb`](book/tabular/02_preprocessing.ipynb)
-compares Mean, Median, numerical Mode, kNN k=3/5/10 and MICE with three
-posterior-sampled completions (`sample_posterior=True`, seeds 101/102/103,
-ten rounds). The six predeclared features are `patient_age`, `bmi`, `density`,
-`income_household_median`, `education_college_or_above` and `PM25`. This original
-experiment remains in Sections 1–9, with its own results and scope. Sections 10–15
-audit all 69 numerical candidates and add a separate joint numerical benchmark;
-the original six-feature ranking is not extrapolated to the expanded scope.
-Full coverage is an extension for scientific completeness, not a literal all-69 rubric rule.
-This retrospective reconstruction task does not approve post-metastatic BMI
-for an earlier prediction time. Target, ID, ZIP, diagnosis and treatment fields
-never enter an imputer.
-
-ZIP-disjoint `GroupShuffleSplit` seeds 42/43 produce 8,173 inner-training,
-2,081 imputation-validation and 2,652 reserved rows. All estimator statistics
-and internal conditioning fit only inner training. Seed 2024 uniformly masks
-`floor(0.10 * observed N)` cells per validation feature; natural NaNs and the
-reference remain unchanged. Every configuration uses the same 1,101 known-cell
-positions in the original scope. The expanded scope uses the same masking rule
-on its ordered 69-column matrix and reports its own counts and mask hash.
-The outer reserve is not used to choose an imputer; prior whole-file
-EDA exposure is disclosed.
-
-Raw pooled RMSE and per-feature RMSE are retained. Selection uses the declared
-equal-feature mean of RMSE divided by observed inner-training SD (ddof 0), so
-large-unit income does not dominate the choice. MICE uses mean draw-level metrics
-and sample SD, not errors of averaged imputations or Rubin-rule pooling. The
-notebook includes actual fit/transform timings, focused synthetic checks and a
-real-data fixed-seed MICE repeat in each scope. The extension also reports complete
-eligibility, pairwise support, conditioning, memory/model-count estimates, an
-unscored full-population pilot, posterior support violations and categorical gaps.
-Highly correlated features are retained; no clipping or score-based exclusions
-are applied. No completed patient dataset is exported.
-
-With `.venv` active, rerun from the repository root:
+## Build and publish
 
 ```bash
-python -m nbconvert --to notebook --execute --inplace \
-  --ExecutePreprocessor.kernel_name=hcmus-wids \
-  --ExecutePreprocessor.timeout=300 book/tabular/02_preprocessing.ipynb
-```
-
-Alternatively select **Python (HCMUS WiDS .venv)** and use Restart Kernel → Run All.
-The same saved-output publication mechanism as Stage 01 applies: keep the real
-aggregate outputs, and build without `--execute` to render without private data.
-Natural missingness mechanisms, prospective availability and performance on
-naturally missing values remain unresolved. See [RUBRIC_AUDIT.md](RUBRIC_AUDIT.md)
-for results and the exact scope of completion.
-
-## Stage 03 — Outlier Detection & Treatment
-
-Sections 16–27 of [`02_preprocessing.ipynb`](book/tabular/02_preprocessing.ipynb)
-compare IQR, Z-score, Isolation Forest contamination=.01/.05/.10, LOF
-neighbors=10/20/50 (contamination=auto), and one DBSCAN configuration. Every flag
-uses the same inner-training row identities. Univariate thresholds use original
-observed measurements; multivariate methods share the 69-feature train-imputed,
-train-conditioned matrix. DBSCAN parameters come from the documented training-only
-k-distance procedure; no validation/reserve is used for calibration.
-
-The stage includes the full Jaccard matrix, hypothetical removal/composition
-summaries, and observed-value KS comparisons. KS D is descriptive; nominal p-values
-are exploratory under nested-sample/ZIP/tie dependence. The treatment decision
-preserves all original observations with anomaly flags for review. No cleaned
-patient dataset is exported and no downstream predictive benefit is claimed.
-Rerun the same preprocessing-notebook command above; keep saved aggregate outputs
-for CSV-free static publication. Internal conditioning does not complete the
-separate Scaling rubric. See the audit for actual results, tests and limitations.
-
-## Stage 04 — Controlled Scaling Comparison
-
-Sections 28–36 of [`02_preprocessing.ipynb`](book/tabular/02_preprocessing.ipynb)
-compare Min-Max [0,1], StandardScaler (ddof 0), RobustScaler (median/IQR), and both
-uniform/normal QuantileTransformer outputs. All five fit the same original-unit
-69-feature complete training matrix, preserving all patients, original measurements
-and imputation provenance. Quantile fitting uses all training rows, 1,000 quantiles
-and seed 42. Neither holdout nor the target is used to fit/select scalers.
-
-The chapter retains all per-feature statistics and fitted parameters, three focused
-observed/imputed violin figures, and a median-centered Levene diagnostic for observed
-BMI across fixed training-age groups. P-values are nominal under dependence; affine
-scaling leaves this diagnostic invariant. Mechanical targets or marginal shape do not
-establish predictive superiority. Predictive evaluation is reported separately in Stages 06–07; clinical validation remains pending.
-Use the same execution command above; the saved-output build needs no CSV.
-
-## Stage 05 — Categorical Encoding & Multicollinearity
-
-Sections 37–46 of [`02_preprocessing.ipynb`](book/tabular/02_preprocessing.ipynb)
-audit all categorical/code fields and protected ID/target, then compare One-Hot,
-illustrative Ordinal, group-aware OOF Target, Binary hybrid and Frequency Encoding.
-All methods use the same five nominal training fields: race, payer, state, Region
-and Division. State has genuine high cardinality; ZIP remains only a split key.
-Clinical code/text, post-event treatments and constant gender are outside this scope.
-At-metastatic attributes are not approved for an earlier prediction baseline.
-
-Target cross-fitting uses five label-independent ZIP GroupKFold splits, seed 42 and
-fixed alpha=10 smoothing. Full-inner-training mappings for validation/future data are
-separate from OOF training values; no held-out labels enter fitting. Later model CV
-must recreate encodings inside each training fold. Binary applies only to state;
-low-cardinality fields keep reference One-Hot. Ordinal codes have no verified ordering.
-
-The chapter reports missing/unseen behavior, dimension/storage tradeoffs, complete
-design rank and scoped VIF with intercept/reference conventions. Per-column VIF
-uses every encoded column plus six declared numerical predictors; full 69-column
-conditioning is separately audited. No encoder winner or predictive gain is claimed.
-Use the same execution command above and saved-output CSV-free build. An independently
-assessed, temporally eligible predictive pipeline remains future work.
-
-## Stage 06 — Feature Selection, PCA/t-SNE & Grouped CV
-
-Sections 47–56 of [`02_preprocessing.ipynb`](book/tabular/02_preprocessing.ipynb)
-compare no selection, ANOVA, Chi-square, MI, RF/GB importance, RFE and PCA using
-22 predeclared configurations and the same five StratifiedGroupKFold ZIP folds.
-The raw primary pool contains 69 numerical and five nominal fields; all observations
-are retained. It is a supplied-record retrospective benchmark, not an approved
-earlier clinical-baseline prediction task. IDs/ZIP/target and excluded clinical
-code/text/treatment fields do not enter predictors.
-
-Each fitting fold learns fresh numerical conditioning/kNN10, categorical missing
-tokens/One-Hot vocabulary, final scaling and selectors/PCA. No globally fitted
-Stage 04 matrix or Stage 05 target encoding enters CV. The common classifier is
-fixed L2 Logistic Regression; k=10/30/50 and PCA variance=.90/.95/.99 are fixed
-before scoring. ANOVA/Chi-square filter only their eligible blocks, with the
-other block retained; actual total feature counts are reported. Ranking scores,
-nominal p-values, group importances, selections/stability, all five F1-macro scores,
-secondary metrics and runtime remain auditable. Development selection scores do
-not replace independent final assessment.
-
-Separate unsupervised training-only PCA/t-SNE displays are fitted after CV scores
-are fixed; labels only color embeddings. UMAP is omitted as an optional extension.
-Stage 06 itself does not rebalance or score the reserve; Stage 07 below supersedes
-that pending state. Use the same notebook execution command and saved-output CSV-free
-build; see the audit for actual results and limitations.
-
-## Stage 07 — Class Imbalance & Controlled Evaluation
-
-Sections 57–64 of [`02_preprocessing.ipynb`](book/tabular/02_preprocessing.ipynb)
-compare no resampling, SMOTE, ADASYN and Random Under-sampling on the same **69
-numerical candidates** and exact Stage 06 ZIP-grouped five folds. Each fitting fold
-learns observed-value scaling, kNN10 completion and completed-data scaling before
-training-only sampling and the unchanged LR (C=1, threshold=.5, seed=42). All three
-samplers request ratio=1; SMOTE/ADASYN use five neighbors and RUS has no replacement.
-Nominal/One-Hot variables and codes are excluded from this common interpolation space;
-its fresh numerical-only baseline differs from Stage 06's mixed baseline.
-
-Full counts are label 0=4,846 / label 1=8,060; inner training is 3,064 / 5,109.
-The [MathWorks WiDS walkthrough](https://blogs.mathworks.com/student-lounge/2024/01/01/predicting-timely-diagnosis-of-metastatic-breast-cancer-for-the-wids-datathon-2024/) explicitly maps 1/True to the
-90-day diagnosis group and 0/False to its complement. Positive class 1 and minority
-class 0 are therefore correctly defined; all metrics are unchanged. Precise timing
-anchors, the exact-day boundary and prospective feature eligibility remain unresolved.
-All per-fold class counts, P/R/F1, continuous ROC-AUC, confusion matrices, timings and
-mean/fold SD are saved. ADASYN actual counts differ from exact balance; synthetic
-fractional ages/context mixing and undersampling information loss remain explicit.
-
-| Method | Precision (1) | Recall (1) | Recall (0) | F1-macro | ROC-AUC (1) |
-|---|---:|---:|---:|---:|---:|
-| No resampling | 0.628064 ± 0.004525 | 0.956142 ± 0.022758 | 0.055493 ± 0.038001 | 0.426654 ± 0.027742 | 0.533587 ± 0.024787 |
-| SMOTE | 0.639866 ± 0.022133 | 0.549589 ± 0.081786 | 0.480334 ± 0.103921 | 0.507408 ± 0.017542 | 0.527965 ± 0.026273 |
-| ADASYN | 0.638552 ± 0.019155 | 0.543321 ± 0.058278 | 0.484659 ± 0.080689 | 0.507336 ± 0.015890 | 0.528217 ± 0.024360 |
-| Random undersampling | 0.641183 ± 0.015931 | 0.559947 ± 0.103856 | 0.474508 ± 0.110716 | 0.509298 ± 0.016373 | 0.528749 ± 0.026107 |
-
-The predeclared mean-F1 rule selects **Random undersampling**, delta=+0.082644
-versus the same-scope baseline. Its small advantage over the other resamplers does not
-establish superiority, and AUC remains close to chance. Fold SD is descriptive, not an
-independent-fold confidence interval. The complete configuration is hashed before one
-internal reserved assessment: **F1-macro=0.500629, AUC=0.529792**
-on 2,652 original rows (1,004 label 0 / 1,648 label 1). Only the selected method is
-scored there; no reserve comparison or retuning follows. Whole-file EDA exposure means
-this is not an untouched external test. The 2,081-row other-validation set is not pooled.
-
-Rerun the same `.venv` notebook command above, keeping saved outputs for CSV-free book
-publication. Independent fixtures and complete raw-input Pipeline.fit reproduction
-check train-only sampling, original held prevalence, schema, determinism and metrics.
-Sampling is skipped during prediction. Preprocessing steps are flat in imbalanced-learn
-Pipeline because nested sklearn Pipeline intermediates are unsupported. External
-validation, clinical time contract, probability calibration/cost decisions and Text
-remain outside this completed methodological comparison.
-
-## Preview and build the book
-
-With `.venv` active, run from the repository root:
-
-```bash
-jupyter book --version
+source .venv/bin/activate
 jupyter book start
-```
-
-Use the local URL printed by the CLI; stop the server with Ctrl+C. For static HTML:
-
-```bash
-jupyter book build --html
-```
-
-Output is under `_build/html/`. To reproduce the eventual project subpath:
-
-```bash
 BASE_URL=/data-mining-preprocessing jupyter book build --html
 ```
 
-The landing page and section introductions are Markdown; rendering them requires
-no dataset, Kaggle authentication, or notebook execution. `myst.yml` is the only
-book configuration; Jupyter Book 1 `_config.yml`/`_toc.yml` are not used.
-See the [Jupyter Book 2 documentation](https://jupyterbook.org/stable/).
+HTML is written to `_build/html/`. `myst.yml` is the sole Jupyter Book 2 configuration.
+The workflow `.github/workflows/deploy.yml` builds **without `--execute`**, rendering
+real aggregate outputs saved in the notebooks. Rendering requires neither CSV nor Kaggle
+credentials; recomputing the experiments requires the local training CSV. Keep saved outputs.
 
-## Reproducibility and future work
+GitHub Pages must use **Settings → Pages → Build and deployment → Source → GitHub Actions**.
+This setting was enabled and the reviewed deployment verified in the archived audit.
+A separately authorized push to `main` or workflow dispatch publishes the committed source.
+Local build success does not certify a new remote deployment. This refactor does not
+commit, push, change Pages settings, or alter the deployment workflow.
 
-Keep raw files unchanged. Record the official source, download date, checksums,
-and actual validation output locally when data is available. Add the remaining
-experiments as notebooks under `book/tabular/`, using the project kernel, explicit
-random seeds, documented decisions, and leakage-safe train/validation splits.
-Add notebooks to the explicit `project.toc` in `myst.yml`. The text section is
-reserved for later work; no text dataset or text processing is configured.
-Under the official assignment, part (b) is **mandatory**: choose image or text in
-addition to the tabular choice in part (a). The text placeholder does not satisfy
-that requirement. Advanced items and ambiguities between prose and grading tables
-are recorded separately in the audit; they are not silently counted as completed.
+## Completion boundaries
 
-Use `python -m pip check` after dependency changes and refresh both version files
-from the successfully tested environment. Confirm Git exclusions with
-`git status --short --ignored` before sharing. Review notebook outputs before
-committing so that raw records and credentials are not published accidentally.
-
-## GitHub Pages
-
-`.github/workflows/deploy.yml` builds the Markdown book and prepares a Pages
-artifact without downloading competition data or installing the data-science stack.
-It uses the same pinned Jupyter Book version as the local environment, Node 24,
-and the repository subpath through `BASE_URL`. CI selects an available Python 3.13
-patch release because the local 3.13.3 pin is unavailable on Ubuntu 26.04 runners.
-The workflow definition follows
-the [supported Jupyter Book / MyST deployment approach](https://mystmd.org/guide/deployment-github-pages).
-
-Publishing is a separate, manual step: in the GitHub repository, select
-**Settings → Pages → Build and deployment → Source: GitHub Actions**, then
-commit/push the reviewed files only when you intend to publish. A push to `main`
-or a manual workflow dispatch triggers the prepared workflow. Nothing in this
-local setup changes remote settings or triggers deployment.
-
-On 27 October 2026, the first attempt of [run 40429352444](https://github.com/hungstupid/data-mining-preprocessing/actions/runs/40429352444)
-failed at **Configure Pages**, before build/upload/deploy: `has_pages: false` and
-Pages API/public-site HTTP 404 confirmed Pages was not enabled. After the owner
-selected **Settings → Pages → Build and deployment → Source → GitHub Actions**,
-[attempt 2](https://github.com/hungstupid/data-mining-preprocessing/actions/runs/40429352444/attempts/2)
-succeeded through configure, build, upload and deploy without a workflow/config change.
-
-The [public book](https://hungstupid.github.io/data-mining-preprocessing/) and its
-preprocessing page now return HTTP 200; all five distinct homepage navigation targets
-and all 18 preprocessing figures were checked successfully. Deployment currently serves
-commit `c7b3fc7`. The focused target-label documentation edits remain local until a
-separately authorized commit/push; this review did neither.
-
-## Initial setup verification — 23 October 2026
-
-- Python 3.13.3 in `.venv`; pip 25.0.1; `pip check` passed.
-- All 15 direct dependencies imported successfully. Kaggle import/CLI checks used
-  an empty configuration directory inside the ignored project cache, since the
-  setup sandbox prevents creating the default `~/.kaggle/` directory. No
-  authentication was configured or credentials created by these checks.
-- The `hcmus-wids` kernel executed an in-memory notebook with the project's
-  `.venv/bin/python`; no placeholder notebook was saved.
-- Validator checks initially passed on synthetic fixtures, including input byte preservation.
-  The official WiDS CSV was unavailable at initial setup; the Stage 01 notebook
-  above now records analysis of the subsequently obtained local training CSV.
-- Jupyter Book 2.1.7 generated static HTML for all three pages with the Pages
-  subpath. The initial theme download timed out; the retry succeeded.
-- MyST/workflow YAML, workflow shell syntax, TOC paths, dependency pins, and Git
-  exclusions passed local checks. GitHub Actions and deployment were not run.
-- The public repository had zero Actions workflows before setup. The unauthenticated
-  Pages API returned 404, which does not establish the remote Pages settings.
+The [current audit](RUBRIC_AUDIT.md) maps every applicable Part A requirement to evidence.
+Little's age/BMI statistic is a limited Gaussian-model reference; calibrated cohort-wide
+MCAR inference and natural MAR/MNAR identification remain unsupported. Ordinal meaning,
+prospective eligibility, external validity and conditional UMAP wording retain explicit limits.
+No grade or 100% scientific-validity claim follows from passing execution checks.
+Part B (choose text or image) is mandatory for the whole assignment and remains outside
+this work. Earlier implementation/deployment records are archived
+[separately](docs/history/RUBRIC_AUDIT_82617d1.md); Git preserves the original notebook history.

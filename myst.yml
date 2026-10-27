@@ -11,6 +11,12 @@ project:
       children:
         - file: book/tabular/01_eda.ipynb
         - file: book/tabular/02_preprocessing.ipynb
+        - file: book/tabular/03_outliers.ipynb
+        - file: book/tabular/04_scaling.ipynb
+        - file: book/tabular/05_encoding.ipynb
+        - file: book/tabular/06_feature_selection.ipynb
+        - file: book/tabular/07_class_imbalance.ipynb
+        - file: book/tabular/appendix.md
     - file: book/text/index.md
 site:
   template: book-theme
