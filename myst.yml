@@ -2,8 +2,8 @@
 version: 1
 project:
   id: bf3a2710-bde8-4f6e-8762-0e504784c2ef
-  title: HCMUS Data Preprocessing — WiDS 2024
-  description: Individual Data Mining and Applications project using WiDS Datathon 2024 Challenge 1.
+  title: HCMUS Data Preprocessing — WiDS and E-commerce
+  description: WiDS tabular preprocessing and E-commerce text exploration for an individual Data Mining and Applications project.
   github: https://github.com/hungstupid/data-mining-preprocessing
   toc:
     - file: book/index.md
@@ -18,6 +18,8 @@ project:
         - file: book/tabular/07_class_imbalance.ipynb
         - file: book/tabular/appendix.md
     - file: book/text/index.md
+      children:
+        - file: book/text/01_eda.ipynb
 site:
   template: book-theme
   title: HCMUS Data Preprocessing

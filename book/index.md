@@ -3,7 +3,9 @@
 **Nguyễn Đức Hưng — 24127174** · Data Mining and Applications, HCMUS.
 
 This book presents reproducible preprocessing decisions for
-[WiDS Datathon 2024 Challenge #1](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/data).
+[WiDS Datathon 2024 Challenge #1](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/data)
+and a source audit/Text EDA of
+[E-commerce Text Classification](https://www.kaggle.com/datasets/saurabhshahane/ecommerce-text-classification).
 Read **Part A** in seven stages; each executable chapter separates its objective, methodology,
 implementation, results, discussion and conclusion. Code and numbers come from the same
 notebook sources; full scientific tables and supporting results remain expandable.
@@ -28,6 +30,11 @@ These are retrospective supplied-table comparisons. Full-file EDA exposure, geog
 dependence, post-metastatic BMI and unresolved clinical timing limit prospective claims.
 F1 improvement alone does not establish stronger ranking, calibration or clinical utility.
 
-[Part B — Text placeholder](text/index.md) remains unchanged and is not a completed second
-modality. The official assignment requires Part B in addition to Part A; no overall grade
-or whole-project completion is asserted here.
+[Part B — Text preprocessing](text/index.md) now includes
+[Stage 01 — Dataset audit and Text EDA](text/01_eda.ipynb): 50,425 product descriptions in four
+categories, source/quality checks, raw length distributions and Mann–Whitney comparisons,
+word clouds/top-50, TTR and Zipf. Stages 02–04 (normalization/tokenization,
+stopwords/morphology, representations) remain planned. Part A is implemented; **Part B has
+completed Stage 01 only**. The assignment and its second modality are not fully complete;
+no overall grade is asserted. All-corpus text EDA exposure is disclosed before any later
+internal split.

@@ -1,5 +1,6 @@
 # Installed dependency snapshot: 2026-10-23; Python 3.13.3; macOS arm64
 # Use requirements.txt for direct dependencies only.
+# Text Stage 01 update: 2026-11-08; added only wordcloud==1.9.6.
 anyio==4.15.1
 appnope==1.0.0
 argon2-cffi==25.1.0
@@ -127,4 +128,5 @@ wcwidth==0.9.3
 webcolors==25.10.0
 webencodings==0.6.1
 websocket-client==1.9.2
+wordcloud==1.9.6
 wrapt==2.5.2rc1

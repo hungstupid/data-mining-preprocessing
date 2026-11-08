@@ -1,4 +1,4 @@
-# HCMUS Data Preprocessing — WiDS 2024
+# HCMUS Data Preprocessing — WiDS and E-commerce
 
 **Nguyễn Đức Hưng — MSSV 24127174** · Data Mining and Applications, HCMUS.
 
@@ -12,7 +12,15 @@ Part A uses [WiDS Datathon 2024 Challenge #1](https://www.kaggle.com/competition
 The target `DiagPeriodL90D` uses 1 for the 90-day diagnosis group and 0 for its complement;
 see the [MathWorks source](https://blogs.mathworks.com/student-lounge/2024/01/01/predicting-timely-diagnosis-of-metastatic-breast-cancer-for-the-wids-datathon-2024/).
 Precise clinical timing/eligibility remains unresolved. These are retrospective methodological
-comparisons, not a deployable clinical model. Part B is unchanged and not implemented.
+comparisons, not a deployable clinical model.
+
+Part B uses [E-commerce Text Classification](https://www.kaggle.com/datasets/saurabhshahane/ecommerce-text-classification),
+from [Gautam's Zenodo record](https://zenodo.org/records/3355823) (CC BY 4.0): 50,425
+product descriptions, four category labels, and a headerless two-column CSV (`label`, `text`).
+The input is a product description; the target is its category. **Stage 01 is implemented**:
+source/quality audit and complete Text EDA. Normalization/tokenization, stopwords/morphology
+and representations remain planned. Read the [Part B overview](book/text/index.md) and
+[Text Stage 01](book/text/01_eda.ipynb).
 
 ## Read Part A
 
@@ -57,7 +65,8 @@ python -m ipykernel install --sys-prefix --name hcmus-wids --display-name "Pytho
 ```
 
 For an existing `.venv`, activate it and keep it. Select its `hcmus-wids` kernel in Jupyter/VS Code.
-No additional dependency is required by this cleanup.
+Text EDA adds only `wordcloud==1.9.6`; install the updated lock in the existing environment.
+No torch, sentence-transformers, gensim or tokenizers package is required at this stage.
 Check `node --version` and `npm --version`; the first book-theme download needs network access.
 
 ## Obtain and validate the data
@@ -85,6 +94,30 @@ The notebooks retain schema/ZIP checks, disjoint group boundaries and one final 
 integrity check per chapter. Analytic correctness and synthetic leakage fixtures live in
 `tests/`, not the report narrative. No transformed patient table is exported.
 
+## Obtain the text data
+
+With the existing `.venv` active, Stage 01 automatically prepares the original Kaggle CSV
+**only when missing**, reusing a local archive and never replacing an existing CSV.
+For an explicit CLI download in a fresh data directory:
+
+```bash
+mkdir -p data/raw/ecommerce
+# Run the download only if neither CSV nor archive already exists.
+if [ ! -f data/raw/ecommerce/ecommerceDataset.csv ] && [ ! -f data/raw/ecommerce/ecommerce-text-classification.zip ]; then
+  kaggle datasets download -d saurabhshahane/ecommerce-text-classification -p data/raw/ecommerce
+fi
+# Stage 01 safely extracts the CSV if needed; it does not overwrite it.
+```
+
+If Kaggle authentication/download fails, manually download `ecommerceDataset.csv` from the
+[original Kaggle dataset](https://www.kaggle.com/datasets/saurabhshahane/ecommerce-text-classification)
+and put it at `data/raw/ecommerce/ecommerceDataset.csv`. Configure credentials outside Git;
+never commit the CSV/ZIP. Do not substitute a cleaned mirror. The notebook explicitly reads
+`header=None`, preserves literal NA-like text, and measures missingness, source size and hashes.
+The verified original MD5 is `6f2cfdb475096244916aeed6f776c1a6` and SHA-256 is
+`1d44be1780bc9558f40ab4cee5b32051ddfe90647cd525b9652b47cdb233593f`.
+Source/version differences are reported; observed counts are never forced to reference values.
+
 ## Reproduce the experiments
 
 Run Stage 01–07 in order, each with Restart Kernel → Run All. For a clean command-line run:
@@ -106,6 +139,21 @@ Stage 06 retains its no-selection reference; Stage 07 selects RUS by fixed mean 
 with weak AUC and worse Brier explicitly reported. Repeated execution of the same locked
 assessment checks reproducibility; reserved outcomes are never used for new choices.
 
+For Text Stage 01 only, without rerunning Part A:
+
+```bash
+.venv/bin/python -m nbconvert --to notebook --execute --inplace \
+  --ExecutePreprocessor.kernel_name=hcmus-wids \
+  --ExecutePreprocessor.timeout=600 book/text/01_eda.ipynb
+.venv/bin/python -m unittest discover -s tests -p 'test_text_data.py' -v
+```
+
+Text Stage 01 also runs independently from `book/text/` with the same kernel. It keeps the
+raw file unchanged and stores real aggregate outputs. Main EDA excludes one missing text;
+exact deduplication is a separate sensitivity view. There is no final cleaning pipeline,
+trained model or exported split. All text rows/labels inform EDA, so any later internal
+holdout must disclose that exposure. The Part A protocol and results are unchanged.
+
 ## Build and publish
 
 ```bash
@@ -117,7 +165,8 @@ BASE_URL=/data-mining-preprocessing jupyter book build --html
 HTML is written to `_build/html/`. `myst.yml` is the sole Jupyter Book 2 configuration.
 The workflow `.github/workflows/deploy.yml` builds **without `--execute`**, rendering
 real aggregate outputs saved in the notebooks. Rendering requires neither CSV nor Kaggle
-credentials; recomputing the experiments requires the local training CSV. Keep saved outputs.
+credentials; recomputing Part A requires its training CSV and Text Stage 01 requires the
+original E-commerce CSV. Keep saved outputs.
 
 GitHub Pages must use **Settings → Pages → Build and deployment → Source → GitHub Actions**.
 This setting was enabled and the reviewed deployment verified in the archived audit.
@@ -132,6 +181,8 @@ Little's age/BMI statistic is a limited Gaussian-model reference; calibrated coh
 MCAR inference and natural MAR/MNAR identification remain unsupported. Ordinal meaning,
 prospective eligibility, external validity and conditional UMAP wording retain explicit limits.
 No grade or 100% scientific-validity claim follows from passing execution checks.
-Part B (choose text or image) is mandatory for the whole assignment and remains outside
-this work. Earlier implementation/deployment records are archived
+Part B chooses text and has completed only Stage 01 (audit and Text EDA); Stages 02–04
+remain pending, so the whole assignment is incomplete. The current/archived tabular audits
+retain their original Part A scope and are not text-completion audits.
+Earlier implementation/deployment records are archived
 [separately](docs/history/RUBRIC_AUDIT_82617d1.md); Git preserves the original notebook history.
