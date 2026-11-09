@@ -1,4 +1,4 @@
-"""Known-answer checks of the notebook's definitions, without executing its experiments."""
+"""Known-answer checks of shared Stage 02 views and its notebook BPE definitions."""
 from collections import Counter
 from functools import wraps
 from pathlib import Path
@@ -11,6 +11,8 @@ import nbformat
 import numpy as np
 import pandas as pd
 from tokenizers import Tokenizer, models, trainers, pre_tokenizers, decoders
+
+from src.text_preprocessing import normalize_default
 
 
 class Stage02DefinitionTests(unittest.TestCase):
@@ -41,6 +43,8 @@ class Stage02DefinitionTests(unittest.TestCase):
         self.assertEqual(cleaned,"weight <5 kg <10cm> bold <3")
         self.assertEqual(f["light_input"]("Don't stop. Second sentence!"),"Don't stop. Second sentence!")
         self.assertEqual(f["conditional_symbols"]("M3-10 2.5cm 5% <3"),"M3-10 2.5cm 5% <3")
+        # Freeze the documented Stage 02 policy, including its known mention-loss risk.
+        self.assertEqual(normalize_default("@home <b>USB3</b> #A12 10cm &amp; 12."),"usb3 a12 10cm 12.")
 
     def test_oov_counts_occurrences_rather_than_unique_types(self):
         unknown,total,rate=self.functions["oov_counts"](Counter(["known","new","known","new","other"]),{"known","other"})

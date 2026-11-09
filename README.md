@@ -17,11 +17,13 @@ comparisons, not a deployable clinical model.
 Part B uses [E-commerce Text Classification](https://www.kaggle.com/datasets/saurabhshahane/ecommerce-text-classification),
 from [Gautam's Zenodo record](https://zenodo.org/records/3355823) (CC BY 4.0): 50,425
 product descriptions, four category labels, and a headerless two-column CSV (`label`, `text`).
-The input is a product description; the target is its category. **Stages 01–02 are implemented**:
-source/quality audit and Text EDA, followed by normalization and four tokenization strategies.
-Stopwords/morphology and representations remain planned. Read the
-[Part B overview](book/text/index.md), [Text Stage 01](book/text/01_eda.ipynb) and
-[Text Stage 02](book/text/02_normalization_tokenization.ipynb).
+The input is a product description; the target is its category. **Stages 01–03 are implemented**:
+source/quality audit and Text EDA, normalization/four tokenization strategies, then controlled
+stopword and morphology ablations with training-only MI and grouped classifier CV.
+Representation benchmarks remain planned. Read the
+[Part B overview](book/text/index.md), [Text Stage 01](book/text/01_eda.ipynb),
+[Text Stage 02](book/text/02_normalization_tokenization.ipynb) and
+[Text Stage 03](book/text/03_stopwords_morphology.ipynb).
 
 ## Read Part A
 
@@ -190,6 +192,40 @@ Its tokenizer benchmark uses one punctuation-preserving light input for all four
 BPE learns from TRAIN only. The test partition supplies coverage/OOV and sequence diagnostics,
 not seed/configuration selection. No classifier or accuracy winner is asserted.
 
+For Text Stage 03:
+
+```bash
+.venv/bin/python -m nbconvert --to notebook --execute --inplace \
+  --ExecutePreprocessor.kernel_name=hcmus-wids \
+  --ExecutePreprocessor.timeout=1200 book/text/03_stopwords_morphology.ipynb
+.venv/bin/python -m unittest discover -s tests -p 'test_text*.py' -v
+```
+
+Stage 03 re-reads raw data and verifies Stage 02 source/partition fingerprints. It uses the
+same default normalization (including preserved numbers and the known `@home` removal risk)
+via pure functions extracted to `src/text_preprocessing.py`; Stage 02 imports these unchanged.
+Both chapters run independently from root or `book/text/`, without executing another notebook.
+
+Only the fixed 22,201-row TRAIN partition enters Stage 03's vocabulary, binary-document MI,
+collision metrics and CV. Equal normalized-base texts define groups: 11 duplicate groups,
+12 redundant rows. Five `StratifiedGroupKFold` folds (shuffle=True, seed 42) are frozen before
+stopword/morphology changes and reused for both NB variants and all four LR variants.
+Every vectorizer/IDF/model fits inside its fold. All morphology variants retain stopwords;
+WordNet uses noun-default lemmatization, and digit-bearing lexical pieces remain unchanged.
+Near-duplicate/product families may still cross distinct groups. The internal assessment is
+checked only for membership separation and is not scored or used to choose a configuration.
+
+The existing package lock suffices. Stage 03 downloads only missing NLTK `stopwords` and
+`wordnet` resources and records their hashes/version. For manual bootstrap:
+
+```bash
+.venv/bin/python -m nltk.downloader -d .cache/nltk_data stopwords wordnet
+```
+
+No POS tagger, OMW, torch, gensim or sentence-transformers is added. Count/TF-IDF in this
+chapter are fixed tools for the mandated ablations; Stage 04 representation benchmarks
+remain pending. Close CV means and type collisions do not establish a universal winner.
+
 ## Build and publish
 
 ```bash
@@ -201,7 +237,7 @@ BASE_URL=/data-mining-preprocessing jupyter book build --html
 HTML is written to `_build/html/`. `myst.yml` is the sole Jupyter Book 2 configuration.
 The workflow `.github/workflows/deploy.yml` builds **without `--execute`**, rendering
 real aggregate outputs saved in the notebooks. Rendering requires neither CSV nor Kaggle
-credentials; recomputing Part A requires its training CSV and Text Stages 01–02 require the
+credentials; recomputing Part A requires its training CSV and Text Stages 01–03 require the
 original E-commerce CSV. Keep saved outputs.
 
 GitHub Pages must use **Settings → Pages → Build and deployment → Source → GitHub Actions**.
@@ -217,8 +253,9 @@ Little's age/BMI statistic is a limited Gaussian-model reference; calibrated coh
 MCAR inference and natural MAR/MNAR identification remain unsupported. Ordinal meaning,
 prospective eligibility, external validity and conditional UMAP wording retain explicit limits.
 No grade or 100% scientific-validity claim follows from passing execution checks.
-Part B chooses text and has implemented Stages 01–02 (audit/EDA and normalization/tokenization);
-Stages 03–04 remain pending, so the whole assignment is incomplete. The current/archived tabular audits
+Part B chooses text and has implemented Stages 01–03 (audit/EDA, normalization/tokenization,
+stopword and morphology ablations); Stage 04 remains pending, so the whole assignment is incomplete.
+The current/archived tabular audits
 retain their original Part A scope and are not text-completion audits.
 Earlier implementation/deployment records are archived
 [separately](docs/history/RUBRIC_AUDIT_82617d1.md); Git preserves the original notebook history.

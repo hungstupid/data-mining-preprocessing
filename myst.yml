@@ -3,7 +3,7 @@ version: 1
 project:
   id: bf3a2710-bde8-4f6e-8762-0e504784c2ef
   title: HCMUS Data Preprocessing — WiDS and E-commerce
-  description: WiDS tabular preprocessing and E-commerce text EDA, normalization and tokenization for an individual Data Mining and Applications project.
+  description: WiDS tabular preprocessing and E-commerce text EDA, normalization, tokenization, stopword and morphology ablations.
   github: https://github.com/hungstupid/data-mining-preprocessing
   toc:
     - file: book/index.md
@@ -21,6 +21,7 @@ project:
       children:
         - file: book/text/01_eda.ipynb
         - file: book/text/02_normalization_tokenization.ipynb
+        - file: book/text/03_stopwords_morphology.ipynb
 site:
   template: book-theme
   title: HCMUS Data Preprocessing

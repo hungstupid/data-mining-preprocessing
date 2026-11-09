@@ -23,16 +23,17 @@ All figures, tests and counts are computed in the notebook, with saved outputs f
 |---|---|
 | [01 — Dataset audit and Text EDA](01_eda.ipynb) | Implemented: source/quality audit; length distributions and pairwise Mann–Whitney; class word clouds/top-50; TTR and Zipf |
 | [02 — Normalization and tokenization](02_normalization_tokenization.ipynb) | Implemented: canonical-unique stratified protocol; train-only normalization impact and number-policy sensitivity; word/sentence/character/BPE coverage and sequence lengths |
-| 03 — Stopwords and morphology | Planned: `03_stopwords_morphology.ipynb`; stopword information/performance comparisons and stemming/lemmatization |
+| [03 — Stopwords and morphology](03_stopwords_morphology.ipynb) | Implemented: fixed NLTK stopword vocabulary/presence MI/Naive Bayes; Porter/Snowball/noun-WordNet type collisions and Logistic Regression grouped five-fold CV |
 | 04 — Representations | Planned: `04_representations.ipynb`; BoW/TF-IDF/Word2Vec and semantic representation comparisons |
 
-Stages 01 and 02 are implemented. **Part B and the whole assignment are not complete.** No placeholder
+Stages 01–03 are implemented. **Part B and the whole assignment are not complete.** No placeholder
 notebooks or links to unimplemented chapters are included.
 
 Use a fresh project `.venv` kernel (`hcmus-wids`). The notebook runs independently from the
 repository root or `book/text/`; it does not execute Part A or depend on a processed cache.
 The small `src/text_data.py` helper handles source parsing, duplicate-audit semantics and the
-fixed corpus/split recipe; EDA and normalization/tokenization experiments stay in the notebooks. The six report sections follow Objective → Methodology →
+fixed corpus/split recipe. `src/text_preprocessing.py` holds only the pure Stage 02 text views,
+shared unchanged with Stage 03; experiments stay in the notebooks. The six report sections follow Objective → Methodology →
 Implementation → Results → Discussion → Conclusion, with expandable code/supporting tables.
 
 ## Data preparation and integrity
@@ -66,7 +67,18 @@ numbers by default and contrasts standalone-number removal. Four tokenizer strat
 a lighter input that retains case, punctuation and sentence boundaries. Word/sentence/character
 vocabularies and the 8,000-entry byte-level BPE are training-only. Test is used only for fixed
 coverage/OOV reporting and sequence diagnostics; no seed, policy or BPE size is tuned there.
-Stopwords, morphology, representation benchmarks and classifiers remain Stage 03–04 work.
+Stage 03 uses TRAIN only for vocabulary, binary-presence MI and both classifier CV ablations.
+It audits 11 duplicate normalized-base groups (12 redundant rows) and freezes five
+`StratifiedGroupKFold` partitions by base normalized text, shuffle/seed 42, before stopwords
+or morphology. All six variants reuse those folds. Vocabularies and IDF fit inside each
+fold; fixed stopwords/stateless or pretrained morphology maps can be memoized in advance.
+The morphology comparison retains stopwords in all variants; WordNet uses noun POS only.
+The internal-assessment text is not processed or scored in Stage 03.
+
+Only NLTK `stopwords` and English `wordnet` resources are added, with guarded download and
+resource hashes. Stage 03 does not need a POS tagger or OMW; existing package pins suffice.
+Representation benchmarks remain Stage 04 work. Count/TF-IDF in Stage 03 serve only its
+required controlled ablations, not completion of those benchmarks.
 
 All rows and labels inform EDA. A later holdout from this corpus is an **internal post-EDA
 assessment**, not an unobserved external test. Duplicate removal does not guarantee independence;
