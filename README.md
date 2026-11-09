@@ -17,10 +17,11 @@ comparisons, not a deployable clinical model.
 Part B uses [E-commerce Text Classification](https://www.kaggle.com/datasets/saurabhshahane/ecommerce-text-classification),
 from [Gautam's Zenodo record](https://zenodo.org/records/3355823) (CC BY 4.0): 50,425
 product descriptions, four category labels, and a headerless two-column CSV (`label`, `text`).
-The input is a product description; the target is its category. **Stage 01 is implemented**:
-source/quality audit and complete Text EDA. Normalization/tokenization, stopwords/morphology
-and representations remain planned. Read the [Part B overview](book/text/index.md) and
-[Text Stage 01](book/text/01_eda.ipynb).
+The input is a product description; the target is its category. **Stages 01–02 are implemented**:
+source/quality audit and Text EDA, followed by normalization and four tokenization strategies.
+Stopwords/morphology and representations remain planned. Read the
+[Part B overview](book/text/index.md), [Text Stage 01](book/text/01_eda.ipynb) and
+[Text Stage 02](book/text/02_normalization_tokenization.ipynb).
 
 ## Read Part A
 
@@ -65,8 +66,10 @@ python -m ipykernel install --sys-prefix --name hcmus-wids --display-name "Pytho
 ```
 
 For an existing `.venv`, activate it and keep it. Select its `hcmus-wids` kernel in Jupyter/VS Code.
-Text EDA adds only `wordcloud==1.9.6`; install the updated lock in the existing environment.
-No torch, sentence-transformers, gensim or tokenizers package is required at this stage.
+Text Stage 01 uses `wordcloud==1.9.6`; Stage 02 adds `nltk==3.10.4` and
+`tokenizers==0.23.3` with their required dependencies. Install the updated lock in the
+existing environment; no existing package was upgraded. No torch, sentence-transformers
+or gensim package is required.
 Check `node --version` and `npm --version`; the first book-theme download needs network access.
 
 ## Obtain and validate the data
@@ -154,6 +157,39 @@ exact deduplication is a separate sensitivity view. There is no final cleaning p
 trained model or exported split. All text rows/labels inform EDA, so any later internal
 holdout must disclose that exposure. The Part A protocol and results are unchanged.
 
+For Text Stage 02, run independently from root:
+
+```bash
+.venv/bin/python -m nbconvert --to notebook --execute --inplace \
+  --ExecutePreprocessor.kernel_name=hcmus-wids \
+  --ExecutePreprocessor.timeout=600 book/text/02_normalization_tokenization.ipynb
+.venv/bin/python -m unittest discover -s tests -p 'test_text*.py' -v
+```
+
+The notebook guards `punkt_tab` lookup/download and reuses existing English resources.
+For manual bootstrap if missing:
+
+```bash
+.venv/bin/python -m nltk.downloader -d .cache/nltk_data punkt_tab
+```
+
+No other NLTK corpus/model is downloaded. Resource download failures stop with instructions;
+there is no fake tokenizer fallback. English resource-file hashes are retained in the notebook.
+The notebook also runs from `book/text/` with the same project kernel.
+
+`src/text_data.py::make_text_protocol(raw, test_size=.2, seed=42)` rebuilds the text population
+and membership from raw records. It removes missing/blank/invalid rows, all conflicting-label
+canonical groups, exact duplicates and additional canonical duplicates, then stratifies
+27,752 examples into **22,201 train / 5,551 internal post-EDA assessment** rows. `row_id` traces
+the zero-based original CSV record position; canonical keys and row IDs never cross partitions.
+Related product variants may still remain. Later chapters call this same helper rather than
+executing a prior notebook or requiring a processed cache.
+
+Stage 02 measures normalization on TRAIN and compares a fixed number-removal alternative.
+Its tokenizer benchmark uses one punctuation-preserving light input for all four methods;
+BPE learns from TRAIN only. The test partition supplies coverage/OOV and sequence diagnostics,
+not seed/configuration selection. No classifier or accuracy winner is asserted.
+
 ## Build and publish
 
 ```bash
@@ -165,7 +201,7 @@ BASE_URL=/data-mining-preprocessing jupyter book build --html
 HTML is written to `_build/html/`. `myst.yml` is the sole Jupyter Book 2 configuration.
 The workflow `.github/workflows/deploy.yml` builds **without `--execute`**, rendering
 real aggregate outputs saved in the notebooks. Rendering requires neither CSV nor Kaggle
-credentials; recomputing Part A requires its training CSV and Text Stage 01 requires the
+credentials; recomputing Part A requires its training CSV and Text Stages 01–02 require the
 original E-commerce CSV. Keep saved outputs.
 
 GitHub Pages must use **Settings → Pages → Build and deployment → Source → GitHub Actions**.
@@ -181,8 +217,8 @@ Little's age/BMI statistic is a limited Gaussian-model reference; calibrated coh
 MCAR inference and natural MAR/MNAR identification remain unsupported. Ordinal meaning,
 prospective eligibility, external validity and conditional UMAP wording retain explicit limits.
 No grade or 100% scientific-validity claim follows from passing execution checks.
-Part B chooses text and has completed only Stage 01 (audit and Text EDA); Stages 02–04
-remain pending, so the whole assignment is incomplete. The current/archived tabular audits
+Part B chooses text and has implemented Stages 01–02 (audit/EDA and normalization/tokenization);
+Stages 03–04 remain pending, so the whole assignment is incomplete. The current/archived tabular audits
 retain their original Part A scope and are not text-completion audits.
 Earlier implementation/deployment records are archived
 [separately](docs/history/RUBRIC_AUDIT_82617d1.md); Git preserves the original notebook history.

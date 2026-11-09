@@ -4,7 +4,7 @@
 
 This book presents reproducible preprocessing decisions for
 [WiDS Datathon 2024 Challenge #1](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/data)
-and a source audit/Text EDA of
+and text EDA, normalization and tokenization of
 [E-commerce Text Classification](https://www.kaggle.com/datasets/saurabhshahane/ecommerce-text-classification).
 Read **Part A** in seven stages; each executable chapter separates its objective, methodology,
 implementation, results, discussion and conclusion. Code and numbers come from the same
@@ -33,8 +33,11 @@ F1 improvement alone does not establish stronger ranking, calibration or clinica
 [Part B — Text preprocessing](text/index.md) now includes
 [Stage 01 — Dataset audit and Text EDA](text/01_eda.ipynb): 50,425 product descriptions in four
 categories, source/quality checks, raw length distributions and Mann–Whitney comparisons,
-word clouds/top-50, TTR and Zipf. Stages 02–04 (normalization/tokenization,
-stopwords/morphology, representations) remain planned. Part A is implemented; **Part B has
-completed Stage 01 only**. The assignment and its second modality are not fully complete;
+word clouds/top-50, TTR and Zipf.
+[Stage 02 — Normalization and tokenization](text/02_normalization_tokenization.ipynb) adds the
+fixed canonical-unique 80/20 protocol, train-only stepwise impacts and word/sentence/character/BPE
+coverage comparisons on one shared light input. Stages 03–04 (stopwords/morphology and
+representations) remain planned. Part A is implemented; **Part B has implemented Stages 01–02**.
+The assignment and its second modality are not fully complete;
 no overall grade is asserted. All-corpus text EDA exposure is disclosed before any later
 internal split.

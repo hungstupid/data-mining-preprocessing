@@ -22,17 +22,17 @@ All figures, tests and counts are computed in the notebook, with saved outputs f
 | Stage | Status and scope |
 |---|---|
 | [01 — Dataset audit and Text EDA](01_eda.ipynb) | Implemented: source/quality audit; length distributions and pairwise Mann–Whitney; class word clouds/top-50; TTR and Zipf |
-| 02 — Normalization and tokenization | Planned: `02_normalization_tokenization.ipynb`; per-step normalization impact and word/sentence/character/BPE comparisons with OOV |
+| [02 — Normalization and tokenization](02_normalization_tokenization.ipynb) | Implemented: canonical-unique stratified protocol; train-only normalization impact and number-policy sensitivity; word/sentence/character/BPE coverage and sequence lengths |
 | 03 — Stopwords and morphology | Planned: `03_stopwords_morphology.ipynb`; stopword information/performance comparisons and stemming/lemmatization |
 | 04 — Representations | Planned: `04_representations.ipynb`; BoW/TF-IDF/Word2Vec and semantic representation comparisons |
 
-Only Stage 01 exists. **Part B and the whole assignment are not complete.** No placeholder
+Stages 01 and 02 are implemented. **Part B and the whole assignment are not complete.** No placeholder
 notebooks or links to unimplemented chapters are included.
 
 Use a fresh project `.venv` kernel (`hcmus-wids`). The notebook runs independently from the
 repository root or `book/text/`; it does not execute Part A or depend on a processed cache.
-The small `src/text_data.py` helper handles only source parsing and duplicate-audit semantics;
-EDA stays in the notebook. The six report sections follow Objective → Methodology →
+The small `src/text_data.py` helper handles source parsing, duplicate-audit semantics and the
+fixed corpus/split recipe; EDA and normalization/tokenization experiments stay in the notebooks. The six report sections follow Objective → Methodology →
 Implementation → Results → Discussion → Conclusion, with expandable code/supporting tables.
 
 ## Data preparation and integrity
@@ -53,10 +53,20 @@ committed. Saved outputs permit static builds without data or Kaggle access.
 ## Interpretation boundaries
 
 Exact and canonical duplicates, and illustrative related product descriptions, motivate
-leakage controls before a later split. Canonical NFKC/lowercase/whitespace keys serve this
-audit only. No split, final normalization pipeline, stopword removal, morphology, vectorization
-benchmark or model is produced here. Lexical lowercasing is a descriptive view; digits and
-stopwords remain counted.
+leakage controls. Stage 01 uses NFKC/lowercase/whitespace keys only for audit; Stage 02 freezes
+the same rule for canonical deduplication before splitting. From 27,752 canonical-unique
+records, `make_text_protocol(raw, test_size=.2, seed=42)` reproduces **22,201 train / 5,551
+internal-assessment** rows, stratified by label. All conflicting-label canonical groups are
+excluded as whole groups (none observed in this version); first surviving exact/canonical
+occurrences define the corpus. `row_id` is zero-based CSV record position. Row IDs and
+canonical groups are disjoint across partitions. No split/cache export is required.
+
+Stage 02 keeps raw strings, measures a provisional normalization pipeline on TRAIN, preserves
+numbers by default and contrasts standalone-number removal. Four tokenizer strategies share
+a lighter input that retains case, punctuation and sentence boundaries. Word/sentence/character
+vocabularies and the 8,000-entry byte-level BPE are training-only. Test is used only for fixed
+coverage/OOV reporting and sequence diagnostics; no seed, policy or BPE size is tuned there.
+Stopwords, morphology, representation benchmarks and classifiers remain Stage 03–04 work.
 
 All rows and labels inform EDA. A later holdout from this corpus is an **internal post-EDA
 assessment**, not an unobserved external test. Duplicate removal does not guarantee independence;
