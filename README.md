@@ -4,7 +4,7 @@
 
 [Published Jupyter Book](https://hungstupid.github.io/data-mining-preprocessing/) ·
 [Official rubric](https://hcmus-cs-ta.github.io/lab-book/data-mining/projects/preprocessing/) ·
-[Current evidence audit](RUBRIC_AUDIT.md).
+[Part A evidence audit](RUBRIC_AUDIT.md) · [Part B evidence audit](docs/TEXT_RUBRIC_AUDIT.md).
 
 Part A uses [WiDS Datathon 2024 Challenge #1](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/data):
 12,906 labeled records, 83 columns, 69 numerical candidates and 12 nominal/code/text fields.
@@ -17,13 +17,14 @@ comparisons, not a deployable clinical model.
 Part B uses [E-commerce Text Classification](https://www.kaggle.com/datasets/saurabhshahane/ecommerce-text-classification),
 from [Gautam's Zenodo record](https://zenodo.org/records/3355823) (CC BY 4.0): 50,425
 product descriptions, four category labels, and a headerless two-column CSV (`label`, `text`).
-The input is a product description; the target is its category. **Stages 01–03 are implemented**:
+The input is a product description; the target is its category. **Stages 01–04 are implemented**:
 source/quality audit and Text EDA, normalization/four tokenization strategies, then controlled
-stopword and morphology ablations with training-only MI and grouped classifier CV.
-Representation benchmarks remain planned. Read the
+stopword and morphology ablations with training-only MI/grouped CV, then six representations
+and controlled cosine, clustering, visualization and new Linear SVM evaluation. Read the
 [Part B overview](book/text/index.md), [Text Stage 01](book/text/01_eda.ipynb),
 [Text Stage 02](book/text/02_normalization_tokenization.ipynb) and
-[Text Stage 03](book/text/03_stopwords_morphology.ipynb).
+[Text Stage 03](book/text/03_stopwords_morphology.ipynb) and
+[Text Stage 04](book/text/04_representations.ipynb).
 
 ## Read Part A
 
@@ -70,8 +71,18 @@ python -m ipykernel install --sys-prefix --name hcmus-wids --display-name "Pytho
 For an existing `.venv`, activate it and keep it. Select its `hcmus-wids` kernel in Jupyter/VS Code.
 Text Stage 01 uses `wordcloud==1.9.6`; Stage 02 adds `nltk==3.10.4` and
 `tokenizers==0.23.3` with their required dependencies. Install the updated lock in the
-existing environment; no existing package was upgraded. No torch, sentence-transformers
-or gensim package is required.
+existing environment. Stage 04 adds compatible CPU gensim (exact corrected source commit),
+`sentence-transformers==6.3.0` and `torch==2.15.0`, with exact required transitive pins in the
+updated lock; no earlier pinned package is upgraded. Compatibility was checked in Python
+3.13.3 against the existing NumPy/SciPy environment.
+Gensim is pinned to source commit `ecf22c266f3b8930610114c149d8991ed14e2a16` from
+[open PR #3668](https://github.com/piskvorky/gensim/pull/3668), fixing the
+[native −1 dot-product bug](https://github.com/piskvorky/gensim/issues/3665) found in its 4.4.0 wheel.
+This is an explicit essential compatibility exception, not an upstream release claim.
+Installing the lock needs Git, a working C compiler/Python development headers and network
+for the isolated source build (macOS: existing Xcode Command Line Tools; Linux: compiler and
+Python headers). The notebook verifies the source revision and a tiny public scoring regression
+before training; no local site-packages patch is required. Build tools do not change Part A pins.
 Check `node --version` and `npm --version`; the first book-theme download needs network access.
 
 ## Obtain and validate the data
@@ -222,9 +233,47 @@ The existing package lock suffices. Stage 03 downloads only missing NLTK `stopwo
 .venv/bin/python -m nltk.downloader -d .cache/nltk_data stopwords wordnet
 ```
 
-No POS tagger, OMW, torch, gensim or sentence-transformers is added. Count/TF-IDF in this
-chapter are fixed tools for the mandated ablations; Stage 04 representation benchmarks
-remain pending. Close CV means and type collisions do not establish a universal winner.
+Stage 03 adds no POS tagger, OMW or embedding framework. Its Count/TF-IDF models are fixed
+tools for the mandated ablations, separate from Stage 04's representation benchmarks.
+Close CV means and type collisions do not establish a universal winner.
+
+For Text Stage 04:
+
+```bash
+.venv/bin/python -m nbconvert --to notebook --execute --inplace \
+  --ExecutePreprocessor.kernel_name=hcmus-wids \
+  --ExecutePreprocessor.timeout=2400 book/text/04_representations.ipynb
+.venv/bin/python -m unittest discover -s tests -v
+```
+
+Stage 04 runs independently from root or `book/text/`, imports no previous notebook and
+requires no processed-data cache. It recreates outer membership and every Stage 03 validation
+fingerprint. The same normalized lexical baseline retains numbers/stopwords without morphology;
+space-joined tokens are shared by all representations. Sparse features use built-in word n-grams,
+min_df=2 and max_features=30,000, with measured candidate/cap effects.
+
+Gensim CBOW (100 dimensions, 10 epochs, workers=1, stable hash/seed 42) fits TRAIN only and
+mean-pools known words; no globally fitted Word2Vec classifier CV score is claimed. The public
+`sentence-transformers/all-MiniLM-L6-v2` model is pinned to revision
+`1110a243fdf4706b3f48f1d95db1a4f5529b4d41`, CPU, batch size 32, frozen and L2-normalized.
+Its true subword length/truncation exposure is measured. Weights are cached only under ignored
+`.cache/huggingface/`; no personal token is needed (`token=False`). If missing, the notebook
+obtains only required files from Hugging Face and fails with instructions on network errors.
+It never substitutes random embeddings. A first Run All needs model network access; subsequent
+runs reuse exact local weights but recompute document embeddings/experiments.
+
+Cosine uses 2,400 same-category and 2,400 different-category pairs, seed 42, shared across all
+representations. Geometry uses the same 1,200 class-balanced TRAIN IDs, common nonzero handling,
+original-space true-label/cluster silhouettes and K=4 K-Means. t-SNE follows subset-fitted
+SVD(50), never replaces original-space silhouette. All sparse vocabulary/IDF and SVM fits are
+fold-local; only the externally pretrained, entirely frozen encoder is reused across folds.
+The internal-assessment partition is not embedded/classified or used for selection.
+
+The rubric calls Word2Vec explicitly but its general library list omits gensim; this documented
+standard implementation is an interpretation, not claimed instructor authorization. Likewise,
+Sentence Transformer is labeled advanced in prose but named in the scoring table, so the actual
+MiniLM/K-Means/SVM comparisons are included. See [the full text evidence audit](docs/TEXT_RUBRIC_AUDIT.md)
+for coverage, numbers, validation and limits. No guaranteed 10/10 follows from these checks.
 
 ## Build and publish
 
@@ -237,8 +286,9 @@ BASE_URL=/data-mining-preprocessing jupyter book build --html
 HTML is written to `_build/html/`. `myst.yml` is the sole Jupyter Book 2 configuration.
 The workflow `.github/workflows/deploy.yml` builds **without `--execute`**, rendering
 real aggregate outputs saved in the notebooks. Rendering requires neither CSV nor Kaggle
-credentials; recomputing Part A requires its training CSV and Text Stages 01–03 require the
-original E-commerce CSV. Keep saved outputs.
+credentials; recomputing Part A requires its training CSV and Text Stages 01–04 require the
+original E-commerce CSV; Stage 04 execution also needs cached/downloadable model weights.
+Static rendering imports none of these models and needs no CSV, model download or GPU. Keep saved outputs.
 
 GitHub Pages must use **Settings → Pages → Build and deployment → Source → GitHub Actions**.
 This setting was enabled and the reviewed deployment verified in the archived audit.
@@ -253,8 +303,10 @@ Little's age/BMI statistic is a limited Gaussian-model reference; calibrated coh
 MCAR inference and natural MAR/MNAR identification remain unsupported. Ordinal meaning,
 prospective eligibility, external validity and conditional UMAP wording retain explicit limits.
 No grade or 100% scientific-validity claim follows from passing execution checks.
-Part B chooses text and has implemented Stages 01–03 (audit/EDA, normalization/tokenization,
-stopword and morphology ablations); Stage 04 remains pending, so the whole assignment is incomplete.
+Part B chooses text and has implementation evidence for Stages 01–04 (audit/EDA,
+normalization/tokenization, stopwords/morphology and representations). Scientific and
+publication limits are recorded in the [text audit](docs/TEXT_RUBRIC_AUDIT.md).
+Local evidence/readiness is distinct from publishing this workspace revision to GitHub Pages.
 The current/archived tabular audits
 retain their original Part A scope and are not text-completion audits.
 Earlier implementation/deployment records are archived

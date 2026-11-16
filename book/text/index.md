@@ -24,10 +24,11 @@ All figures, tests and counts are computed in the notebook, with saved outputs f
 | [01 — Dataset audit and Text EDA](01_eda.ipynb) | Implemented: source/quality audit; length distributions and pairwise Mann–Whitney; class word clouds/top-50; TTR and Zipf |
 | [02 — Normalization and tokenization](02_normalization_tokenization.ipynb) | Implemented: canonical-unique stratified protocol; train-only normalization impact and number-policy sensitivity; word/sentence/character/BPE coverage and sequence lengths |
 | [03 — Stopwords and morphology](03_stopwords_morphology.ipynb) | Implemented: fixed NLTK stopword vocabulary/presence MI/Naive Bayes; Porter/Snowball/noun-WordNet type collisions and Logistic Regression grouped five-fold CV |
-| 04 — Representations | Planned: `04_representations.ipynb`; BoW/TF-IDF/Word2Vec and semantic representation comparisons |
+| [04 — Representations](04_representations.ipynb) | Implemented: BoW/TF-IDF 1–3 grams, TRAIN-fitted Word2Vec and frozen MiniLM; storage/cosine, same-subset t-SNE/silhouettes/K-Means, fixed-fold Linear SVM |
 
-Stages 01–03 are implemented. **Part B and the whole assignment are not complete.** No placeholder
-notebooks or links to unimplemented chapters are included.
+Stages 01–04 are implemented with saved experimental outputs. Implementation coverage does not
+imply a guaranteed grade, calibrated external performance or a new published deployment.
+See the [full text criterion audit](../../docs/TEXT_RUBRIC_AUDIT.md); no placeholder chapter remains.
 
 Use a fresh project `.venv` kernel (`hcmus-wids`). The notebook runs independently from the
 repository root or `book/text/`; it does not execute Part A or depend on a processed cache.
@@ -77,8 +78,19 @@ The internal-assessment text is not processed or scored in Stage 03.
 
 Only NLTK `stopwords` and English `wordnet` resources are added, with guarded download and
 resource hashes. Stage 03 does not need a POS tagger or OMW; existing package pins suffice.
-Representation benchmarks remain Stage 04 work. Count/TF-IDF in Stage 03 serve only its
-required controlled ablations, not completion of those benchmarks.
+Stage 04 independently recreates the same normalized-base folds, preserving all Stage 03
+validation row fingerprints. It keeps stopwords, no morphology and the same numeric policy.
+All six representations use the same space-joined lexical input; only their representation
+mechanisms differ. BoW/TF-IDF use min_df=2 and a fixed 30,000-feature cap; CBOW Word2Vec fits
+TRAIN only and is used descriptively, never as a globally fitted inductive CV feature set.
+Frozen CPU MiniLM is pinned to a public model revision; its actual subword truncation is audited.
+
+Cosine pairs and the 1,200-row class-balanced geometry subset use identical IDs across methods.
+Category-label and discovered-cluster silhouettes are computed in original unit-vector spaces,
+not on t-SNE. Sparse SVM vectorizers/IDF refit in each fold, while the pretrained label-free
+encoder stays frozen. No assessment classifier is evaluated or used for selection.
+Count/TF-IDF in Stage 03 serve only its own controlled ablations; Stage 04 has new representation
+results. Model weights stay in ignored `.cache/huggingface/`; static rendering needs no weights.
 
 All rows and labels inform EDA. A later holdout from this corpus is an **internal post-EDA
 assessment**, not an unobserved external test. Duplicate removal does not guarantee independence;

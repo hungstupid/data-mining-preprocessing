@@ -17,3 +17,6 @@ jupyter-book==2.1.7
 wordcloud==1.9.6
 nltk==3.10.4
 tokenizers==0.23.3
+gensim @ git+https://github.com/ska2704/gensim.git@ecf22c266f3b8930610114c149d8991ed14e2a16
+sentence-transformers==6.3.0
+torch==2.15.0

@@ -4,7 +4,7 @@
 
 This book presents reproducible preprocessing decisions for
 [WiDS Datathon 2024 Challenge #1](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/data)
-and text EDA, normalization, tokenization, stopword and morphology comparisons for
+and text EDA, normalization, tokenization, stopword/morphology and representation comparisons for
 [E-commerce Text Classification](https://www.kaggle.com/datasets/saurabhshahane/ecommerce-text-classification).
 Read **Part A** in seven stages; each executable chapter separates its objective, methodology,
 implementation, results, discussion and conclusion. Code and numbers come from the same
@@ -39,8 +39,9 @@ fixed canonical-unique 80/20 protocol, train-only stepwise impacts and word/sent
 coverage comparisons on one shared light input.
 [Stage 03 — Stopwords and morphology](text/03_stopwords_morphology.ipynb) compares stopword
 vocabulary/presence MI/Naive Bayes and type-collision/Logistic Regression ablations on five
-fixed training-only group folds. Representation benchmarks remain planned for Stage 04.
-Part A is implemented; **Part B has implemented Stages 01–03**.
-The assignment and its second modality are not fully complete;
-no overall grade is asserted. All-corpus text EDA exposure is disclosed before any later
-internal split.
+fixed training-only group folds.
+[Stage 04 — Representations](text/04_representations.ipynb) adds six real representation fits,
+controlled cosine/t-SNE/category and cluster silhouettes, and new fold-clean Linear SVM results.
+**Part A and Part B Stages 01–04 have implementation evidence**; scientific limits and the
+separate publication status remain explicit. No overall grade or external deployment guarantee
+is asserted. All-corpus text EDA exposure is disclosed.
