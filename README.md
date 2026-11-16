@@ -83,6 +83,10 @@ Installing the lock needs Git, a working C compiler/Python development headers a
 for the isolated source build (macOS: existing Xcode Command Line Tools; Linux: compiler and
 Python headers). The notebook verifies the source revision and a tiny public scoring regression
 before training; no local site-packages patch is required. Build tools do not change Part A pins.
+The final check installed all 158 lock entries into a separate Python 3.13.3 environment on
+macOS arm64 and rebuilt this source pin without pip cache. Imports, `pip check` and all 48
+tests passed there; the latest PyPI stable 4.4.0 wheel still failed the same numerical guard.
+Other operating systems have not been verified with this lock.
 Check `node --version` and `npm --version`; the first book-theme download needs network access.
 
 ## Obtain and validate the data

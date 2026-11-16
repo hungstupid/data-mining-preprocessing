@@ -1,6 +1,6 @@
 # Submission Review — Official Rubric Coverage
 
-Reviewed **2026-11-16**, baseline `f33849edc1cef8416280e452d96e900a653e4151`.
+Reviewed **2026-11-16**, final-polish baseline `638ab5b6804142c897faf88b29446b3dfcb3d408`.
 The initial tree was clean. This review reads notebook source **and saved outputs**, shared
 modules, tests, README and the single book configuration. It preserves all algorithms,
 datasets, splits, seeds, folds, hyperparameters and valid experimental results.
@@ -32,7 +32,7 @@ question, not a reason to add unrelated experiments.
 | ANOVA, categorical Chi-square, MI (B) | [Tabular 06](book/tabular/06_feature_selection.ipynb) | Fold-local scores/ranks, k=10/30/50; correct numerical/indicator routing | PASS | Chi-square uses nonnegative indicators; no centered numerical Chi-square |
 | RF/GB importance and RFE with CV (B) | Tabular 06 | Both tree rankers and LR-RFE; all selected feature identities and fold results retained | PASS | Shared preprocessing/ranking only within a fitting fold |
 | PCA and t-SNE (B) | Tabular 06 | PCA .90/.95/.99 targets in CV; scree and two-dimensional PCA/t-SNE; fixed 2,000-row display | PASS | Display fits are separate from predictive CV |
-| UMAP if dataset is large (C) | Tabular 06 Methodology | Not implemented; bounded PCA/t-SNE display already present | CHECK, conditional | Rubric defines no “large” threshold. This is not an unconditional missing method. If the marker applies the condition to this dataset, UMAP coverage would be missing; no new experiment added without that basis |
+| UMAP if dataset is large (C) | Tabular 06 PCA/t-SNE discussion | 12,906 source rows; fixed 2,000-training-row display; saved t-SNE runtime 7.23 s; scope choice now explained locally | Conditional, justified omission | Rubric defines no “large” threshold. PCA/t-SNE already meet the selected visualization purpose; no resource-driven need for another projector is observed. The marker may interpret the condition differently |
 | Five-fold F1 and performance versus feature count (scoring-table requirement) | Tabular 06 | 22 configurations/110 evaluations; every fold, sample SD, count-performance plot; baseline .452154 versus best reduced .451716 | PASS | Low F1 is not a rubric failure; the report explains why selection did not improve this fixed classifier |
 | SMOTE, ADASYN, RUS; original-prevalence evaluation, Precision/Recall/F1-macro/AUC (A) | [Tabular 07](book/tabular/07_class_imbalance.ipynb) | 20 fold results; RUS CV F1=.509298; locked reserve F1=.500629/AUC=.529792; class counts and confusion matrix | PASS | Resampling is fit-only; F1 gain is not misreported as improved ranking or calibration |
 | B dataset: ≥10,000 texts and ≥2 labels (B) | [Text 01](book/text/01_eda.ipynb); [source protocol](src/text_data.py) | 50,425 descriptions/four labels; 27,752 eligible canonical-unique records; TRAIN 22,201/assessment 5,551 | PASS | Source and post-dedup populations are distinguished |
@@ -58,7 +58,9 @@ No algorithm, formula, metric, fitting-boundary or result mismatch requiring a s
 change was found. Keep the notebook-oriented structure, small existing helpers and targeted
 leakage/numerical tests. Repeated setup makes chapters independently runnable; extracting a
 framework would add complexity without rubric coverage. Do not add model searches, datasets,
-POS tagging, significance tests, more regressions or higher-F1 targets.
+POS tagging, significance tests, more regressions or higher-F1 targets. Short method-level
+explanations now cover the previously bare tabular headings; the Little section explains
+its actual two patterns, df, age-mean contrast and implications without changing the test.
 
 The rubric requires controlled implementation and interpretation, not verified clinical
 suitability, an external deployment cohort, causal identification, a significant improvement,
@@ -70,25 +72,35 @@ adjustment, token-budget TTR, macro NRMSE, ARI, Euclidean silhouette sensitivity
 Brier and the native Word2Vec regression. Keep them; none is a new requirement imposed here.
 
 The essential gensim source fix stays pinned at `ecf22c266f3b8930610114c149d8991ed14e2a16`.
-Its tiny scoring regression passes; no simpler numerically verified replacement was established.
+The latest PyPI stable 4.4.0 wheel was tested separately and still fails the negative-one
+regression; the exact source pin was rebuilt without pip cache and passes all four cases.
 The remaining practical limit is a third-party source build requiring Git/compiler, not an
 unverified change to earlier dependency pins. See the [text audit](docs/TEXT_RUBRIC_AUDIT.md).
 
 ## Verification for this review
 
-- Full existing unit suite: **48 pass**; no tests added.
+- Full existing unit suite in a fresh, isolated Python 3.13.3 environment: **48 pass**;
+  no tests added. All 158 runtime pins match the lock exactly, imports succeed and the Git
+  dependency builds from source without cache. Platform verified: macOS arm64; Linux/Windows
+  scientific execution is **NOT VERIFIED**.
 - `python -m pip check`: no broken requirements. `git diff --check`: clean.
 - All 11 notebook schemas validate; all 154 code cells have saved execution counts and no
   error outputs; 47 actual PNG outputs. No scientific cell or output is edited by this review.
-- Notebook experiments are not rerun: this review changes documentation only. Previously
-  saved Run All evidence is inspected; tests do not substitute for a fresh experimental run.
+- Fresh-kernel Run All in that clean environment: **Tabular 01 and Text 04 PASS**.
+  All 33 EDA table outputs and 24 selected scientific representation/CV tables match the saved
+  originals exactly. Original repository outputs are retained. The other nine full notebook
+  reruns are **NOT VERIFIED in this pass**: their code/results are unchanged and were inspected.
+- The clean environment also builds the 16-page book after removing the local data/model-cache
+  symlinks, disabling transformer download and hiding GPUs. Static publication remains distinct
+  from executing notebook experiments.
 - `BASE_URL=/data-mining-preprocessing .venv/bin/jupyter book build --html`: PASS,
   16 pages. Chrome checks all 11 notebook pages and all 47 figure images, with no JavaScript,
   HTTP or KaTeX errors. The existing theme's Node `url.parse()` deprecation warning is nonfatal.
 - Published baseline: [successful Pages workflow for f33849e](https://github.com/hungstupid/data-mining-preprocessing/actions/runs/43894173758).
   Chrome verifies the public [Stage 04 chapter](https://hungstupid.github.io/data-mining-preprocessing/representations/),
   all nine figure images, both main SVM values (.957514/.937824), no KaTeX or HTTP errors.
-- No commit, push, remote change or workflow dispatch is performed for this review.
+- Commit/push are authorized separately by the user for this final polish; no merge,
+  force-push, Pages-setting change or manual workflow dispatch is needed.
 
 ## Submission decision
 
@@ -96,5 +108,5 @@ All unconditional requirements for the selected tabular/text branches have imple
 measured evidence and discussion. No required experiment is presently missing. Conditional
 UMAP applicability and the general gensim library-list interpretation remain honest grading
 qualifications, not reasons to invent further experiments. The existing published scientific
-book is ready for submission and oral preparation; this review's documentation must be pushed
-separately if it is to appear remotely. No score is guaranteed.
+book is ready for submission and oral preparation. The final polish changes only Markdown
+and verification documentation; no new experiment or framework is introduced. No score is guaranteed.
