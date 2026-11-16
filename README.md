@@ -4,7 +4,7 @@
 
 [Published Jupyter Book](https://hungstupid.github.io/data-mining-preprocessing/) ·
 [Official rubric](https://hcmus-cs-ta.github.io/lab-book/data-mining/projects/preprocessing/) ·
-[Part A evidence audit](RUBRIC_AUDIT.md) · [Part B evidence audit](docs/TEXT_RUBRIC_AUDIT.md).
+[Submission rubric audit](RUBRIC_AUDIT.md) · [Part B evidence audit](docs/TEXT_RUBRIC_AUDIT.md).
 
 Part A uses [WiDS Datathon 2024 Challenge #1](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/data):
 12,906 labeled records, 83 columns, 69 numerical candidates and 12 nominal/code/text fields.
@@ -291,23 +291,22 @@ original E-commerce CSV; Stage 04 execution also needs cached/downloadable model
 Static rendering imports none of these models and needs no CSV, model download or GPU. Keep saved outputs.
 
 GitHub Pages must use **Settings → Pages → Build and deployment → Source → GitHub Actions**.
-This setting was enabled and the reviewed deployment verified in the archived audit.
+The published f33849e baseline and its successful workflow are verified in the submission audit.
 A separately authorized push to `main` or workflow dispatch publishes the committed source.
-Local build success does not certify a new remote deployment. This cleanup does not
+Local build success does not certify a new remote deployment. This review does not
 commit, push, change Pages settings, or alter the deployment workflow.
 
 ## Completion boundaries
 
-The [current audit](RUBRIC_AUDIT.md) maps every applicable Part A requirement to evidence.
-Little's age/BMI statistic is a limited Gaussian-model reference; calibrated cohort-wide
-MCAR inference and natural MAR/MNAR identification remain unsupported. Ordinal meaning,
-prospective eligibility, external validity and conditional UMAP wording retain explicit limits.
-No grade or 100% scientific-validity claim follows from passing execution checks.
-Part B chooses text and has implementation evidence for Stages 01–04 (audit/EDA,
-normalization/tokenization, stopwords/morphology and representations). Scientific and
-publication limits are recorded in the [text audit](docs/TEXT_RUBRIC_AUDIT.md).
-Local evidence/readiness is distinct from publishing this workspace revision to GitHub Pages.
-The current/archived tabular audits
-retain their original Part A scope and are not text-completion audits.
-Earlier implementation/deployment records are archived
-[separately](docs/history/RUBRIC_AUDIT_82617d1.md); Git preserves the original notebook history.
+The [submission audit](RUBRIC_AUDIT.md) maps the selected tabular and text requirements to
+actual code, saved results and review decisions. All unconditional requirements have evidence;
+conditional UMAP applicability and the general gensim library-list interpretation are disclosed.
+No additional model search or higher F1 target is needed for coverage. The
+[text audit](docs/TEXT_RUBRIC_AUDIT.md) retains detailed Stage 01–04 evidence.
+
+The published baseline includes both parts and Stage 04; its successful workflow and browser
+checks are recorded in the submission audit. New local edits require a separately authorized
+push. Statistical assumptions, source-specific/internal evaluation and pretrained-model
+truncation remain limits on conclusions, not claims of extra unfinished assignment work.
+Earlier Part A implementation/deployment records are archived
+[separately](docs/history/RUBRIC_AUDIT_82617d1.md); Git preserves notebook and audit history.

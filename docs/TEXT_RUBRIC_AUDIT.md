@@ -2,11 +2,12 @@
 
 Audit date: **2026-11-16**. Reviewed repository baseline:
 `da488b35ebb233f3968faae7599e051bd308fbcd`; local `main` matched `origin/main`, with a clean
-initial tree. This audit records local Stage 04 verification before publication.
-The separate root `RUBRIC_AUDIT.md` retains its original Part A scope and history.
+initial tree. The original audit recorded local Stage 04 verification before publication. The final review
+also verifies the published baseline f33849e; see the [submission audit](../RUBRIC_AUDIT.md).
+The root `RUBRIC_AUDIT.md` now consolidates the submission review across both selected parts.
 
 **PASS** means implemented with inspected saved evidence and stated checks; **PARTIAL** means
-an explicit unresolved policy/publication condition. Neither predicts an awarded mark or
+an explicit unresolved interpretation condition. Neither predicts an awarded mark or
 removes scientific limits. No 10/10 or external deployment-validity claim is made.
 
 ## Official criterion interpretation
@@ -58,7 +59,7 @@ using a callable vectorizer analyzer would incorrectly bypass this step and is a
 | Mathematical explanations and interpretation | Stage 04 six sections | BoW/TF-IDF, cosine, CBOW negative sampling, pooling, silhouette; encoder/classifier distinction and actual rank differences | PASS | No causal, universal superiority or guaranteed-grade claim |
 | Code/tests/reproduction | `tests/test_text_stage04.py`, full suite, README | 48 tests pass; known n-grams, sparse/dense stats, cosine, sampling, OOV/zeros, validation-only vocabulary/IDF sentinel, invalid silhouette, BLAS regression; fresh root Run All | PASS | Unit tests avoid real transformer download; actual model integration is checked separately |
 | Static HTML and path handling | Stage 04 outputs, MyST and verification | Root Run All; fresh `book/text/` imports/source/folds + real local-model encoding; both HTML builds pass; browser renders all nine figures and actual tables | PASS | `book/text/` check is a fresh-kernel path/model integration smoke, not a second full experiment run; remote publication is separate |
-| Remote publication of current Stage 04 | Existing deployment workflow, unchanged | Local verification completed against baseline da488b3; remote deployment is a separate check | PARTIAL | Local build success does not establish a successful remote Pages deployment; verify the deployment after pushing |
+| Remote publication of Stage 04 | Existing deployment workflow, unchanged | [Pages run for f33849e](https://github.com/hungstupid/data-mining-preprocessing/actions/runs/43894173758) succeeded; public chapter, both SVM values and all nine images verified in Chrome | PASS | New local documentation is not published by this review |
 
 ## Scientific and dependency limitations
 
