@@ -1,42 +1,24 @@
-# Appendix — Supporting Results and Reproducibility
+# Phụ lục · Kết quả hỗ trợ và kiểm thử
 
-The seven notebooks are the computational sources. The embed below reuses a saved output
-through a native MyST label; it does not execute code or duplicate an experiment.
+## Điền giá trị thiếu trên sáu đặc trưng
 
-## Original six-feature imputation scope
-
-This experiment remains separate from the joint 69-feature benchmark. Different matrices/masks
-prevent interpreting aggregate-score differences as an effect of feature expansion.
+Chương 02 giữ so sánh ban đầu trên sáu đặc trưng và thực nghiệm chính trên 69 đặc trưng. Hai ma trận đầu vào và hai tập ô bị che khác nhau. Sai số gộp giữa hai bảng chịu ảnh hưởng đồng thời từ phạm vi đặc trưng và cách chọn ô che. Dưới đây là kết quả đã lưu từ notebook.
 
 ```{embed} #stage02-cell-19
 :remove-input: true
 :remove-output: false
 ```
 
-## Separate tests
+## Chạy kiểm thử
 
-Run from the repository root:
+Chạy từ thư mục repo với môi trường đã cài:
 
 ```bash
 .venv/bin/python -m unittest discover -s tests -v
 ```
 
-`tests/` covers the Little implementation, input/split/known-value preservation, analytic
-masking/RMSE, strict outlier boundaries, Jaccard/KS/elbow, Levene, binary codes, Target OOF
-label/prior leakage, VIF, fold-local preprocessing, selector routing and prediction-time
-sampling traps. The tests use synthetic fixtures; no private CSV or full notebook run is
-required. Notebook-method tests load only the actual named function definitions, without
-executing other cells or copying algorithm implementations.
+Các kiểm thử dùng mẫu nhỏ để kiểm tra Little, chia tập và bảo toàn giá trị quan sát, che ô và RMSE, ngưỡng ngoại lai, Jaccard và KS, Levene, mã nhị phân, VIF, Target OOF, lựa chọn đặc trưng trong fold và lấy mẫu đúng phạm vi. Khi cần, test nạp định nghĩa hàm của notebook để kiểm tra chính mã thực nghiệm.
 
-The notebooks keep essential schema/semantic boundaries, disjoint ZIPs, observed-only masks,
-finite outputs, CV coverage, convergence and one final raw-file integrity check per chapter.
-Repeated full-data verification fits, matrix fingerprints and test ledgers are removed.
-See the [Part A guide](index.md) for independent Run All and CSV-free publication.
+## Kết quả đầy đủ trong các chương
 
-## Complete numerical evidence
-
-All 69 normality rows, all three 69×69 correlation/paired-N matrices, 17 strong pairs,
-full imputation/per-feature errors, nine detectors/621 KS comparisons, 414 scaling summaries,
-145 scoped VIF rows, 110 selection evaluations and 20 sampler evaluations remain available.
-Large tables are expandable. Both imputation scopes retain all seven scored configurations,
-including three ten-round MICE draws.
+Các bảng mở rộng lưu 69 phép kiểm phân phối, ma trận tương quan và cỡ mẫu theo cặp, 17 cặp tương quan mạnh, sai số điền theo đặc trưng, 621 phép so sánh KS, 414 thống kê co giãn, 145 dòng VIF, 110 kết quả lựa chọn đặc trưng và 20 kết quả lấy mẫu lại. [Tổng quan phần A](index.md) · [Đối chiếu tiêu chí](../../RUBRIC_AUDIT.md)

@@ -1,66 +1,29 @@
-# Part A — Tabular Preprocessing
+# Phần A · Dữ liệu dạng bảng
 
-## Dataset and interpretation
+## Bài toán và dữ liệu
 
-Use the official [WiDS 2024 Challenge #1 training data](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/data):
-12,906 rows, 83 columns, 69 numerical candidates and 12 nominal/code/text fields.
-Target `DiagPeriodL90D`: 1 is the 90-day diagnosis group, 0 its complement;
-[source confirmation](https://blogs.mathworks.com/student-lounge/2024/01/01/predicting-timely-diagnosis-of-metastatic-breast-cancer-for-the-wids-datathon-2024/).
-ID is never a predictor. ZIP3 is preserved as a string and used only for geographic grouping.
-BMI/treatment are post-metastatic; exact clinical anchors, source periods/units and prospective
-eligibility remain unresolved. Literal tokens such as ZIP `999` are not recoded without evidence.
+Tập huấn luyện WiDS Datathon 2024 Challenge #1 có 12.906 dòng, 83 cột, 69 ứng viên số và 12 trường phân loại, mã hoặc mô tả. Nhãn `DiagPeriodL90D` phân biệt nhóm chẩn đoán trong khoảng 90 ngày (1) và nhóm bù (0). `patient_id` chỉ xác định dòng. ZIP3 giữ nguyên dạng chuỗi, dùng để chia nhóm. BMI và điều trị được ghi sau khi phát hiện di căn. Cần xác minh thời điểm có dữ liệu, kỳ tham chiếu và đơn vị trước khi áp dụng như một mô hình dự báo. [Dữ liệu WiDS](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/data) · [Giải thích nhãn trong EDA](01_eda.ipynb)
 
-## Fixed protocol
+## Các chương
 
-| Partition | Rows | ZIPs | Label 0 | Label 1 | Role |
-|---|---:|---:|---:|---:|---|
-| Inner training | 8,173 | 443 | 3,064 | 5,109 | Fit descriptive methods; grouped model CV |
-| Imputation validation | 2,081 | 148 | 778 | 1,303 | Fixed observed-cell masking/reconstruction; not pooled into final fitting |
-| Reserved assessment | 2,652 | 148 | 1,004 | 1,648 | One locked Stage 07 policy at original prevalence |
-
-GroupShuffleSplit seeds 42/43 fix these partitions. Stages 06–07 use identical five
-StratifiedGroupKFold splits (shuffle=True, seed=42) within inner training. The notebooks
-recreate the same fixed recipe independently.
-No seed search, cross-fold learned state or resampling of held/reserved rows occurs.
-Whole-file EDA already informed the project, so the final reserve is a **post-EDA internal
-assessment**, not an untouched external cohort. Reexecution repeats the same locked policy;
-it does not authorize further reserved-data tuning.
-
-## Read and run
-
-| Stage | Scope and conclusion |
+| Chương | Câu hỏi |
 |---|---|
-| [01 — EDA](01_eda.ipynb) | Required 69 normality results, full Pearson/Spearman, missingno and limited Little reference |
-| [02 — Imputation](02_preprocessing.ipynb) | Seven configurations; original six-feature support plus primary joint 69-feature reconstruction |
-| [03 — Outliers](03_outliers.ipynb) | Nine detector settings; agreement/KS/composition support preserving all original rows |
-| [04 — Scaling](04_scaling.ipynb) | Five fixed transformations; mechanical shape/variance evidence, no global winner |
-| [05 — Encoding](05_encoding.ipynb) | Five methods; genuine state bits and group-OOF Target; scoped VIF and full-design rank |
-| [06 — Feature selection](06_feature_selection.ipynb) | All 110 evaluations retained; no reduction exceeds no-selection mean F1 |
-| [07 — Class imbalance](07_class_imbalance.ipynb) | Four same-scope treatments; RUS wins fixed F1 criterion, while AUC/Brier remain weak |
+| [01. Phân tích khám phá](01_eda.ipynb) | Các cột có kiểu, phân phối, tương quan và mẫu hình thiếu như thế nào? |
+| [02. Điền giá trị thiếu](02_preprocessing.ipynb) | Phương án nào khôi phục tốt nhất cùng tập ô quan sát đã che? |
+| [03. Ngoại lai](03_outliers.ipynb) | Những dòng nào được gắn cờ và giả định loại chúng sẽ đổi dữ liệu ra sao? |
+| [04. Co giãn đặc trưng](04_scaling.ipynb) | Mỗi phép biến đổi tác động thế nào lên thang đo và hình dạng? |
+| [05. Mã hóa biến phân loại](05_encoding.ipynb) | Năm cách mã hóa khác nhau ra sao về kích thước, mức mới và VIF? |
+| [06. Lựa chọn đặc trưng và giảm chiều](06_feature_selection.ipynb) | Rút gọn có cải thiện F1 trên cùng năm fold ZIP không? |
+| [07. Mất cân bằng lớp](07_class_imbalance.ipynb) | Lấy mẫu lại trong phần huấn luyện thay đổi F1, AUC và Brier thế nào? |
 
-Run each notebook with a **fresh `hcmus-wids` kernel**. Stage 01 and Stage 02 include their own
-input preparation. Later notebooks use the small shared `src/tabular_data.py` module to read
-raw data, reconstruct splits/semantic metadata and, for descriptive Stages 03–05 only,
-reproduce the same train-only kNN10 preparation. They never execute a previous notebook or
-read its saved outputs. Stages 06–07 fit learned preprocessing from raw fitting folds only.
-No private processed-data cache/checkpoint is needed.
+## Giao thức đánh giá
 
-The six report sections make the main argument visible. Expand code, diagnostics and full
-per-feature tables for details; use the [appendix](appendix.md) for original-scope evidence
-and the separate test command. Scores/p-values remain in Python variables and real saved outputs.
+| Tập | Số dòng | Số ZIP | Lớp 0 | Lớp 1 | Dùng để |
+|---|---:|---:|---:|---:|---|
+| Huấn luyện | 8.173 | 443 | 3.064 | 5.109 | Khớp các phép biến đổi và kiểm định chéo |
+| Xác thực cho điền thiếu | 2.081 | 148 | 778 | 1.303 | Chấm khôi phục trên các ô đã che |
+| Dự trữ | 2.652 | 148 | 1.004 | 1.648 | Chấm một lần cấu hình đã khóa ở chương 07 |
 
-## Reproduction and publication
+`GroupShuffleSplit` dùng seed 42 và 43 để tạo ba tập tách ZIP. Hai chương cuối dùng cùng năm `StratifiedGroupKFold` với seed 42 trên 8.173 dòng. Phần giữ lại luôn giữ tỷ lệ lớp gốc. EDA đọc toàn bộ bảng nên tập dự trữ chỉ là đánh giá nội bộ sau EDA.
 
-The repository README gives exact environment/data/test/build commands. Run the notebooks in
-01→07 order for a complete review, or open any chapter independently. The notebooks retain
-raw-file integrity and essential data/leakage boundaries; separate tests cover analytic formulas,
-observed-value preservation and synthetic held-data traps. No patient-level processed table
-is exported or committed. The optional Stage 01 download never replaces an
-existing file and requires your own authorized Kaggle access.
-
-Jupyter Book builds saved aggregate outputs **without `--execute`**; private CSVs are required
-for local Run All, not for static rendering or GitHub Actions. Keep the outputs when publishing.
-The [current rubric audit](../../RUBRIC_AUDIT.md) distinguishes implementation evidence from
-statistical validity: natural missingness, clinical timing, independent external performance,
-Ordinal interpretation and the rubric's conditional UMAP wording retain explicit limits.
-Part B is outside this work.
+Mỗi notebook chạy từ đầu với kernel `hcmus-wids`. Chương 01 và 02 tự chuẩn bị đầu vào. Các chương sau dùng `src/tabular_data.py` để tái dựng dữ liệu và phép chia. Chương 03–05 tái dựng khâu điền mô tả chỉ từ tập huấn luyện. Chương 06–07 khớp mọi bước học từ dữ liệu lại trong từng fold. [Phụ lục kết quả và kiểm thử](appendix.md) · [Hướng dẫn chạy](https://github.com/hungstupid/data-mining-preprocessing#ch%E1%BA%A1y-notebook-v%C3%A0-ki%E1%BB%83m-th%E1%BB%AD) · [Đối chiếu tiêu chí](../../RUBRIC_AUDIT.md) · [Phần B](../text/index.md)

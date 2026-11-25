@@ -1,98 +1,22 @@
-# Part B — Text Preprocessing
+# Phần B · Dữ liệu văn bản
 
-## Dataset and objective
+## Bài toán và dữ liệu
 
-Use [E-commerce Text Classification on Kaggle](https://www.kaggle.com/datasets/saurabhshahane/ecommerce-text-classification),
-from [Gautam's original Zenodo record](https://zenodo.org/records/3355823)
-([DOI](https://doi.org/10.5281/zenodo.3355823), version 2, CC BY 4.0).
-Each row pairs a product description (`text`, input) with its category (`label`, target):
-**Household, Books, Clothing & Accessories, Electronics**. The application is predicting a
-product category from its description. The source describes an Indian e-commerce platform;
-performance in other markets or languages remains unverified.
+E-commerce Text Classification chứa mô tả sản phẩm (`text`) và một trong bốn nhãn gốc (`label\)): Household, Books, Clothing & Accessories, Electronics. Tập gốc có 50.425 bản ghi, một mô tả thiếu và 22.622 dòng dư do trùng chính xác trong phạm vi hợp lệ. Nguồn là một nền tảng thương mại điện tử ở Ấn Độ. Kết quả cho biết cách các kỹ thuật hoạt động trên nguồn này. [Kaggle](https://www.kaggle.com/datasets/saurabhshahane/ecommerce-text-classification) · [Zenodo, phiên bản 2, CC BY 4.0](https://zenodo.org/records/3355823) · [DOI 10.5281/zenodo.3355823](https://doi.org/10.5281/zenodo.3355823)
 
-The original headerless CSV has **50,425 rows and two columns**. Stage 01 measures one
-missing text, no additional blank texts, and 22,622 redundant rows after the first occurrence
-of each exact text. These are audit observations, not a cleaned replacement dataset.
-The nonempty valid-label view has 50,424 rows, and the exact-unique sensitivity view has
-27,802. This satisfies the assignment minimum of 10,000 examples and at least two labels.
-All figures, tests and counts are computed in the notebook, with saved outputs for static HTML.
+## Các chương
 
-## Read and run
-
-| Stage | Status and scope |
+| Chương | Câu hỏi |
 |---|---|
-| [01 — Dataset audit and Text EDA](01_eda.ipynb) | Implemented: source/quality audit; length distributions and pairwise Mann–Whitney; class word clouds/top-50; TTR and Zipf |
-| [02 — Normalization and tokenization](02_normalization_tokenization.ipynb) | Implemented: canonical-unique stratified protocol; train-only normalization impact and number-policy sensitivity; word/sentence/character/BPE coverage and sequence lengths |
-| [03 — Stopwords and morphology](03_stopwords_morphology.ipynb) | Implemented: fixed NLTK stopword vocabulary/presence MI/Naive Bayes; Porter/Snowball/noun-WordNet type collisions and Logistic Regression grouped five-fold CV |
-| [04 — Representations](04_representations.ipynb) | Implemented: BoW/TF-IDF 1–3 grams, TRAIN-fitted Word2Vec and frozen MiniLM; storage/cosine, same-subset t-SNE/silhouettes/K-Means, fixed-fold Linear SVM |
+| [01. Phân tích khám phá](01_eda.ipynb) | Độ dài, từ thường gặp, TTR và Zipf khác thế nào theo lớp và sau bỏ trùng? |
+| [02. Chuẩn hóa và tách token](02_normalization_tokenization.ipynb) | Mỗi phép chuẩn hóa đổi văn bản ra sao? Tách theo từ, câu, ký tự và BPE khác gì về OOV và độ dài? |
+| [03. Từ dừng và xử lý hình thái](03_stopwords_morphology.ipynb) | Bỏ từ dừng đổi MI và Naive Bayes thế nào? Các cách đưa từ về gốc ảnh hưởng va chạm và Logistic Regression ra sao? |
+| [04. Biểu diễn văn bản](04_representations.ipynb) | BoW, TF-IDF, Word2Vec và MiniLM khác gì về độ thưa, không gian, phân cụm và Linear SVM? |
 
-Stages 01–04 are implemented with saved experimental outputs. Implementation coverage does not
-imply a guaranteed grade, calibrated external performance or a new published deployment.
-See the [full text criterion audit](../../docs/TEXT_RUBRIC_AUDIT.md); no placeholder chapter remains.
+## Giao thức đánh giá
 
-Use a fresh project `.venv` kernel (`hcmus-wids`). The notebook runs independently from the
-repository root or `book/text/`; it does not execute Part A or depend on a processed cache.
-The small `src/text_data.py` helper handles source parsing, duplicate-audit semantics and the
-fixed corpus/split recipe. `src/text_preprocessing.py` holds only the pure Stage 02 text views,
-shared unchanged with Stage 03; experiments stay in the notebooks. The six report sections follow Objective → Methodology →
-Implementation → Results → Discussion → Conclusion, with expandable code/supporting tables.
+Sau khi loại mô tả hoặc nhãn không hợp lệ, khóa xung đột và trùng, còn 27.752 mô tả chuẩn tắc duy nhất. Chia phân tầng 80/20 với seed 42, được 22.201 dòng huấn luyện và 5.551 dòng đánh giá. Hai tập tách biệt về mã dòng và khóa chuẩn tắc. Tập đánh giá dùng cho thống kê OOV và độ dài chuỗi của các bộ tách đã cố định. Sau EDA, mọi điểm phân loại trong phần này đến từ CV nội bộ trên phần huấn luyện.
 
-## Data preparation and integrity
+Các chương 03–04 khớp cùng năm fold theo nhóm chuỗi chuẩn hóa. Có 11 nhóm trùng, gồm 12 dòng dư. Từ vựng, IDF và bộ phân lớp học trong phần huấn luyện của từng fold. MiniLM có trọng số đóng băng. Word2Vec khớp trên toàn tập huấn luyện cho các phép đo mô tả. Tính silhouette trong không gian gốc trên tập con chung, còn t-SNE chỉ dùng để vẽ. Biến thể sản phẩm khác chuỗi vẫn có thể xuất hiện ở hai fold.
 
-Keep the original Kaggle file at `data/raw/ecommerce/ecommerceDataset.csv`.
-Stage 01 downloads only when the CSV is missing, reuses an existing archive, and never
-replaces an existing CSV. Configure Kaggle authentication outside the repository. If automatic
-download is unavailable, download the original `ecommerceDataset.csv` from the linked Kaggle
-dataset, extract it locally and place it at that exact path. Do not use a cleaned mirror.
-The README provides the CLI alternative and environment commands.
-
-The notebook computes file size, MD5 and SHA-256 and compares them with the documented source
-reference. A version mismatch is reported explicitly, without coercing observed results to
-match. Empty CSV fields are missing; literal NA-like strings are preserved. Raw bytes and
-raw frame remain unchanged, with a final integrity check. No raw CSV/ZIP or credentials are
-committed. Saved outputs permit static builds without data or Kaggle access.
-
-## Interpretation boundaries
-
-Exact and canonical duplicates, and illustrative related product descriptions, motivate
-leakage controls. Stage 01 uses NFKC/lowercase/whitespace keys only for audit; Stage 02 freezes
-the same rule for canonical deduplication before splitting. From 27,752 canonical-unique
-records, `make_text_protocol(raw, test_size=.2, seed=42)` reproduces **22,201 train / 5,551
-internal-assessment** rows, stratified by label. All conflicting-label canonical groups are
-excluded as whole groups (none observed in this version); first surviving exact/canonical
-occurrences define the corpus. `row_id` is zero-based CSV record position. Row IDs and
-canonical groups are disjoint across partitions. No split/cache export is required.
-
-Stage 02 keeps raw strings, measures a provisional normalization pipeline on TRAIN, preserves
-numbers by default and contrasts standalone-number removal. Four tokenizer strategies share
-a lighter input that retains case, punctuation and sentence boundaries. Word/sentence/character
-vocabularies and the 8,000-entry byte-level BPE are training-only. Test is used only for fixed
-coverage/OOV reporting and sequence diagnostics; no seed, policy or BPE size is tuned there.
-Stage 03 uses TRAIN only for vocabulary, binary-presence MI and both classifier CV ablations.
-It audits 11 duplicate normalized-base groups (12 redundant rows) and freezes five
-`StratifiedGroupKFold` partitions by base normalized text, shuffle/seed 42, before stopwords
-or morphology. All six variants reuse those folds. Vocabularies and IDF fit inside each
-fold; fixed stopwords/stateless or pretrained morphology maps can be memoized in advance.
-The morphology comparison retains stopwords in all variants; WordNet uses noun POS only.
-The internal-assessment text is not processed or scored in Stage 03.
-
-Only NLTK `stopwords` and English `wordnet` resources are added, with guarded download and
-resource hashes. Stage 03 does not need a POS tagger or OMW; existing package pins suffice.
-Stage 04 independently recreates the same normalized-base folds, preserving all Stage 03
-validation row fingerprints. It keeps stopwords, no morphology and the same numeric policy.
-All six representations use the same space-joined lexical input; only their representation
-mechanisms differ. BoW/TF-IDF use min_df=2 and a fixed 30,000-feature cap; CBOW Word2Vec fits
-TRAIN only and is used descriptively, never as a globally fitted inductive CV feature set.
-Frozen CPU MiniLM is pinned to a public model revision; its actual subword truncation is audited.
-
-Cosine pairs and the 1,200-row class-balanced geometry subset use identical IDs across methods.
-Category-label and discovered-cluster silhouettes are computed in original unit-vector spaces,
-not on t-SNE. Sparse SVM vectorizers/IDF refit in each fold, while the pretrained label-free
-encoder stays frozen. No assessment classifier is evaluated or used for selection.
-Count/TF-IDF in Stage 03 serve only its own controlled ablations; Stage 04 has new representation
-results. Model weights stay in ignored `.cache/huggingface/`; static rendering needs no weights.
-
-All rows and labels inform EDA. A later holdout from this corpus is an **internal post-EDA
-assessment**, not an unobserved external test. Duplicate removal does not guarantee independence;
-Mann–Whitney p-values retain that calibration limit. Word lengths are not model subword lengths,
-raw TTR is size-sensitive, and a descriptive Zipf fit does not prove a power law.
+Mỗi notebook đọc CSV gốc và dùng kernel `hcmus-wids`. Tệp trên Zenodo đã được kiểm tra trùng với tệp Kaggle. Mã trong `src/text_data.py` chia tập cố định. Các phép chuẩn hóa dùng chung nằm ở `src/text_preprocessing.py`. [Hướng dẫn tải dữ liệu và chạy](https://github.com/hungstupid/data-mining-preprocessing#l%E1%BA%A5y-d%E1%BB%AF-li%E1%BB%87u-g%E1%BB%91c) · [Đối chiếu chi tiết phần B](../../docs/TEXT_RUBRIC_AUDIT.md)
