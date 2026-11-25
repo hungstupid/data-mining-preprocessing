@@ -1,66 +1,25 @@
-# HCMUS Data Preprocessing — WiDS and E-commerce
+# Tiền xử lý dữ liệu
 
-**Nguyễn Đức Hưng — MSSV 24127174** · Data Mining and Applications, HCMUS.
+**Nguyễn Đức Hưng · 24127174**
 
-[Published Jupyter Book](https://hungstupid.github.io/data-mining-preprocessing/) ·
-[Official rubric](https://hcmus-cs-ta.github.io/lab-book/data-mining/projects/preprocessing/) ·
-[Submission rubric audit](RUBRIC_AUDIT.md) · [Part B evidence audit](docs/TEXT_RUBRIC_AUDIT.md).
+Đồ án cá nhân môn Khai phá dữ liệu và ứng dụng, HCMUS.
 
-Part A uses [WiDS Datathon 2024 Challenge #1](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/data):
-12,906 labeled records, 83 columns, 69 numerical candidates and 12 nominal/code/text fields.
-`patient_id` is an identifier; `patient_zip3` is a string geographic group key.
-The target `DiagPeriodL90D` uses 1 for the 90-day diagnosis group and 0 for its complement;
-see the [MathWorks source](https://blogs.mathworks.com/student-lounge/2024/01/01/predicting-timely-diagnosis-of-metastatic-breast-cancer-for-the-wids-datathon-2024/).
-Precise clinical timing/eligibility remains unresolved. These are retrospective methodological
-comparisons, not a deployable clinical model.
+Đồ án khảo sát cách xử lý giá trị thiếu, ngoại lai, thang đo và đặc trưng trên WiDS, đồng thời so sánh chuẩn hóa, tách token và biểu diễn mô tả sản phẩm trên E-commerce. Có thể đọc toàn bộ bảng và hình ngay trên sách công khai. [Jupyter Book](https://hungstupid.github.io/data-mining-preprocessing/) · [Đề và rubric](https://hcmus-cs-ta.github.io/lab-book/data-mining/projects/preprocessing/) · [Bảng đối chiếu](RUBRIC_AUDIT.md)
 
-Part B uses [E-commerce Text Classification](https://www.kaggle.com/datasets/saurabhshahane/ecommerce-text-classification),
-from [Gautam's Zenodo record](https://zenodo.org/records/3355823) (CC BY 4.0): 50,425
-product descriptions, four category labels, and a headerless two-column CSV (`label`, `text`).
-The input is a product description; the target is its category. **Stages 01–04 are implemented**:
-source/quality audit and Text EDA, normalization/four tokenization strategies, then controlled
-stopword and morphology ablations with training-only MI/grouped CV, then six representations
-and controlled cosine, clustering, visualization and new Linear SVM evaluation. Read the
-[Part B overview](book/text/index.md), [Text Stage 01](book/text/01_eda.ipynb),
-[Text Stage 02](book/text/02_normalization_tokenization.ipynb) and
-[Text Stage 03](book/text/03_stopwords_morphology.ipynb) and
-[Text Stage 04](book/text/04_representations.ipynb).
-
-## Read Part A
-
-| Stage | Executable chapter | Main evidence |
+| Phần | Dữ liệu | Kết quả chính |
 |---|---|---|
-| 01 | [EDA](book/tabular/01_eda.ipynb) | Normality 69/69, Pearson/Spearman, missingno and scoped Little reference |
-| 02 | [Imputation](book/tabular/02_preprocessing.ipynb) | Seven configurations, fixed 10% masking, raw RMSE and Macro NRMSE |
-| 03 | [Outliers](book/tabular/03_outliers.ipynb) | Nine configurations, Jaccard, KS and keep-all recommendation |
-| 04 | [Scaling](book/tabular/04_scaling.ipynb) | Five configurations, provenance-aware violins and focused Levene diagnostic |
-| 05 | [Encoding](book/tabular/05_encoding.ipynb) | Five methods, group-OOF Target Encoding and scoped VIF/rank |
-| 06 | [Feature selection](book/tabular/06_feature_selection.ipynb) | 22 configurations / 110 CV evaluations, PCA and t-SNE |
-| 07 | [Class imbalance](book/tabular/07_class_imbalance.ipynb) | Four treatments, original-prevalence evaluation and locked internal assessment |
+| A. Dữ liệu bảng | 12.906 dòng, 83 cột. [WiDS Datathon 2024 Challenge #1](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/data) | kNN10 có Macro NRMSE 0,676330 trên cùng 14.181 ô che. Giữ toàn bộ dòng sau so sánh ngoại lai. |
+| B. Văn bản | 50.425 mô tả, bốn nhãn gốc. [E-commerce Text Classification](https://www.kaggle.com/datasets/saurabhshahane/ecommerce-text-classification) | TF-IDF unigram đạt F1-macro 0,957514 với Linear SVM. Cụm MiniLM khớp danh mục tốt hơn theo ARI. |
 
-Every chapter follows Objective → Methodology → Implementation → Results → Discussion →
-Conclusion. Full scientific diagnostics and long code are expandable; the
-[appendix](book/tabular/appendix.md) provides supporting experiments and separate test instructions.
-[src/tabular_data.py](src/tabular_data.py) contains only shared read/split/semantic/preparation
-functions. Each notebook starts from the raw CSV in its own fresh kernel. It does not execute
-an earlier notebook, load its saved HTML, or depend on a processed-data cache.
+Bắt đầu ở [tổng quan phần A](book/tabular/index.md) hoặc [tổng quan phần B](book/text/index.md). [Tổng kết](book/ket-luan.md) nêu quyết định, bằng chứng và giới hạn của từng phần.
 
-Stages 03–05 reconstruct the same train-only kNN10 descriptive input. Stages 06–07 start
-from raw predictors and fit every learned transformation inside each CV training fold;
-they never reuse a full-training completed/scaled matrix. The same deterministic group folds
-are independently recreated from the fixed recipe. Whole-file EDA exposure is disclosed: the reserve
-is an internal post-EDA assessment, not an untouched external cohort.
+## Cài đặt để tái lập
 
-## Environment
-
-Run commands at the Git root (`git rev-parse --show-toplevel`). On the original machine,
-the clone is inside another directory with the same name; open the inner repository.
-The verified environment uses Python **3.13.3**, exact dependencies in
-`requirements-lock.txt`, and Node.js **24.x** for Jupyter Book 2.1.7.
-
-For a fresh checkout:
+Dùng Python **3.13.3**, Git, trình biên dịch C và Node.js **24.x**. Lockfile đã được kiểm tra trên macOS arm64. Với macOS, trình biên dịch có trong Xcode Command Line Tools. Với Linux, cần compiler và header Python để dựng Gensim từ nguồn.
 
 ```bash
+git clone https://github.com/hungstupid/data-mining-preprocessing.git
+cd data-mining-preprocessing
 python3.13 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements-lock.txt
@@ -68,249 +27,88 @@ python -m pip check
 python -m ipykernel install --sys-prefix --name hcmus-wids --display-name "Python (HCMUS WiDS .venv)"
 ```
 
-For an existing `.venv`, activate it and keep it. Select its `hcmus-wids` kernel in Jupyter/VS Code.
-Text Stage 01 uses `wordcloud==1.9.6`; Stage 02 adds `nltk==3.10.4` and
-`tokenizers==0.23.3` with their required dependencies. Install the updated lock in the
-existing environment. Stage 04 adds compatible CPU gensim (exact corrected source commit),
-`sentence-transformers==6.3.0` and `torch==2.15.0`, with exact required transitive pins in the
-updated lock; no earlier pinned package is upgraded. Compatibility was checked in Python
-3.13.3 against the existing NumPy/SciPy environment.
-Gensim is pinned to source commit `ecf22c266f3b8930610114c149d8991ed14e2a16` from
-[open PR #3668](https://github.com/piskvorky/gensim/pull/3668), fixing the
-[native −1 dot-product bug](https://github.com/piskvorky/gensim/issues/3665) found in its 4.4.0 wheel.
-This is an explicit essential compatibility exception, not an upstream release claim.
-Installing the lock needs Git, a working C compiler/Python development headers and network
-for the isolated source build (macOS: existing Xcode Command Line Tools; Linux: compiler and
-Python headers). The notebook verifies the source revision and a tiny public scoring regression
-before training; no local site-packages patch is required. Build tools do not change Part A pins.
-The final check installed all 158 lock entries into a separate Python 3.13.3 environment on
-macOS arm64 and rebuilt this source pin without pip cache. Imports, `pip check` and all 48
-tests passed there; the latest PyPI stable 4.4.0 wheel still failed the same numerical guard.
-Other operating systems have not been verified with this lock.
-Check `node --version` and `npm --version`; the first book-theme download needs network access.
+`requirements.txt` ghi các phụ thuộc trực tiếp. `requirements-lock.txt` ghim cả các phiên bản phụ thuộc. Gensim dùng đúng commit `ecf22c266f3b8930610114c149d8991ed14e2a16` để sửa trường hợp tích vô hướng −1 bị trả thành 0 ở bản 4.4.0. Ô Word2Vec kiểm tra bản cài và kết quả số trước khi huấn luyện. Commit sửa còn nằm trong PR upstream. [Lỗi #3665](https://github.com/piskvorky/gensim/issues/3665) · [Bản sửa #3668](https://github.com/piskvorky/gensim/pull/3668)
 
-## Obtain and validate the data
+## Lấy dữ liệu gốc
 
-Accept the [competition rules](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/rules)
-and configure [Kaggle authentication](https://github.com/Kaggle/kaggle-cli/blob/main/docs/README.md#authentication)
-locally, outside the repository. With `.venv` active:
+### WiDS Datathon 2024 Challenge #1
+
+Xác thực Kaggle ngoài repo, chấp nhận điều khoản cuộc thi và đặt đúng tệp `training.csv` ở `data/raw/training.csv`. Dùng bảng huấn luyện của cuộc thi. Bảng mẫu nộp bài cũng có tên cột nhãn và ID, nên cần chỉ định đường dẫn khi kiểm tra. [Điều khoản WiDS](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/rules) · [Xác thực Kaggle](https://github.com/Kaggle/kaggle-cli/blob/main/docs/README.md#authentication)
 
 ```bash
 kaggle competitions download widsdatathon2024-challenge1 -p data/raw
 python -m zipfile -e data/raw/widsdatathon2024-challenge1.zip data/raw
 python src/validate_dataset.py --csv data/raw/training.csv \
   --min-rows 10000 --min-features 10 --min-numeric 1 --min-categorical 1
+shasum -a 256 data/raw/training.csv
 ```
 
-Use exactly `data/raw/training.csv`. The submission template also has ID/target headers;
-it is not training data. Do not replace existing raw files or publish CSVs/credentials.
-Stage 01 contains an optional guarded download (`DOWNLOAD_IF_MISSING=False` by default)
-that never replaces an existing training CSV. Executing that download requires your own
-Kaggle authorization; it is not run during this refactor.
+SHA-256 của tệp đã dùng là `e9947ecfe1cdacafbf9cbcdc0abd024396f617c701b056fa54e5881f1bb9bbe9`. Notebook EDA có tùy chọn `DOWNLOAD_IF_MISSING` để chuẩn bị khi chưa có tệp. Kiểm tra cấu trúc và các điều kiện về kiểu biến, tỷ lệ thiếu nằm trong chương EDA. Quyền tải do Kaggle quản lý. Dữ liệu thô và thông tin xác thực được giữ ngoài Git.
 
-The validator reports structural/integrity diagnostics read-only. Explicit thresholds are
-required for its structural PASS, and semantic types/missingness are checked in EDA.
-The notebooks retain schema/ZIP checks, disjoint group boundaries and one final raw-file
-integrity check per chapter. Analytic correctness and synthetic leakage fixtures live in
-`tests/`, not the report narrative. No transformed patient table is exported.
+### E-commerce Text Classification
 
-## Obtain the text data
-
-With the existing `.venv` active, Stage 01 automatically prepares the original Kaggle CSV
-**only when missing**, reusing a local archive and never replacing an existing CSV.
-For an explicit CLI download in a fresh data directory:
+Đặt tệp CSV gốc không có hàng tiêu đề tại `data/raw/ecommerce/ecommerceDataset.csv`. Notebook EDA có thể tải qua Kaggle nếu chưa có tệp và dùng lại ZIP đã tải. Bản Zenodo CC BY 4.0 được đối chiếu trùng từng byte với bản Kaggle. Có thể tải trực tiếp từ nguồn này. [Kaggle](https://www.kaggle.com/datasets/saurabhshahane/ecommerce-text-classification) · [Zenodo, DOI 10.5281/zenodo.3355823](https://zenodo.org/records/3355823)
 
 ```bash
 mkdir -p data/raw/ecommerce
-# Run the download only if neither CSV nor archive already exists.
-if [ ! -f data/raw/ecommerce/ecommerceDataset.csv ] && [ ! -f data/raw/ecommerce/ecommerce-text-classification.zip ]; then
-  kaggle datasets download -d saurabhshahane/ecommerce-text-classification -p data/raw/ecommerce
+if [ ! -f data/raw/ecommerce/ecommerceDataset.csv ]; then
+  curl -fL https://zenodo.org/records/3355823/files/ecommerceDataset.csv \
+    -o data/raw/ecommerce/ecommerceDataset.csv
 fi
-# Stage 01 safely extracts the CSV if needed; it does not overwrite it.
+shasum -a 256 data/raw/ecommerce/ecommerceDataset.csv
 ```
 
-If Kaggle authentication/download fails, manually download `ecommerceDataset.csv` from the
-[original Kaggle dataset](https://www.kaggle.com/datasets/saurabhshahane/ecommerce-text-classification)
-and put it at `data/raw/ecommerce/ecommerceDataset.csv`. Configure credentials outside Git;
-never commit the CSV/ZIP. Do not substitute a cleaned mirror. The notebook explicitly reads
-`header=None`, preserves literal NA-like text, and measures missingness, source size and hashes.
-The verified original MD5 is `6f2cfdb475096244916aeed6f776c1a6` and SHA-256 is
-`1d44be1780bc9558f40ab4cee5b32051ddfe90647cd525b9652b47cdb233593f`.
-Source/version differences are reported; observed counts are never forced to reference values.
+Chỉ tải khi chưa có tệp gốc. SHA-256 đã xác minh là `1d44be1780bc9558f40ab4cee5b32051ddfe90647cd525b9652b47cdb233593f`. MD5 theo Zenodo là `6f2cfdb475096244916aeed6f776c1a6`. Notebook giữ văn bản tiếng Anh và nhãn nguồn, nhận trường CSV rỗng là thiếu và giữ nguyên chuỗi như `NA`.
 
-## Reproduce the experiments
+## Chạy notebook và kiểm thử
 
-Run Stage 01–07 in order, each with Restart Kernel → Run All. For a clean command-line run:
+Mở Jupyter Lab từ thư mục repo, chọn kernel `hcmus-wids` và dùng **Restart Kernel and Run All** cho từng chương. Mỗi chương tự đọc dữ liệu nguồn và dựng lại phạm vi cần thiết. Một lượt chạy đủ có thể mất vài phút, phần MiniLM và t-SNE chiếm nhiều thời gian nhất.
 
 ```bash
-for notebook in book/tabular/0[1-7]_*.ipynb; do
-  .venv/bin/python -m nbconvert --to notebook --execute --inplace \
+for notebook in book/tabular/0[1-7]_*.ipynb book/text/0[1-4]_*.ipynb; do
+  python -m nbconvert --to notebook --execute --inplace \
     --ExecutePreprocessor.kernel_name=hcmus-wids \
-    --ExecutePreprocessor.timeout=600 "$notebook" || exit 1
+    --ExecutePreprocessor.timeout=1200 "$notebook" || exit 1
 done
-.venv/bin/python -m unittest discover -s tests -v
+python -m unittest discover -s tests -v
 ```
 
-The notebooks also run independently from the repository root or `book/tabular/`.
-Stage 02 retains both the original six-feature and the joint 69-feature experiments.
-The expanded winner remains kNN10 Macro NRMSE=0.676330; MICE has lower raw RMSE but
-912 bounded-share violations. No clipping, reweighting, retuning or new experiment is added.
-Stage 06 retains its no-selection reference; Stage 07 selects RUS by fixed mean F1,
-with weak AUC and worse Brier explicitly reported. Repeated execution of the same locked
-assessment checks reproducibility; reserved outcomes are never used for new choices.
-
-For Text Stage 01 only, without rerunning Part A:
+Kiểm thử đơn vị dùng dữ liệu nhỏ có đáp án biết trước, kiểm tra công thức, ranh giới dữ liệu, rò rỉ và Gensim. Chạy đầy đủ cần hai CSV gốc. Các notebook tách token và hình thái dùng tài nguyên NLTK `punkt_tab`, `stopwords`, `wordnet`. Notebook tải từng tài nguyên khi thiếu. Có thể tải trước bằng lệnh sau.
 
 ```bash
-.venv/bin/python -m nbconvert --to notebook --execute --inplace \
-  --ExecutePreprocessor.kernel_name=hcmus-wids \
-  --ExecutePreprocessor.timeout=600 book/text/01_eda.ipynb
-.venv/bin/python -m unittest discover -s tests -p 'test_text_data.py' -v
+python -m nltk.downloader -d .cache/nltk_data punkt_tab stopwords wordnet
 ```
 
-Text Stage 01 also runs independently from `book/text/` with the same kernel. It keeps the
-raw file unchanged and stores real aggregate outputs. Main EDA excludes one missing text;
-exact deduplication is a separate sensitivity view. There is no final cleaning pipeline,
-trained model or exported split. All text rows/labels inform EDA, so any later internal
-holdout must disclose that exposure. The Part A protocol and results are unchanged.
+Chương biểu diễn dùng `sentence-transformers/all-MiniLM-L6-v2` trên CPU, ghim revision `1110a243fdf4706b3f48f1d95db1a4f5529b4d41`. Trọng số công khai tải lần đầu và lưu trong `.cache/huggingface/`. Việc chạy lại tính lại vector từ trọng số đó. [Thẻ mô hình](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
 
-For Text Stage 02, run independently from root:
+## Dựng và đọc sách
+
+Lệnh dựng dùng đầu ra đã lưu trong notebook, chạy được với môi trường chỉ có Jupyter Book 2.1.7 và Node.js 24.x, không cần quyền tải dữ liệu. Lượt đầu cần mạng để lấy theme. Lệnh xem trực tiếp chạy từ thư mục repo.
 
 ```bash
-.venv/bin/python -m nbconvert --to notebook --execute --inplace \
-  --ExecutePreprocessor.kernel_name=hcmus-wids \
-  --ExecutePreprocessor.timeout=600 book/text/02_normalization_tokenization.ipynb
-.venv/bin/python -m unittest discover -s tests -p 'test_text*.py' -v
-```
-
-The notebook guards `punkt_tab` lookup/download and reuses existing English resources.
-For manual bootstrap if missing:
-
-```bash
-.venv/bin/python -m nltk.downloader -d .cache/nltk_data punkt_tab
-```
-
-No other NLTK corpus/model is downloaded. Resource download failures stop with instructions;
-there is no fake tokenizer fallback. English resource-file hashes are retained in the notebook.
-The notebook also runs from `book/text/` with the same project kernel.
-
-`src/text_data.py::make_text_protocol(raw, test_size=.2, seed=42)` rebuilds the text population
-and membership from raw records. It removes missing/blank/invalid rows, all conflicting-label
-canonical groups, exact duplicates and additional canonical duplicates, then stratifies
-27,752 examples into **22,201 train / 5,551 internal post-EDA assessment** rows. `row_id` traces
-the zero-based original CSV record position; canonical keys and row IDs never cross partitions.
-Related product variants may still remain. Later chapters call this same helper rather than
-executing a prior notebook or requiring a processed cache.
-
-Stage 02 measures normalization on TRAIN and compares a fixed number-removal alternative.
-Its tokenizer benchmark uses one punctuation-preserving light input for all four methods;
-BPE learns from TRAIN only. The test partition supplies coverage/OOV and sequence diagnostics,
-not seed/configuration selection. No classifier or accuracy winner is asserted.
-
-For Text Stage 03:
-
-```bash
-.venv/bin/python -m nbconvert --to notebook --execute --inplace \
-  --ExecutePreprocessor.kernel_name=hcmus-wids \
-  --ExecutePreprocessor.timeout=1200 book/text/03_stopwords_morphology.ipynb
-.venv/bin/python -m unittest discover -s tests -p 'test_text*.py' -v
-```
-
-Stage 03 re-reads raw data and verifies Stage 02 source/partition fingerprints. It uses the
-same default normalization (including preserved numbers and the known `@home` removal risk)
-via pure functions extracted to `src/text_preprocessing.py`; Stage 02 imports these unchanged.
-Both chapters run independently from root or `book/text/`, without executing another notebook.
-
-Only the fixed 22,201-row TRAIN partition enters Stage 03's vocabulary, binary-document MI,
-collision metrics and CV. Equal normalized-base texts define groups: 11 duplicate groups,
-12 redundant rows. Five `StratifiedGroupKFold` folds (shuffle=True, seed 42) are frozen before
-stopword/morphology changes and reused for both NB variants and all four LR variants.
-Every vectorizer/IDF/model fits inside its fold. All morphology variants retain stopwords;
-WordNet uses noun-default lemmatization, and digit-bearing lexical pieces remain unchanged.
-Near-duplicate/product families may still cross distinct groups. The internal assessment is
-checked only for membership separation and is not scored or used to choose a configuration.
-
-The existing package lock suffices. Stage 03 downloads only missing NLTK `stopwords` and
-`wordnet` resources and records their hashes/version. For manual bootstrap:
-
-```bash
-.venv/bin/python -m nltk.downloader -d .cache/nltk_data stopwords wordnet
-```
-
-Stage 03 adds no POS tagger, OMW or embedding framework. Its Count/TF-IDF models are fixed
-tools for the mandated ablations, separate from Stage 04's representation benchmarks.
-Close CV means and type collisions do not establish a universal winner.
-
-For Text Stage 04:
-
-```bash
-.venv/bin/python -m nbconvert --to notebook --execute --inplace \
-  --ExecutePreprocessor.kernel_name=hcmus-wids \
-  --ExecutePreprocessor.timeout=2400 book/text/04_representations.ipynb
-.venv/bin/python -m unittest discover -s tests -v
-```
-
-Stage 04 runs independently from root or `book/text/`, imports no previous notebook and
-requires no processed-data cache. It recreates outer membership and every Stage 03 validation
-fingerprint. The same normalized lexical baseline retains numbers/stopwords without morphology;
-space-joined tokens are shared by all representations. Sparse features use built-in word n-grams,
-min_df=2 and max_features=30,000, with measured candidate/cap effects.
-
-Gensim CBOW (100 dimensions, 10 epochs, workers=1, stable hash/seed 42) fits TRAIN only and
-mean-pools known words; no globally fitted Word2Vec classifier CV score is claimed. The public
-`sentence-transformers/all-MiniLM-L6-v2` model is pinned to revision
-`1110a243fdf4706b3f48f1d95db1a4f5529b4d41`, CPU, batch size 32, frozen and L2-normalized.
-Its true subword length/truncation exposure is measured. Weights are cached only under ignored
-`.cache/huggingface/`; no personal token is needed (`token=False`). If missing, the notebook
-obtains only required files from Hugging Face and fails with instructions on network errors.
-It never substitutes random embeddings. A first Run All needs model network access; subsequent
-runs reuse exact local weights but recompute document embeddings/experiments.
-
-Cosine uses 2,400 same-category and 2,400 different-category pairs, seed 42, shared across all
-representations. Geometry uses the same 1,200 class-balanced TRAIN IDs, common nonzero handling,
-original-space true-label/cluster silhouettes and K=4 K-Means. t-SNE follows subset-fitted
-SVD(50), never replaces original-space silhouette. All sparse vocabulary/IDF and SVM fits are
-fold-local; only the externally pretrained, entirely frozen encoder is reused across folds.
-The internal-assessment partition is not embedded/classified or used for selection.
-
-The rubric calls Word2Vec explicitly but its general library list omits gensim; this documented
-standard implementation is an interpretation, not claimed instructor authorization. Likewise,
-Sentence Transformer is labeled advanced in prose but named in the scoring table, so the actual
-MiniLM/K-Means/SVM comparisons are included. See [the full text evidence audit](docs/TEXT_RUBRIC_AUDIT.md)
-for coverage, numbers, validation and limits. No guaranteed 10/10 follows from these checks.
-
-## Build and publish
-
-```bash
-source .venv/bin/activate
 jupyter book start
-BASE_URL=/data-mining-preprocessing jupyter book build --html
 ```
 
-HTML is written to `_build/html/`. `myst.yml` is the sole Jupyter Book 2 configuration.
-The workflow `.github/workflows/deploy.yml` builds **without `--execute`**, rendering
-real aggregate outputs saved in the notebooks. Rendering requires neither CSV nor Kaggle
-credentials; recomputing Part A requires its training CSV and Text Stages 01–04 require the
-original E-commerce CSV; Stage 04 execution also needs cached/downloadable model weights.
-Static rendering imports none of these models and needs no CSV, model download or GPU. Keep saved outputs.
+Dựng bản tĩnh cho GitHub Pages bằng:
 
-GitHub Pages must use **Settings → Pages → Build and deployment → Source → GitHub Actions**.
-The published f33849e baseline and its successful workflow are verified in the submission audit.
-A separately authorized push to `main` or workflow dispatch publishes the committed source.
-Local build success does not certify a new remote deployment. This review does not
-commit, push, change Pages settings, or alter the deployment workflow.
+```bash
+BASE_URL=/data-mining-preprocessing jupyter book build --html
+python scripts/localize_book.py
+```
 
-## Completion boundaries
+Kết quả ở `_build/html/`. Lệnh thứ hai đặt ngôn ngữ trang tiếng Việt trong HTML đã dựng. GitHub Actions dùng cùng lệnh khi xuất bản từ `main`. Giữ kết quả đã chạy trong notebook để người đọc thấy các hình và bảng trên website mà không cần cài đặt hay xác thực.
 
-The [submission audit](RUBRIC_AUDIT.md) maps the selected tabular and text requirements to
-actual code, saved results and review decisions. All unconditional requirements have evidence;
-conditional UMAP applicability and the general gensim library-list interpretation are disclosed.
-No additional model search or higher F1 target is needed for coverage. The
-[text audit](docs/TEXT_RUBRIC_AUDIT.md) retains detailed Stage 01–04 evidence.
+| Vị trí | Nội dung |
+|---|---|
+| `book/tabular/`, `book/text/` | 11 notebook, kết quả đã lưu và hướng dẫn đọc |
+| `myst.yml` | Tên sách, mục lục và cấu hình dựng |
+| `src/` | Xử lý dữ liệu dùng chung, phép kiểm, biểu diễn và nhãn trình bày |
+| `tests/` | Kiểm tra công thức, dữ liệu và các ranh giới huấn luyện |
+| `data/raw/` | Nơi đặt dữ liệu tải từ nguồn, Git chỉ lưu tệp đánh dấu thư mục |
+| `RUBRIC_AUDIT.md` | Đối chiếu yêu cầu, bằng chứng, tự đánh giá và điều kiện còn cần xác nhận |
 
-The published baseline includes both parts and Stage 04; its successful workflow and browser
-checks are recorded in the submission audit. New local edits require a separately authorized
-push. Statistical assumptions, source-specific/internal evaluation and pretrained-model
-truncation remain limits on conclusions, not claims of extra unfinished assignment work.
-Earlier Part A implementation/deployment records are archived
-[separately](docs/history/RUBRIC_AUDIT_82617d1.md); Git preserves notebook and audit history.
+## Phạm vi kết quả và công cụ
+
+Đồ án đánh giá nội bộ sau khi EDA đã khảo sát toàn bộ hai tập nguồn. Chia nhóm ZIP hạn chế chia sẻ bối cảnh địa lý giữa các fold WiDS. Nhóm theo văn bản chuẩn hóa hạn chế trùng chuỗi trong CV văn bản. Biến thể sản phẩm, thời điểm có sẵn của biến lâm sàng và tính đại diện cho nguồn khác vẫn cần xác minh.
+
+WordCloud tạo đám mây từ, Tokenizers huấn luyện BPE, Gensim huấn luyện Word2Vec, còn Sentence Transformers và PyTorch chạy MiniLM. Quy định thư viện và UMAP được đối chiếu trong bảng tiêu chí. AI hỗ trợ rà soát, biên tập và kiểm thử bản nộp. Notebook và mã nguồn lưu cách tính cùng bằng chứng để sinh viên giải thích và chạy lại. Nộp một link Jupyter Book công khai trên Moodle theo hướng dẫn môn học. [Quy định triển khai và nộp bài](https://hcmus-cs-ta.github.io/lab-book/data-mining/projects/preprocessing/)

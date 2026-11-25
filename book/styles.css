@@ -1,0 +1,22 @@
+/* Cho phép cuộn ngang ngay tại kết quả bảng. */
+main .jp-RenderedHTML {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+main .jp-RenderedHTML th {
+  white-space: normal;
+}
+
+main .jp-RenderedHTML td {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 767px) {
+  main .heading-text + a {
+    width: auto;
+    margin-inline-start: 0.35em;
+    translate: none;
+    transform: none;
+  }
+}
