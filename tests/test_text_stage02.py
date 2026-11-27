@@ -1,10 +1,6 @@
 """Known-answer checks of shared Stage 02 views and its notebook BPE definitions."""
 from collections import Counter
-from functools import wraps
 from pathlib import Path
-import html
-import re
-import unicodedata
 import unittest
 
 import nbformat
@@ -18,8 +14,7 @@ from src.text_preprocessing import normalize_default
 class Stage02DefinitionTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        namespace={"Counter":Counter,"wraps":wraps,"html":html,"re":re,"unicodedata":unicodedata,
-                   "np":np,"pd":pd,"Tokenizer":Tokenizer,"models":models,"trainers":trainers,
+        namespace={"np":np,"Tokenizer":Tokenizer,"models":models,"trainers":trainers,
                    "pre_tokenizers":pre_tokenizers,"decoders":decoders}
         path=Path(__file__).resolve().parents[1]/"book/text/02_normalization_tokenization.ipynb"
         notebook=nbformat.read(path,as_version=4)
@@ -45,6 +40,12 @@ class Stage02DefinitionTests(unittest.TestCase):
         self.assertEqual(f["conditional_symbols"]("M3-10 2.5cm 5% <3"),"M3-10 2.5cm 5% <3")
         # Freeze the documented Stage 02 policy, including its known mention-loss risk.
         self.assertEqual(normalize_default("@home <b>USB3</b> #A12 10cm &amp; 12."),"usb3 a12 10cm 12.")
+
+    def test_escaped_html_tags_are_removed_without_losing_measurements(self):
+        text = '<b title="a &gt; b">USB3</b> &lt;p&gt;Product 10cm&lt;/p&gt; &#60;br&#62; &lt;5'
+        self.assertEqual(normalize_default(text), "usb3 product 10cm <5")
+        self.assertEqual(self.functions["light_input"](text), "USB3 Product 10cm <5")
+        self.assertEqual(normalize_default("&Lt;P&Gt;Product&Lt;/P&Gt;"), "product")
 
     def test_oov_counts_occurrences_rather_than_unique_types(self):
         unknown,total,rate=self.functions["oov_counts"](Counter(["known","new","known","new","other"]),{"known","other"})

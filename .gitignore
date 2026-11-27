@@ -12,8 +12,6 @@ __pycache__/
 # Data stays local; retain only directory markers
 /data/raw/**
 !/data/raw/.gitkeep
-/data/processed/**
-!/data/processed/.gitkeep
 *.csv
 *.parquet
 *.feather

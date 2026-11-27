@@ -194,7 +194,7 @@ class FeatureSelectionTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.methods = notebook_functions("06_feature_selection.ipynb", ["make_stage06_preprocessor",
-            "stage06_take_columns", "stage06_top_positions", "stage06_statistical_scores"],
+            "stage06_top_positions", "stage06_statistical_scores"],
             ColumnTransformer=ColumnTransformer, Pipeline=Pipeline, StandardScaler=StandardScaler,
             KNNImputer=KNNImputer, SimpleImputer=SimpleImputer, OneHotEncoder=OneHotEncoder,
             ENCODING_MISSING=MISSING_TOKEN, f_classif=f_classif, chi2=chi2,

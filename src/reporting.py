@@ -7,7 +7,7 @@ from html import escape, unescape
 import matplotlib.pyplot as plt
 from IPython import get_ipython
 from IPython.core.pylabtools import print_figure
-from IPython.display import Markdown, display
+from IPython.display import HTML, Markdown, display
 
 COLUMN_LABELS = {
     "package": "Thư viện",
@@ -444,6 +444,22 @@ def display_report(value):
         html = _TABLE_HEAD.sub(_localize_headers, data["text/html"])
         data["text/html"] = _SCROLL_REGION.sub(r'\1tabindex="0" ', html)
     display(data, metadata=metadata, raw=True)
+
+
+def prose(text):
+    """Hiển thị đoạn nhận xét, thoát HTML trước khi in đậm nội dung."""
+    safe = escape(text)
+    return HTML("<p>" + re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", safe) + "</p>")
+
+
+def show_table(frame, title=None, collapse=False, **kwargs):
+    """Hiển thị bảng có thể cuộn ngang và giữ nội dung văn bản ở dạng an toàn."""
+    body = '<div style="overflow-x:auto">' + frame.to_html(escape=True, **kwargs) + '</div>'
+    if collapse:
+        body = f"<details><summary>{escape(title or 'Bảng chi tiết')}</summary>{body}</details>"
+    elif title:
+        body = f"<p><strong>{escape(title)}</strong></p>" + body
+    display_report(HTML(body))
 
 
 def show_figure(fig, description):

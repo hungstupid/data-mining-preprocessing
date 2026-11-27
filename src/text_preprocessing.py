@@ -1,7 +1,4 @@
-"""Stateless text views shared by E-commerce Stages 02–03.
-
-Extracted unchanged from Stage 02; no fitted vocabulary, labels or resource downloads.
-"""
+"""Fixed text normalization rules shared by the E-commerce notebooks."""
 from functools import wraps
 import html
 import re
@@ -33,7 +30,9 @@ HTML_TAG_RE=re.compile(
 def remove_html_tags(text): return HTML_TAG_RE.sub(" ",text)
 
 @preserve_missing
-def decode_entities(text): return html.unescape(text)
+def decode_entities(text):
+    """Decode entities and strip recognized tags exposed by decoding."""
+    return HTML_TAG_RE.sub(" ", html.unescape(text))
 
 URL_RE=re.compile(r"\b(?:https?://|www\.)[^\s<>]+",re.IGNORECASE)
 @preserve_missing
@@ -77,7 +76,7 @@ def light_input(text):
     return text
 
 def normalize_default(text):
-    """Stage 02 default in the same order, preserving numeric content and missing scalars."""
+    """Normalize model input while keeping numeric content and missing scalars."""
     for function in [unicode_nfkc, lowercase, remove_html_tags, decode_entities, remove_urls,
                      remove_mentions, remove_hashtag_marker, conditional_symbols,
                      keep_numbers, normalize_whitespace]:

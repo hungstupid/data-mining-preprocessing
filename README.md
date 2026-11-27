@@ -9,7 +9,7 @@
 | Phần | Dữ liệu | Kết quả chính |
 |---|---|---|
 | A. Dữ liệu bảng | 12.906 dòng, 83 cột. [WiDS Datathon 2024 Challenge #1](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/data) | kNN10 có Macro NRMSE 0,676330 trên cùng 14.181 ô che. Giữ toàn bộ dòng sau so sánh ngoại lai. |
-| B. Văn bản | 50.425 mô tả, bốn nhãn gốc. [E-commerce Text Classification](https://www.kaggle.com/datasets/saurabhshahane/ecommerce-text-classification) | TF-IDF unigram đạt F1-macro 0,957514 với Linear SVM. Cụm MiniLM khớp danh mục tốt hơn theo ARI. |
+| B. Văn bản | 50.425 mô tả, bốn nhãn gốc. [E-commerce Text Classification](https://www.kaggle.com/datasets/saurabhshahane/ecommerce-text-classification) | TF-IDF unigram đạt F1-macro 0,957556 với Linear SVM. Cụm MiniLM khớp danh mục tốt hơn theo ARI. |
 
 Bắt đầu ở [tổng quan phần A](book/tabular/index.md) hoặc [tổng quan phần B](book/text/index.md). [Tổng kết](book/ket-luan.md) nêu quyết định, bằng chứng và giới hạn của từng phần.
 
@@ -33,14 +33,12 @@ python -m ipykernel install --sys-prefix --name hcmus-wids --display-name "Pytho
 
 ### WiDS Datathon 2024 Challenge #1
 
-Xác thực Kaggle ngoài repo, chấp nhận điều khoản cuộc thi và đặt đúng tệp `training.csv` ở `data/raw/training.csv`. Dùng bảng huấn luyện của cuộc thi. Bảng mẫu nộp bài cũng có tên cột nhãn và ID, nên cần chỉ định đường dẫn khi kiểm tra. [Điều khoản WiDS](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/rules) · [Xác thực Kaggle](https://github.com/Kaggle/kaggle-cli/blob/main/docs/README.md#authentication)
+Xác thực Kaggle ngoài repo, chấp nhận điều khoản cuộc thi và đặt tệp `training.csv` ở `data/raw/training.csv`. Lệnh kiểm tra đọc đúng tệp này theo mặc định và in SHA-256. [Điều khoản WiDS](https://www.kaggle.com/competitions/widsdatathon2024-challenge1/rules) · [Xác thực Kaggle](https://github.com/Kaggle/kaggle-cli/blob/main/docs/README.md#authentication)
 
 ```bash
 kaggle competitions download widsdatathon2024-challenge1 -p data/raw
 python -m zipfile -e data/raw/widsdatathon2024-challenge1.zip data/raw
-python src/validate_dataset.py --csv data/raw/training.csv \
-  --min-rows 10000 --min-features 10 --min-numeric 1 --min-categorical 1
-shasum -a 256 data/raw/training.csv
+python src/validate_dataset.py
 ```
 
 SHA-256 của tệp đã dùng là `e9947ecfe1cdacafbf9cbcdc0abd024396f617c701b056fa54e5881f1bb9bbe9`. Notebook EDA có tùy chọn `DOWNLOAD_IF_MISSING` để chuẩn bị khi chưa có tệp. Kiểm tra cấu trúc và các điều kiện về kiểu biến, tỷ lệ thiếu nằm trong chương EDA. Quyền tải do Kaggle quản lý. Dữ liệu thô và thông tin xác thực được giữ ngoài Git.
@@ -62,7 +60,7 @@ Chỉ tải khi chưa có tệp gốc. SHA-256 đã xác minh là `1d44be1780bc9
 
 ## Chạy notebook và kiểm thử
 
-Mở Jupyter Lab từ thư mục repo, chọn kernel `hcmus-wids` và dùng **Restart Kernel and Run All** cho từng chương. Mỗi chương tự đọc dữ liệu nguồn và dựng lại phạm vi cần thiết. Một lượt chạy đủ có thể mất vài phút, phần MiniLM và t-SNE chiếm nhiều thời gian nhất.
+Mở Jupyter Lab từ thư mục repo, chọn kernel `hcmus-wids` và dùng **Restart Kernel and Run All** cho từng chương. Mỗi chương tự đọc dữ liệu nguồn. Một lượt chạy toàn bộ có thể mất hơn 10 phút trên CPU, phần biểu diễn MiniLM chiếm nhiều thời gian nhất.
 
 ```bash
 for notebook in book/tabular/0[1-7]_*.ipynb book/text/0[1-4]_*.ipynb; do
@@ -92,11 +90,12 @@ jupyter book start
 Dựng bản tĩnh cho GitHub Pages bằng:
 
 ```bash
-BASE_URL=/data-mining-preprocessing jupyter book build --html
+export BASE_URL=/data-mining-preprocessing
+jupyter book build --html
 python scripts/localize_book.py
 ```
 
-Kết quả ở `_build/html/`. Lệnh thứ hai đặt ngôn ngữ trang tiếng Việt trong HTML đã dựng. GitHub Actions dùng cùng lệnh khi xuất bản từ `main`. Giữ kết quả đã chạy trong notebook để người đọc thấy các hình và bảng trên website mà không cần cài đặt hay xác thực.
+Kết quả ở `_build/html/`. Script đặt ngôn ngữ trang tiếng Việt và chuyển hai đường dẫn phụ lục cũ tới phần tương ứng. GitHub Actions dùng cùng lệnh khi xuất bản từ `main`. Giữ đầu ra đã chạy trong notebook để các hình và bảng xuất hiện trong bản tĩnh.
 
 | Vị trí | Nội dung |
 |---|---|
@@ -105,10 +104,10 @@ Kết quả ở `_build/html/`. Lệnh thứ hai đặt ngôn ngữ trang tiến
 | `src/` | Xử lý dữ liệu dùng chung, phép kiểm, biểu diễn và nhãn trình bày |
 | `tests/` | Kiểm tra công thức, dữ liệu và các ranh giới huấn luyện |
 | `data/raw/` | Nơi đặt dữ liệu tải từ nguồn, Git chỉ lưu tệp đánh dấu thư mục |
-| `RUBRIC_AUDIT.md` | Đối chiếu yêu cầu, bằng chứng, tự đánh giá và điều kiện còn cần xác nhận |
+| `RUBRIC_AUDIT.md` | Vị trí bằng chứng theo đề bài |
 
 ## Phạm vi kết quả và công cụ
 
 Đồ án đánh giá nội bộ sau khi EDA đã khảo sát toàn bộ hai tập nguồn. Chia nhóm ZIP hạn chế chia sẻ bối cảnh địa lý giữa các fold WiDS. Nhóm theo văn bản chuẩn hóa hạn chế trùng chuỗi trong CV văn bản. Biến thể sản phẩm, thời điểm có sẵn của biến lâm sàng và tính đại diện cho nguồn khác vẫn cần xác minh.
 
-WordCloud tạo đám mây từ, Tokenizers huấn luyện BPE, Gensim huấn luyện Word2Vec, còn Sentence Transformers và PyTorch chạy MiniLM. Quy định thư viện và UMAP được đối chiếu trong bảng tiêu chí. AI hỗ trợ rà soát, biên tập và kiểm thử bản nộp. Notebook và mã nguồn lưu cách tính cùng bằng chứng để sinh viên giải thích và chạy lại. Nộp một link Jupyter Book công khai trên Moodle theo hướng dẫn môn học. [Quy định triển khai và nộp bài](https://hcmus-cs-ta.github.io/lab-book/data-mining/projects/preprocessing/)
+AI hỗ trợ rà soát, tinh gọn mã, biên tập báo cáo và kiểm thử. Notebook và mã nguồn lưu cách tính cùng kết quả để kiểm tra và chạy lại. [Quy định triển khai và nộp bài](https://hcmus-cs-ta.github.io/lab-book/data-mining/projects/preprocessing/)
