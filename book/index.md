@@ -14,7 +14,7 @@
 ## Kết quả chính
 
 - Trên WiDS, kNN10 có Macro NRMSE thấp nhất (0,676330) khi khôi phục cùng 14.181 ô. Tỷ lệ gắn cờ ngoại lai và sự thay đổi thành phần ZIP ủng hộ việc giữ toàn bộ dòng. [Điền giá trị thiếu](tabular/02_preprocessing.ipynb) · [Ngoại lai](tabular/03_outliers.ipynb)
-- Với mô tả sản phẩm, TF-IDF unigram đạt F1-macro 0,957514 cao nhất trong các cách biểu diễn được chấm bằng Linear SVM. MiniLM cho các cụm khớp danh mục tốt hơn theo ARI. [Biểu diễn văn bản](text/04_representations.ipynb)
+- Với mô tả sản phẩm, TF-IDF unigram đạt F1-macro 0,957556 cao nhất trong các cách biểu diễn được chấm bằng Linear SVM. MiniLM cho các cụm khớp danh mục tốt hơn theo ARI. [Biểu diễn văn bản](text/04_representations.ipynb)
 
 ## Cách đọc và tái lập
 

@@ -16,13 +16,11 @@ Chia theo ZIP giữ các dòng cùng khu vực về một phía. Các con số t
 Chuỗi lặp xuất hiện nhiều trong dữ liệu E-commerce. Quy tắc khử trùng giữ một mô tả theo khóa chuẩn tắc và cho 27.752 dòng đủ điều kiện. Vì thông số và mã sản phẩm có thể chứa số, dạng chuẩn hóa mặc định giữ chúng. Đầu vào kiểm tra tokenization giữ thêm chữ hoa và dấu câu để so sánh cả bộ tách theo câu. [EDA văn bản](text/01_eda.ipynb) · [Chuẩn hóa và tách token](text/02_normalization_tokenization.ipynb)
 
 - **Tách token.** BPE bao phủ tập đánh giá với OOV bằng 0 nhờ bảng byte. Tách theo câu có OOV 75,6723% theo đơn vị toàn câu. OOV và độ dài chuỗi giúp chọn độ mịn phù hợp với mục tiêu sử dụng.
-- **Từ dừng và hình thái.** Bỏ từ dừng làm MI trung bình giảm từ 0,00041228 xuống 0,00039878 nat và làm F1-macro Naive Bayes tăng nhẹ. Porter, Snowball và WordNet nén số loại token ở mức khác nhau, kèm nguy cơ gộp khác nghĩa. Điểm Logistic Regression thay đổi nhỏ. [Thực nghiệm từ dừng và hình thái](text/03_stopwords_morphology.ipynb)
-- **Biểu diễn.** TF-IDF unigram đạt F1-macro cao nhất (0,957514) với Linear SVM cố định. MiniLM đạt ARI 0,727192, cao hơn 0,326454 của TF-IDF trong phân cụm K-Means. Trung bình Word2Vec có chênh lệch cosine cùng lớp và khác lớp lớn nhất. Mỗi kết quả phù hợp với một câu hỏi về phân loại, cấu trúc cụm hoặc độ tương đồng. [So sánh biểu diễn](text/04_representations.ipynb)
+- **Từ dừng và hình thái.** Bỏ từ dừng làm MI trung bình giảm từ 0,00041228 xuống 0,00039877 nat và làm F1-macro Naive Bayes tăng nhẹ. Porter, Snowball và WordNet nén số loại token ở mức khác nhau, kèm nguy cơ gộp khác nghĩa. Điểm Logistic Regression thay đổi nhỏ. [Thực nghiệm từ dừng và hình thái](text/03_stopwords_morphology.ipynb)
+- **Biểu diễn.** TF-IDF unigram đạt F1-macro cao nhất (0,957556) với Linear SVM cố định. MiniLM đạt ARI 0,727192, cao hơn 0,326454 của TF-IDF trong phân cụm K-Means. Trung bình Word2Vec có chênh lệch cosine cùng lớp và khác lớp lớn nhất. Mỗi kết quả phù hợp với một câu hỏi về phân loại, cấu trúc cụm hoặc độ tương đồng. [So sánh biểu diễn](text/04_representations.ipynb)
 
 Các cấu hình văn bản dùng chung dữ liệu và fold. Dù đã khử trùng và gom chuỗi giống nhau, các biến thể sản phẩm còn lại có thể làm kết quả nội bộ cao hơn kết quả trên nguồn mới. Với MiniLM, 12,90% mô tả huấn luyện vượt giới hạn 256 token con nên có thể mất nội dung ở cuối.
 
 ## Bài học từ hai phần
 
 Chọn thước đo trước khi so sánh. RMSE gộp ưu tiên cột có sai số theo đơn vị lớn, còn Macro NRMSE cân bằng theo thang đo. F1 theo ngưỡng và AUC theo xếp hạng có thể đổi ngược chiều. Silhouette, ARI và F1 phản ánh các mục đích khác nhau. Giữ thiết lập đánh giá chung và học mọi bước trong đúng phần huấn luyện giúp đọc được từng đánh đổi.
-
-Có thể dùng các bảng và hình trong từng chương để giải thích khi vấn đáp vì sao đồ án chọn kNN10, giữ các dòng ngoại lai, dùng Target OOF hoặc ưu tiên TF-IDF ở bài toán phân loại này. [Đối chiếu tiêu chí và bằng chứng](../RUBRIC_AUDIT.md)

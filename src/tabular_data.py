@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 from sklearn import config_context
 from sklearn.impute import KNNImputer
-from sklearn.model_selection import GroupShuffleSplit
+from sklearn.model_selection import GroupShuffleSplit, StratifiedGroupKFold
 from sklearn.preprocessing import StandardScaler
 from threadpoolctl import threadpool_limits
 
@@ -36,11 +36,14 @@ def numerical_columns(frame):
     return [column for column in frame.select_dtypes("number") if column not in forbidden]
 
 
-def load_data(root, expected_shape=(12906, 83)):
+def load_data(root, expected_shape=(12906, 83), *, csv_path=None):
     """Read the training file only, preserving ZIP tokens and returning its SHA-256."""
-    path = Path(root) / "data/raw/training.csv"
+    path = Path(csv_path) if csv_path is not None else Path(root) / "data/raw/training.csv"
     checksum = hashlib.sha256(path.read_bytes()).hexdigest()
     frame = pd.read_csv(path, dtype={ZIP: "string"})
+    missing_columns = {ID, TARGET, ZIP} - set(frame.columns)
+    if missing_columns:
+        raise ValueError(f"Missing training CSV columns: {', '.join(sorted(missing_columns))}")
     if expected_shape is not None and frame.shape != expected_shape:
         raise ValueError(f"Unexpected training shape: {frame.shape}")
     if not (frame.columns.is_unique and frame[ID].notna().all() and frame[ID].is_unique
@@ -64,6 +67,13 @@ def split_data(frame):
         assert set(frame.loc[left, ZIP]).isdisjoint(frame.loc[right, ZIP])
     assert len(train) + len(validation) + len(reserved) == len(frame)
     return train, validation, reserved
+
+
+def grouped_cv_folds(frame, train_index, *, seed=42):
+    """Return the common five positional folds for selection and resampling."""
+    train = frame.loc[train_index, [TARGET, ZIP]]
+    splitter = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=seed)
+    return list(splitter.split(np.zeros(len(train)), train[TARGET], groups=train[ZIP]))
 
 
 def prepare_numeric_training(frame, train_index, columns):
@@ -90,7 +100,7 @@ def prepare_numeric_training(frame, train_index, columns):
 
 
 def memory_gib():
-    """Existing OS-memory diagnostic used by the unchanged DBSCAN allocation guard."""
+    """Report physical and available memory for the distance-based experiments."""
     total = available = np.nan
     if sys.platform == "darwin":
         total = int(subprocess.check_output(["sysctl", "-n", "hw.memsize"], text=True))/1024**3
@@ -155,10 +165,9 @@ def numeric_audit(df, train_index, validation_index):
 
 
 def categorical_audit(df, train_index):
-    """Existing categorical-role gate; shared only for provenance in Stage 06."""
+    """Describe the categorical roles used in encoding and feature selection."""
     numerical_candidates = numerical_columns(df)
     clinical_fields = CLINICAL_FIELDS
-    ENCODING_FEATURES = CATEGORICAL_FEATURES
     encoding_audit_fields = [c for c in df if c not in numerical_candidates]
     encoding_meanings = {"patient_race": "Recorded race; nominal", "payer_type": "Payer category; nominal",
         "patient_state": "Coarse geographic state; nominal", "patient_zip3": "ZIP3 geographic group key",

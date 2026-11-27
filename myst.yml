@@ -15,14 +15,12 @@ project:
         - file: book/tabular/05_encoding.ipynb
         - file: book/tabular/06_feature_selection.ipynb
         - file: book/tabular/07_class_imbalance.ipynb
-        - file: book/tabular/appendix.md
     - file: book/text/index.md
       children:
         - file: book/text/01_eda.ipynb
         - file: book/text/02_normalization_tokenization.ipynb
         - file: book/text/03_stopwords_morphology.ipynb
         - file: book/text/04_representations.ipynb
-        - file: docs/TEXT_RUBRIC_AUDIT.md
     - file: book/ket-luan.md
     - file: RUBRIC_AUDIT.md
 site:

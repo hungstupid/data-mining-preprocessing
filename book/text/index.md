@@ -2,7 +2,7 @@
 
 ## Bài toán và dữ liệu
 
-E-commerce Text Classification chứa mô tả sản phẩm (`text`) và một trong bốn nhãn gốc (`label\)): Household, Books, Clothing & Accessories, Electronics. Tập gốc có 50.425 bản ghi, một mô tả thiếu và 22.622 dòng dư do trùng chính xác trong phạm vi hợp lệ. Nguồn là một nền tảng thương mại điện tử ở Ấn Độ. Kết quả cho biết cách các kỹ thuật hoạt động trên nguồn này. [Kaggle](https://www.kaggle.com/datasets/saurabhshahane/ecommerce-text-classification) · [Zenodo, phiên bản 2, CC BY 4.0](https://zenodo.org/records/3355823) · [DOI 10.5281/zenodo.3355823](https://doi.org/10.5281/zenodo.3355823)
+E-commerce Text Classification chứa 50.425 bản ghi từ một nền tảng thương mại điện tử ở Ấn Độ. Mỗi bản ghi gồm mô tả (`text`) và danh mục (`label`), thuộc một trong bốn lớp Household, Books, Clothing & Accessories và Electronics. Tệp gốc có một mô tả thiếu và 22.622 dòng dư do trùng chính xác trong phạm vi hợp lệ. [Kaggle](https://www.kaggle.com/datasets/saurabhshahane/ecommerce-text-classification) · [Zenodo, phiên bản 2, CC BY 4.0](https://zenodo.org/records/3355823)
 
 ## Các chương
 
@@ -19,4 +19,4 @@ Sau khi loại mô tả hoặc nhãn không hợp lệ, khóa xung đột và tr
 
 Các chương 03–04 khớp cùng năm fold theo nhóm chuỗi chuẩn hóa. Có 11 nhóm trùng, gồm 12 dòng dư. Từ vựng, IDF và bộ phân lớp học trong phần huấn luyện của từng fold. MiniLM có trọng số đóng băng. Word2Vec khớp trên toàn tập huấn luyện cho các phép đo mô tả. Tính silhouette trong không gian gốc trên tập con chung, còn t-SNE chỉ dùng để vẽ. Biến thể sản phẩm khác chuỗi vẫn có thể xuất hiện ở hai fold.
 
-Mỗi notebook đọc CSV gốc và dùng kernel `hcmus-wids`. Tệp trên Zenodo đã được kiểm tra trùng với tệp Kaggle. Mã trong `src/text_data.py` chia tập cố định. Các phép chuẩn hóa dùng chung nằm ở `src/text_preprocessing.py`. [Hướng dẫn tải dữ liệu và chạy](https://github.com/hungstupid/data-mining-preprocessing#l%E1%BA%A5y-d%E1%BB%AF-li%E1%BB%87u-g%E1%BB%91c) · [Đối chiếu chi tiết phần B](../../docs/TEXT_RUBRIC_AUDIT.md)
+Mỗi notebook đọc CSV gốc và dùng kernel `hcmus-wids`. Mã trong `src/text_data.py` dựng lại phép chia, còn `src/text_preprocessing.py` định nghĩa các phép chuẩn hóa dùng chung. [Hướng dẫn tải dữ liệu và chạy](https://github.com/hungstupid/data-mining-preprocessing#l%E1%BA%A5y-d%E1%BB%AF-li%E1%BB%87u-g%E1%BB%91c) · [Đối chiếu tiêu chí văn bản](../../RUBRIC_AUDIT.md#van-ban)
